@@ -120,6 +120,15 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			disabled: me.disableDeleteButton,
 			handler: Ext.Function.bind(me.onDeleteButton, me, [ me ]),
 			scope: me
+		},{
+			id: me.getId() + "-refresh",
+			xtype: "button",
+			text: "Refresh",
+			icon: "images/refresh.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			hidden: false,
+			handler: Ext.Function.bind(me.onRefreshButton, me, [ me ]),
+			scope: me
 		}]
 	},
 
@@ -127,11 +136,12 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "pull", "run", "delete" ];
+		var tbarBtnName = [ "pull", "run", "delete", "refresh" ];
 		var tbarBtnDisabled = {
 			"pull": false,
 			"run": false,
-			"delete": false
+			"delete": false,
+			"refresh": false
 		};
 		// Enable/disable buttons depending on the number of selected rows.
 		if(records.length <= 0) {

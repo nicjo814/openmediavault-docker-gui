@@ -30,6 +30,28 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		return "Docker";  // RPC Service name. Same as in .js files
 	}
 
+	/**
+	 * Get the main event message path of the service. This is a helper 
+	 * function to avoid "magic numbers".
+	 *
+	 * @return string
+	 */
+	private function getEventMessagePath()
+	{
+		return "org.openmediavault.services.docker";
+	}
+
+	/**
+	 * Get the base XPath of the service. This is a helper function to avoid 
+	 * "magic numbers".
+	 *
+	 * @return string
+	 */
+	private function getXpath()
+	{
+		return "/config/services/docker";
+	}
+
 	/* Initialize the RPC service. Different methods of the RPC service are declared here*/
 	public function initialize() {
 		$this->registerMethod("getImages");
@@ -43,12 +65,31 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("restartContainer");
 		$this->registerMethod("getContainerDetails");
 		$this->registerMethod("deleteContainer");
+
+		$this->registerMethod("getSettings");
+		$this->registerMethod("setSettings");
 	}
 
 	public function getImages($params, $context) {
+		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		//TODO: Add a parameter that decides if dangling images should be displayed
-		$objects = OMVModuleDockerUtil::getImages();
+		
+		$settings = $xmlConfig->get($this->getXpath());
+		
+		if (is_null($settings)) {
+			throw new OMVException(
+				OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+				$this->getXpath()
+			);
+		}
+
+		if($settings["showDanglingImages"]) {
+			$incDangling = false;
+		} else {
+			$incDangling = true;
+		}
+
+		$objects = OMVModuleDockerUtil::getImages($incDangling);
 		return $objects;
 	}
 
@@ -227,7 +268,72 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
 
+	public function getSettings($params, $context) {
+		global $xmlConfig;
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		
+		// Get the configuration object.
+		$object = $xmlConfig->get($this->getXpath());
+		
+		// If no data was found, throw an exception and provide the XPath that
+		// failed.
+		if (is_null($object)) {
+			throw new OMVException(
+				OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+				$this->getXpath()
+			);
+		}
+		
+		// Modify result data.
+		// boolval and intval converts strings and numbers to their boolean
+		// and integer value.
+		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
+		
+		return $object;
+	}
 	
+	public function setSettings($params, $context) {
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		global $xmlConfig;
+		
+		// Validate the parameters of the RPC service method.
+		//
+		// OpenMediavault uses JSON Schema to validate parameters. A more
+		// detailed specification is provided here http://json-schema.org/
+		$this->validateMethodParams($params,'{
+			"type": "object",
+				"properties": {
+					"showDanglingImages": {	"type": "boolean" }
+					}}');
+
+		// Update the configuration object.
+		$object = array(
+			"showDanglingImages" => array_boolval($params, "showDanglingImages")
+		);
+
+		// Update the configuration file. If it fails, throws an exception.
+		if (false === $xmlConfig->replace($this->getXpath(), $object)) {
+			throw new OMVException(
+				OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED,
+				$this->getXpath()
+			);
+		}
+
+		// Notify configuration changes.
+		//
+		// This will notify event listeners such as the service module
+		// to perform certain tasks. The most common one is to mark the
+		// service as dirty.
+		$dispatcher = &OMVNotifyDispatcher::getInstance();
+		$dispatcher->notify(
+			OMV_NOTIFY_MODIFY,
+			$this->getEventMessagePath(),
+			$object
+		);
+
+		return $object;
+	}
+
 	//throw new OMVModuleDockerException($cmd);
 }
 

@@ -110,7 +110,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			id: me.getId() + "-restart",
 			xtype: "button",
 			text: "Restart",
-			icon: "images/refresh.png",
+			icon: "images/undo.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
 			handler: Ext.Function.bind(me.onRestartButton, me, [ me ]),
@@ -142,6 +142,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			disabled: true,
 			handler: Ext.Function.bind(me.onDeleteButton, me, [ me ]),
 			scope: me
+		},{
+			id: me.getId() + "-refresh",
+			xtype: "button",
+			text: "Refresh",
+			icon: "images/refresh.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			hidden: false,
+			handler: Ext.Function.bind(me.onRefreshButton, me, [ me ]),
+			scope: me
 		}]
 	},
 
@@ -149,14 +158,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "delete" ];
+		var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "delete", "refresh" ];
 		var tbarBtnDisabled = {
 			"start": false,
 			"stop": false,
 			"restart": false,
 			"copy": false,
 			"details": false,
-			"delete": false
+			"delete": false,
+			"refresh": false
 		};
 		// Enable/disable buttons depending on the number of selected rows.
 		if(records.length <= 0) {
@@ -218,6 +228,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
+				sm.deselectAll();
 				me.doReload();
 			},
 			relayErrors: false,
@@ -239,6 +250,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
+				sm.deselectAll();
 				me.doReload();
 			},
 			relayErrors: false,
@@ -260,6 +272,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
+				sm.deselectAll();
 				me.doReload();
 			},
 			relayErrors: false,
@@ -326,7 +339,4 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			}
 		});
 	}
-
-
-
 });

@@ -52,7 +52,8 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				fieldLabel: _("Docker image"),
 				value: me.image,
 				readOnly: true,
-				name: "image"
+				name: "image",
+				id: "dockerImageName"
 			},{
 				xtype: "checkbox",
 				name: "restart",
@@ -201,9 +202,23 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				id: "bindMountRow-" + me.bindCount
 			}]
 		});
+		
+		items.push({
+			xtype: "hiddenfield",
+			name: "makeDirty",
+			value: "false",
+			id: "dockerMakeDirty"
+		});
 
 		return items;
 
+	},
+
+	afterRender: function() {
+		var me = this;
+		me.callParent(arguments);
+
+		Ext.getCmp("dockerMakeDirty").setValue("true");
 	},
 
 	doSubmit: function() {

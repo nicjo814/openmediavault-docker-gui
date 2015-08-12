@@ -11,8 +11,7 @@ case "$1" in
 
     if ! omv_config_exists "/config/services/docker"; then
       echo "Initialize configuration"
-      object="<enable>0</enable>"
-      object="${object}<numberfield1>827</numberfield1>"
+      object="<showDanglingImages>0</showDanglingImages>"
       omv_config_add_element "/config/services" "docker" "${object}" true
     fi
 

@@ -15,18 +15,20 @@ class OMVModuleDockerUtil {
 	 * @return array $objects An array with Image objects
 	 *
 	 */
-	public static function getImages() {
+	public static function getImages($incDangling) {
 		$objects=array();
 		$cmd="docker images -q 2>&1";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);
 		foreach($out as $id) {
 			$image = new OMVModuleDockerImage($id);
 			if(strcmp($image->getRepository(), "<none>") === 0) {
-				continue;
+				if($incDangling) {
+					continue;
+				}
 			}
 			$tmp=array(
-				"repository"=>$image->getRepository(),
-				"tag"=>$image->getTag(),
+				"repository"=>rtrim(ltrim($image->getRepository(), "<"), ">"),
+				"tag"=>rtrim(ltrim($image->getTag(), "<"), ">"),
 				"id"=>$id,
 				"created"=>$image->getCreated(),
 				"size"=>$image->getSize(),
@@ -153,7 +155,7 @@ class OMVModuleDockerUtil {
 	 * @param array &$out If provided will contain output in an array
 	 * @param int &$res If provided will contain Exit status of the command
 	 * @return string Last line of output when executing the command
-	 * @throws OMVModuleZFSException
+	 * @throws OMVModuleDockerException
 	 * @access public
 	 */
 	public static function exec($cmd, &$out = null, &$res = null) {
