@@ -1,0 +1,5 @@
+openmediavault-docker (0.1.0) unstable; urgency=low
+
+  * Initial release.
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 23 Jul 2015 11:13:32 +0200

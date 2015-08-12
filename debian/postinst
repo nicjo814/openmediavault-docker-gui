@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+. /etc/default/openmediavault
+. /usr/share/openmediavault/scripts/helper-functions
+
+
+case "$1" in
+  configure)
+
+    if ! omv_config_exists "/config/services/docker"; then
+      echo "Initialize configuration"
+      object="<enable>0</enable>"
+      object="${object}<numberfield1>827</numberfield1>"
+      omv_config_add_element "/config/services" "docker" "${object}" true
+    fi
+
+    dpkg-trigger update-fixperms
+    dpkg-trigger update-locale
+
+    ;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
