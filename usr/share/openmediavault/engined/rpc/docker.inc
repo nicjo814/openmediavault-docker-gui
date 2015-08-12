@@ -41,6 +41,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("startContainer");
 		$this->registerMethod("stopContainer");
 		$this->registerMethod("restartContainer");
+		$this->registerMethod("getContainerDetails");
 		$this->registerMethod("deleteContainer");
 	}
 
@@ -204,6 +205,14 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		$cmd = "docker restart " . $params['id'] . " 2>&1";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	}
+	
+	public function getContainerDetails($params, $context) {
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$cmd = "docker inspect " . $params['id'] . " 2>&1";
+		OMVModuleDockerUtil::exec($cmd,$out,$res);
+		//throw new OMVModuleDockerException($objects['details']);
+		return array("details" => implode("\n\r", $out));
 	}
 	
 	public function deleteContainer($params, $context) {

@@ -125,6 +125,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			handler: Ext.Function.bind(me.onCopyButton, me, [ me ]),
 			scope: me
 		},{
+			id: me.getId() + "-details",
+			xtype: "button",
+			text: "Details",
+			icon: "images/search.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			disabled: true,
+			handler: Ext.Function.bind(me.onDetailsButton, me, [ me ]),
+			scope: me
+		},{
 			id: me.getId() + "-delete",
 			xtype: "button",
 			text: me.deleteButtonText,
@@ -140,12 +149,13 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "start", "stop", "restart", "copy", "delete" ];
+		var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "delete" ];
 		var tbarBtnDisabled = {
 			"start": false,
 			"stop": false,
 			"restart": false,
 			"copy": false,
+			"details": false,
 			"delete": false
 		};
 		// Enable/disable buttons depending on the number of selected rows.
@@ -154,6 +164,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			tbarBtnDisabled["stop"] = true;
 			tbarBtnDisabled["restart"] = true;
 			tbarBtnDisabled["copy"] = true;
+			tbarBtnDisabled["details"] = true;
 			tbarBtnDisabled["delete"] = true;
 		} else if(records.length == 1) {
 			// Disable 'Start' and 'Delete' buttons if selected node is not stopped
@@ -176,6 +187,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			tbarBtnDisabled["stop"] = true;
 			tbarBtnDisabled["restart"] = true;
 			tbarBtnDisabled["copy"] = true;
+			tbarBtnDisabled["details"] = true;
 			// Disable 'Delete' button if selected nodes are not stopped
 			Ext.Array.each(records, function(record) {
 				if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
@@ -260,6 +272,45 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			}
 		});
 	},
+	
+	onDetailsButton: function() {
+		var me = this;
+		var sm = me.getSelectionModel();
+		var records = sm.getSelection();
+		var record = records[0];
+
+		var detailsWindow = Ext.create("OMV.workspace.window.Form", {
+			title: "Container details",
+			rpcService: "Docker",
+			rpcGetMethod: "getContainerDetails",
+			rpcGetParams: {
+				id: record.get('id')
+			},
+			width: 800,
+			height: 700,
+			hideResetButton: true,
+			hideCancelButton: true,
+			okButtonText: _("Close"),
+			scrollable: false,
+
+			getFormItems: function() {
+				var me = this;
+
+				return [{
+					xtype: "textareafield",
+					name: "details",
+					grow: false,
+					height: 620,
+					readOnly: true,
+					fieldStyle: {
+						fontFamily: "courier",
+						fontSize: "12px"
+					}
+				}];
+			}
+		}).show();
+	},
+
 
 	doDeletion: function(record) {
 		var me = this;

@@ -61,7 +61,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 
 	title: _("Pull image"),
 	width: 600,
-	height: 300,
+	height: 500,
 	layout: "fit",
 	modal: true,
 	border: false,
@@ -109,32 +109,40 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 		var me = this;
 		me.fp = Ext.create("OMV.form.Panel", {
 			items: [{
-				xtype: "textfield",
-				fieldLabel: _("Repository"),
-				name: "repository",
-				allowBlank: false,
-				listeners: {
-					scope: me,
-					change: function(field, newValue, oldValue, eOpts) {
-						me.setButtonDisabled("start", !me.fp.getForm().isValid());
+				xtype: "fieldset",
+				title: _("Parameters"),
+				items: [{
+					xtype: "textfield",
+					fieldLabel: _("Repository"),
+					name: "repository",
+					allowBlank: false,
+					listeners: {
+						scope: me,
+						change: function(field, newValue, oldValue, eOpts) {
+							me.setButtonDisabled("start", !me.fp.getForm().isValid());
+						}
 					}
-				}
-			},{
-				xtype: "textfield",
-				fieldLabel: _("Tag"),
-				name: "tag",
-				allowBlank: true
+				},{
+					xtype: "textfield",
+					fieldLabel: _("Tag"),
+					name: "tag",
+					allowBlank: true
+				}]
 			}]
 		});
 		var outtype;
 		if (false === me.progress) {
-			outtype = Ext.create("Ext.form.field.TextArea", {
-				fieldLabel: _("Output"),
-				name: "content",
-				cls: "x-form-textarea-monospaced",
-				value: me.welcomeText,
-				readOnly: true,
-				grow: true
+			outtype = Ext.create("Ext.form.FieldSet", {
+				title: _("Output"),
+				items: [{
+					xtype: "textareafield",
+					name: "content",
+					cls: "x-form-textarea-monospaced",
+					value: me.welcomeText,
+					readOnly: true,
+					grow: true,
+					height: 300
+				}]
 			});
 		} else {
 			me.content = "";
@@ -316,6 +324,9 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 																		  !this.cmdIsRunning);
 																		  this.setButtonDisabled("close",
 																								 this.cmdIsRunning);
+						}
+						if (!this.cmdIsRunning) {
+							Ext.getCmp("dockerImageGrid").doReload();
 						}
 					} else {
 						var ignore = false;

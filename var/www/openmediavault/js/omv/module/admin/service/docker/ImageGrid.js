@@ -8,6 +8,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	extend: "OMV.workspace.grid.Panel",
 	alias: "widget.module.admin.service.docker.imagegrid",
 
+	id: "dockerImageGrid",
 	disableDeleteButton: true,
 	deleteButtonText: _("Delete"),
 	disablePullButton: false,
