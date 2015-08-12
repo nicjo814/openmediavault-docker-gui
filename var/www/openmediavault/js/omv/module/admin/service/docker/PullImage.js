@@ -60,7 +60,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 	],
 
 	title: _("Pull image"),
-	width: 500,
+	width: 600,
 	height: 300,
 	layout: "fit",
 	modal: true,

@@ -1,4 +1,8 @@
+// require("js/omv/module/admin/service/docker/PortRow.js")
+// require("js/omv/module/admin/service/docker/EnvVarRow.js")
+// require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
+// require("js/omv/module/admin/service/docker/RunImage.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	extend: "OMV.workspace.grid.Panel",
@@ -17,7 +21,11 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		"OMV.data.Store",
 		"OMV.data.Model",
 		"OMV.data.proxy.Rpc",
-		"OMV.module.admin.service.docker.PullImage"
+		"OMV.module.admin.service.docker.PortRow",
+		"OMV.module.admin.service.docker.EnvVarRow",
+		"OMV.module.admin.service.docker.BindMountRow",
+		"OMV.module.admin.service.docker.PullImage",
+		"OMV.module.admin.service.docker.RunImage"
 	],
 
 	stateful: true,
@@ -66,7 +74,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 						{ name: "id", type: "string" },
 						{ name: "created", type: "string" },
 						{ name: "size", type: "string" },
-						{ name: "ports", type: "array" }
+						{ name: "ports", type: "array" },
+						{ name: "envvars", type: "array" }
 					]
 				}),
 				proxy: {
@@ -87,7 +96,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			id: me.getId() + "-pull",
 			xtype: "button",
 			text: me.pullButtonText,
-			icon: "images/docker_pull.png",
+			icon: "images/download.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: me.disablePullButton,
 			handler: Ext.Function.bind(me.onPullButton, me, [ me ]),
@@ -96,7 +105,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			id: me.getId() + "-run",
 			xtype: "button",
 			text: me.runButtonText,
-			icon: "images/docker_run.png",
+			icon: "images/play.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: me.disableRunButton,
 			handler: Ext.Function.bind(me.onRunButton, me, [ me ]),
@@ -186,7 +195,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var record = records[0];
 		Ext.create("OMV.module.admin.service.docker.RunImage", {
 			image: record.get("repository") + ":" + record.get("tag"),
-			ports: record.get("ports")
+			ports: record.get("ports"),
+			envvars: record.get("envvars")
 		}).show();
 	}
 

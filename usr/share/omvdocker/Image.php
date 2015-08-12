@@ -59,6 +59,14 @@ class OMVModuleDockerImage {
 	 */
 	private $ports;
 
+	/**
+	 * Environment variables defined in the image
+	 *
+	 * @var 	array $envVars
+	 * @access private
+	 */
+	private $envVars;
+
 	// Associations
 	// Operations
 
@@ -87,6 +95,11 @@ class OMVModuleDockerImage {
 		$this->ports = array();
 		foreach($imageData->Config->ExposedPorts as $exposedport => $hostports) {
 			array_push($this->ports, array("name" => $exposedport));
+		}
+		$this->envVars = array();
+		foreach($imageData->Config->Env as $eVar) {
+			$eVarAry = explode("=", $eVar); 
+			array_push($this->envVars, array("name" => $eVarAry[0], "value" => $eVarAry[1]));
 		}
 	}
 
@@ -148,6 +161,16 @@ class OMVModuleDockerImage {
 	 */
 	public function getPorts() {
 		return $this->ports;
+	}
+	
+	/**
+	 * Get the environment variables exposed by the image
+	 * 
+	 * @return array $envVars
+	 * @access public
+	 */
+	public function getEnvVars() {
+		return $this->envVars;
 	}
 }
 

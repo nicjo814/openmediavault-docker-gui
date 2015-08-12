@@ -1,23 +1,38 @@
 Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 	extend: "Ext.container.Container",
+	alias: "widget.module.admin.service.docker.envvarrow",
 
 	layout: "hbox",
 	shadow: false,
 	border: false,
 	defaultType: "container",
+	nameVal: "",
+	valueVal: "",
+	defaultVal: "false",
 
 	initComponent: function() {
 		var me = this;
+		var defVal;
+		if(me.defaultVal === "true") {
+			defVal = true;
+		} else {
+			defVal = false;
+		}
+
 		me.items = [{
 			xtype: "textfield",
 			name: "envName-" + me.envCount,
 			id: "envName-" + me.envCount,
-			flex: 1
+			value: me.nameVal,
+			flex: 1,
+			readOnly: defVal
 		},{
 			xtype: "textfield",
 			name: "envValue-" + me.envCount,
 			id: "envValue-" + me.envCount,
-			flex: 2
+			value: me.valueVal,
+			flex: 2,
+			readOnly: defVal
 		},{
 			xtype: "button",
 			id: "envVarAddButton-" + me.envCount,
@@ -25,13 +40,19 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			flex: 0,
 			width: 24,
+			hidden: defVal,
 			listeners: {
+				scope: me,
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
+						Ext.getCmp("dockerRunImageWindow").envVars[me.envCount] = {
+							name: me.queryById("envName-" + me.envCount).getValue(),
+							value: me.queryById("envValue-" + me.envCount).getValue()
+						};
 						var nextCount = parseInt(me.envCount)+1;
 						button.setHidden(true);
-						Ext.getCmp("envVarDelButton-" + me.envCount).setHidden(false);
+						me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
 						var newRow = Ext.create("OMV.module.admin.service.docker.EnvVarRow", {
 							envCount: nextCount,
 							id: "envVarRow-" + nextCount
@@ -51,9 +72,12 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			flex: 0,
 			width: 24,
-			hidden: true,
+			hidden: !defVal,
+			disabled: defVal,
 			listeners: {
+				scope: me,
 				click: function(button, e , eOpts) {
+					delete Ext.getCmp("dockerRunImageWindow").envVars[me.envCount];
 					Ext.getCmp("dockerEnvVars").remove("envVarRow-" + me.envCount);
 				}
 			}
@@ -61,7 +85,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			xtype: "hiddenfield",
 			name: "envVarDefault-" + me.envCount,
 			id: "envVarDefault-" + me.envCount,
-			value: "false"
+			value: me.defaultVal
 		}];
 		Ext.apply(me, {
 		});

@@ -1,32 +1,51 @@
-//require("js/omv/window/Window.js")
-//require("js/omv/form/Panel.js")
+// require("js/omv/workspace/window/Form.js")
+// require("js/omv/Rpc.js")
+// require("js/omv/module/admin/service/docker/PortRow.js")
+// require("js/omv/module/admin/service/docker/EnvVarRow.js")
+// require("js/omv/module/admin/service/docker/BindMountRow.js")
 
 Ext.define("OMV.module.admin.service.docker.RunImage", {
-	extend: "OMV.window.Window",
+	extend: "OMV.workspace.window.Form",
 	requires: [
-		"OMV.form.Panel",
-		"Ext.form.FieldSet",
-		"Ext.form.field.Checkbox",
-		"Ext.form.field.ComboBox",
-		"Ext.form.field.Text"
+		"OMV.module.admin.service.docker.PortRow",
+		"OMV.module.admin.service.docker.EnvVarRow",
+		"OMV.module.admin.service.docker.BindMountRow",
 	],
 
 	title: _("Run image"),
+	id: "dockerRunImageWindow",
 	layout: "fit",
 	width: 600,
 	closable: true,
 	resizable: true,
 	buttonAlign: "center",
 
-	constructor: function() {
-		var me = this;
-		me.callParent(arguments);
-	},
+	rpcService   : "Docker",
+	rpcSetMethod : "runImage",
 
 	initComponent: function() {
 		var me = this;
+
+		//Initiate counters used to create id's
 		me.portCount = 1;
-		var generalField = Ext.create("Ext.form.FieldSet", {
+		me.envCount = 1;
+		me.bindCount = 1;
+
+		me.portForwards = [];
+		me.envVars = [];
+		me.bindMounts = [];
+
+		me.callParent(arguments);
+	},
+
+	getFormItems : function() {
+		var me = this;
+
+		var items = [];
+
+		//Add general fieldset
+		items.push({
+			xtype: "fieldset",
 			title: _("General"),
 			items: [{
 				xtype: "textfield",
@@ -38,23 +57,35 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				xtype: "checkbox",
 				name: "restart",
 				boxLabel: "Restart on system reboot"
-
+			},{
+				xtype: "checkbox",
+				name: "privileged",
+				boxLabel: "Run container in privileged mode"
 			}]	
 		});
 
+		//Create data store for network mode selection
 		var networkModes = Ext.create('Ext.data.Store', {
 			fields: ['mode'],
 			data : [
-				{"mode": "Host only"},
 				{"mode": "Bridged"},
+				{"mode": "Host"},
+				{"mode": "None"}
 			]
-		});	
+		});
+
+		//Create data store for selection of exposed network ports
+		//by the image
 		var exposedPorts = Ext.create('Ext.data.Store', {
 			fields: ['name']
 		});	
 		exposedPorts.loadData(me.ports);
-		var networkField = Ext.create("Ext.form.FieldSet", {
+
+		//Add networking fieldset
+		items.push({
+			xtype: "fieldset",
 			title: _("Networking"),
+			collapsible: true,
 			items: [{
 				xtype: "combo",
 				store: networkModes,
@@ -62,13 +93,14 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				queryMode: 'local',
 				displayField: 'mode',
 				valueField: 'mode',
-				value: "Select",
+				value: "Bridged",
 				editable: false,
+				name: "networkMode",
 				listeners: {
 					scope: me,
 					change: function(combo, newValue, oldValue, eOpts) {
 						var portField = me.queryById("dockerPortForward");
-						if(newValue === "Host only") {
+						if(newValue === "Host" || newValue === "None") {
 							portField.setHidden(true);
 							portField.setDisabled(true);
 						} else {
@@ -81,8 +113,7 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				xtype: "fieldset",
 				title: _("Port forwarding"),
 				id: "dockerPortForward",
-				hidden: true,
-				disabled: true,
+				padding: "0 10 10 10",
 				items: [{
 					xtype: "container",
 					layout: "hbox",
@@ -90,95 +121,165 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 					border: false,
 					defaultType: "container",
 					defaults: {
-						flex: 1
+						flex: 2
 					},
-					items: [{html: "Host IP"},
-						{html: "Host Port"},
-						{html: "Exposed Port"},
-						{html: "Custom Port"},
-						{html: " "
-					}]
-				},{
-					xtype: "container",
-					id: "dockerPortForward-" + me.portCount,
-					layout: "hbox",
-					shadow: false,
-					border: false,
-					defaultType: "container",
-					defaults: {
-						flex: 1
-					},
-					items: [{
-						xtype: "textfield",
-						name: "hostip-" + me.portCount,
-						value: "0.0.0.0",
-					},{
-						xtype: "textfield",
-						name: "hostport-1"
-					},{
-						xtype: "combo",
-						name: "exposedPort-" + me.portCount,
-						store: exposedPorts,
-						queryMode: 'local',
-						displayField: 'name',
-						valueField: 'name',
-						value: "Select",
-						editable: false,
-						listeners: {
-							scope: me,
-							change: function(combo, newValue, oldValue, eOpts) {
-								me.fp.getForm().findField("customPort-" + me.portCount).setValue("");
-							}
-						}
-					},{
-						xtype: "textfield",
-						name: "customPort-" + me.portCount,
-						listeners: {
-							scope: me,
-							change: function(combo, newValue, oldValue, eOpts) {
-								if(newValue === "") {
-									me.fp.getForm().findField("exposedPort-" + me.portCount).setDisabled(false);
-								} else {
-									me.fp.getForm().findField("exposedPort-" + me.portCount).setValue("Select");
-									me.fp.getForm().findField("exposedPort-" + me.portCount).setDisabled(true);
-								}
-							}
-						}
-						
-					},{
-						html: " "
+					items: [{html: "<b>Host IP</b>"},
+						{html: "<b>Host Port</b>"},
+						{html: "<b>Exposed Port</b>"},
+						{html: "<b>Custom Port</b>"},
+						{html: " ", flex: 0, width: 24
 						}]
-					}]
-				}]	
+				},{
+					xtype: "module.admin.service.docker.portrow",
+					portCount: me.portCount,
+					id: "dockerPortForward-" + me.portCount,
+					exposedPorts: exposedPorts
+				}]
+			}]	
+		});
+
+		//Create environment variable rows defined in the image and one empty row
+		var envVarRows = [{
+			xtype: "container",
+			layout: "hbox",
+			shadow: false,
+			border: false,
+			defaultType: "container",
+			items: [{html: "<b>Name</b>", flex: 1},
+				{html: "<b>Value</b>", flex: 2},
+				{html: " ", flex: 0, width: 24
+				}]
+		}];
+		for (i = 0; i < me.envvars.length; i++) {
+			envVarRows.push({
+				xtype: "module.admin.service.docker.envvarrow",
+				envCount: me.envCount,
+				id: "envVarRow-" + me.envCount,
+				nameVal: me.envvars[i].name,
+				valueVal: me.envvars[i].value,
+				defaultVal: "true"
 			});
-			console.log(me.ports);
-			console.log(exposedPorts);	
-
-			me.fp = Ext.create("OMV.form.Panel", {
-
-			});
-
-			me.fp.add(generalField);
-			me.fp.add(networkField);
-			Ext.apply(me, {
-				buttons: [{
-					id: me.getId() + "-runImage",
-					text: _("Run"),
-					handler: me.onRunImage,
-					scope: me
-				}],
-				items: [ me.fp
-				]
-			});
-
-			me.callParent(arguments);
-			me.on("show", function() {
-				// Set focus to field 'Username'.
-				//var field = me.fp.findField("username");
-				//if (!Ext.isEmpty(field))
-				//	field.focus(false, 500);
-			}, me);
+			me.envCount = me.envCount+1;
 		}
+		envVarRows.push({
+			xtype: "module.admin.service.docker.envvarrow",
+			envCount: me.envCount,
+			id: "envVarRow-" + me.envCount,
+		});
 
-	});
+		//Add environment variables fieldset
+		items.push({
+			xtype: "fieldset",
+			title: _("Environment variables"),
+			id: "dockerEnvVars",
+			collapsible: true,
+			collapsed: true,
+			padding: "0 10 10 10",
+			items: envVarRows
+		});
+
+		//Add bind mounts fieldset
+		items.push({
+			xtype: "fieldset",
+			title: _("Bind mounts"),
+			id: "dockerBindMounts",
+			collapsible: true,
+			padding: "0 10 10 10",
+			items: [{
+				xtype: "container",
+				layout: "hbox",
+				shadow: false,
+				border: false,
+				defaultType: "container",
+				items: [{html: "<b>Host path</b>", flex: 1},
+					{html: "<b>Container path</b>", flex: 1},
+					{html: " ", flex: 0, width: 24
+					}]
+			},{
+				xtype: "module.admin.service.docker.bindmountrow", 
+				bindCount: me.bindCount,
+				id: "bindMountRow-" + me.bindCount
+			}]
+		});
+
+		return items;
+
+	},
+
+	doSubmit: function() {
+		var me = this;
+		var params = {
+			image: me.getForm().findField("image").getValue(),
+			restart: me.getForm().findField("restart").getValue(),
+			privileged: me.getForm().findField("privileged").getValue(),
+			networkMode: me.getForm().findField("networkMode").getValue(),
+			portForwards: me.portForwards,
+			envVars: me.envVars,
+			bindMounts: me.bindMounts
+		};
+		if(me.mode === "remote") {
+			var rpcOptions = {
+				scope: me,
+				callback: me.onSubmit,
+				relayErrors: true,
+				rpcData: {
+					service: me.rpcService,
+					method: me.rpcSetMethod || "set",
+					params: params
+					//params: me.getRpcSetParams()
+				}
+			};
+			if(me.fireEvent("beforesubmit", me, rpcOptions) === false)
+				return;
+			// Display waiting dialog.
+			me.mask(me.submitMsg);
+			// Execute RPC.
+			OMV.Rpc.request(rpcOptions);
+		} else {
+			var params = me.getRpcSetParams();
+			me.fireEvent("submit", me, params);
+			me.close();
+		}
+	},
+
+	onSubmit: function(id, success, response) {
+		var me = this;
+		// Is this a long running RPC? If yes, then periodically check
+		// if it is still running, otherwise we are finished here and
+		// we can notify listeners and close the window.
+		if(me.rpcSetPollStatus) {
+			if(!success) {
+				me.unmask();
+				OMV.MessageBox.error(null, response);
+				me.fireEvent("exception", me, response);
+				return;
+			}
+			// Execute RPC.
+			OMV.Rpc.request({
+				scope: me,
+				callback: me.onIsRunning,
+				relayErrors: true,
+				rpcData: {
+					service: "Exec",
+					method: "isRunning",
+					params: {
+						filename: response
+					}
+				}
+			});
+		} else {
+			me.unmask();
+			if(success) {
+				var values = me.getRpcSetParams();
+				me.fireEvent("submit", me, values, response);
+				me.close();
+				Ext.getCmp("dockerContainerGrid").doReload();
+			} else {
+				OMV.MessageBox.error(null, response);
+				me.fireEvent("exception", me, response);
+			}
+		}
+	},
+
+});
 

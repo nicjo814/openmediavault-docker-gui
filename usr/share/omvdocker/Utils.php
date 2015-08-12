@@ -30,7 +30,8 @@ class OMVModuleDockerUtil {
 				"id"=>$id,
 				"created"=>$image->getCreated(),
 				"size"=>$image->getSize(),
-				"ports"=>$image->getPorts());
+				"ports"=>$image->getPorts(),
+				"envvars"=>$image->getEnvVars());
 			array_push($objects, $tmp);
 		}
 		return $objects;

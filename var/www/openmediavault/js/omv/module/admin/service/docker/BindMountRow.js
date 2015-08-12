@@ -1,5 +1,6 @@
 Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 	extend: "Ext.container.Container",
+	alias: "widget.module.admin.service.docker.bindmountrow", 
 
 	layout: "hbox",
 	shadow: false,
@@ -17,7 +18,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			xtype: "textfield",
 			name: "bindMountTo-" + me.bindCount,
 			id: "bindMountTo-" + me.bindCount,
-			flex: 2
+			flex: 1
 		},{
 			xtype: "button",
 			id: "bindMountAddButton-" + me.bindCount,
@@ -29,6 +30,10 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
+						Ext.getCmp("dockerRunImageWindow").bindMounts[me.bindCount] = {
+							from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
+							to: me.queryById("bindMountTo-" + me.bindCount).getValue()
+						};
 						var nextCount = parseInt(me.bindCount)+1;
 						button.setHidden(true);
 						Ext.getCmp("bindMountDelButton-" + me.bindCount).setHidden(false);
@@ -46,7 +51,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			}
 		},{
 			xtype: "button",
-			id: "bindMountDelButton-" + me.envCount,
+			id: "bindMountDelButton-" + me.bindCount,
 			icon: "images/delete.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			flex: 0,
@@ -54,6 +59,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			hidden: true,
 			listeners: {
 				click: function(button, e , eOpts) {
+					delete Ext.getCmp("dockerRunImageWindow").bindMounts[me.bindCount];
 					Ext.getCmp("dockerBindMounts").remove("bindMountRow-" + me.bindCount);
 				}
 			}
@@ -70,10 +76,10 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 
 		var errorMsg = "";
 		if (from === "") {
-			errorMsg = errorMsg + "Host path must not be empty";
+			errorMsg = errorMsg + "Host path must not be empty</br>";
 		}
 		if (to === "") {
-			errorMsg = errorMsg + "Container path must not be empty";
+			errorMsg = errorMsg + "Container path must not be empty</br>";
 		}
 		return errorMsg;
 	}

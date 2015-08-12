@@ -1,5 +1,6 @@
 Ext.define("OMV.module.admin.service.docker.PortRow", {
 	extend: "Ext.container.Container",
+	alias: "widget.module.admin.service.docker.portrow",
 
 	layout: "hbox",
 	shadow: false,
@@ -33,7 +34,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			listeners: {
 				scope: me,
 				change: function(combo, newValue, oldValue, eOpts) {
-					Ext.getCmp("dockerFormPanel").getForm().findField("customPort-" + me.portCount).setValue("");
+					me.queryById("customPort-" + me.portCount).setValue("");
 				}
 			}
 		},{
@@ -44,11 +45,11 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 				scope: me,
 				change: function(combo, newValue, oldValue, eOpts) {
 					if(newValue === "") {
-						Ext.getCmp("dockerFormPanel").getForm().findField("exposedPort-" + me.portCount).setDisabled(false);
+						me.queryById("exposedPort-" + me.portCount).setDisabled(false);
 					} else {
-						Ext.getCmp("dockerFormPanel").getForm().findField("exposedPort-" + me.portCount).setValue("Select");
-						Ext.getCmp("dockerFormPanel").getForm().findField("exposedPort-" + me.portCount).setDisabled(true);
-						Ext.getCmp("dockerFormPanel").getForm().findField("customPort-" + me.portCount).setValue(newValue);
+						me.queryById("exposedPort-" + me.portCount).setValue("Select");
+						me.queryById("exposedPort-" + me.portCount).setDisabled(true);
+						me.queryById("customPort-" + me.portCount).setValue(newValue);
 					}
 				}
 			}
@@ -65,10 +66,15 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 					//TODO: Validate form data before comitting
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
+						Ext.getCmp("dockerRunImageWindow").portForwards[me.portCount] = {
+							hostip: me.queryById("hostip-" + me.portCount).getValue(),
+							hostport: me.queryById("hostport-" + me.portCount).getValue(),
+							exposedPort: me.queryById("exposedPort-" + me.portCount).getValue(),
+							customPort: me.queryById("customPort-" + me.portCount).getValue()
+						};
 						var nextCount = parseInt(me.portCount)+1;
 						button.setHidden(true);
-						Ext.getCmp("portForwardDelButton-" + me.portCount).setHidden(false);
-						Ext.getCmp("dockerFormPanel").getForm().findField("portForwardComitted-" + me.portCount).setValue(true);
+						me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
 						var newRow = Ext.create("OMV.module.admin.service.docker.PortRow", {
 							portCount: nextCount,
 							id: "dockerPortForward-" + nextCount,
@@ -94,13 +100,10 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			hidden: true,
 			listeners: {
 				click: function(button, e , eOpts) {
+					delete Ext.getCmp("dockerRunImageWindow").portForwards[me.portCount];
 					Ext.getCmp("dockerPortForward").remove("dockerPortForward-" + me.portCount);
 				}
 			}
-		},{
-			xtype: "hiddenfield",
-			name: "portForwardComitted-" + me.portCount,
-			value: "false"
 		}];
 		Ext.apply(me, {
 		});
