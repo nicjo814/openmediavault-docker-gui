@@ -9,5 +9,5 @@ Homepage: http://omv-extras.org/
 
 Package: openmediavault-docker
 Architecture: amd64
-Depends: ${misc:Depends}, openmediavault (>= 1.7)
+Depends: ${misc:Depends}, openmediavault (>= 1.7), php5-curl
 Description: OpenMediaVault plugin for Docker
