@@ -100,6 +100,14 @@ class OMVModuleDockerContainer {
 	private $envVars;
 
 	/**
+	 * ID of the image the container is created from
+	 *
+	 * @var 	string $imageId
+	 * @access private
+	 */
+	private $imageId;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -171,6 +179,7 @@ class OMVModuleDockerContainer {
 				$this->envVars[$eVarAry[0]] = $eVarAry[1];
 			}
 		}
+		$this->imageId = $containerData->Image;
 		$this->names = ltrim($item->Names[0], "/");
 	}
 
@@ -282,6 +291,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getEnvironmentVariables() {
 		return $this->envVars;
+	}
+
+	/**
+	 * Get the image id of the image used to create the container
+	 * 
+	 * @return string $imageId
+	 * @access public
+	 */
+	public function getImageId() {
+		return $this->imageId;
 	}
 
 	/**
