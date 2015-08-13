@@ -11,18 +11,42 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
     getFormItems: function() {
         return [{
             xtype: "fieldset",
-            title: _("Image grid"),
+            title: _("General"),
             fieldDefaults: {
                 labelSeparator: ""
             },
             items: [{
-                xtype: "checkbox",
-                name: "showDanglingImages",
-                fieldLabel: _("Show dangling"),
-                checked: false
-            }]
-        }];
-    }
+				xtype: "numberfield",
+				anchor: '100%',
+				maxValue: 65535,
+				minValue: 0,
+				name: "apiPort",
+				fieldLabel: _("API port"),
+				allowBlank: false,
+				plugins: [{
+					ptype: "fieldinfo",
+					text: _("Network port that the Docker API listens on")
+				}]
+			}]
+		},{
+			xtype: "fieldset",
+			title: _("Image grid"),
+			fieldDefaults: {
+				labelSeparator: ""
+			},
+			items: [{
+				xtype: "checkbox",
+				name: "showDanglingImages",
+				fieldLabel: _("Show dangling"),
+				checked: false,
+				plugins: [{
+					ptype: "fieldinfo",
+					text: _("Check to show \"dangling\" images in the image grid")
+				}],
+
+			}]
+		}];
+	}
 });
 
 OMV.WorkspaceManager.registerPanel({

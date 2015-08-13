@@ -75,12 +75,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		
 		$settings = $xmlConfig->get($this->getXpath());
-		
 		if (is_null($settings)) {
-			throw new OMVException(
-				OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
-				$this->getXpath()
-			);
+			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
 		}
 
 		if($settings["showDanglingImages"]) {
@@ -88,8 +84,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		} else {
 			$incDangling = true;
 		}
-
-		$objects = OMVModuleDockerUtil::getImages($incDangling);
+		
+		$objects = OMVModuleDockerUtil::getImages($settings['apiPort'], $incDangling);
 		return $objects;
 	}
 
@@ -225,8 +221,15 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 	}
 
 	public function getContainers($params, $context) {
+		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$objects = OMVModuleDockerUtil::getContainers();
+		
+		$settings = $xmlConfig->get($this->getXpath());
+		if (is_null($settings)) {
+			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
+		}
+		
+		$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
 		return $objects;
 	}
 
@@ -272,64 +275,39 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		
-		// Get the configuration object.
 		$object = $xmlConfig->get($this->getXpath());
-		
-		// If no data was found, throw an exception and provide the XPath that
-		// failed.
 		if (is_null($object)) {
-			throw new OMVException(
-				OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
-				$this->getXpath()
-			);
+			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
 		}
 		
-		// Modify result data.
-		// boolval and intval converts strings and numbers to their boolean
-		// and integer value.
 		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
+		$object["apiPort"] = intval($object["apiPort"]);
 		
 		return $object;
 	}
 	
 	public function setSettings($params, $context) {
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		global $xmlConfig;
-		
-		// Validate the parameters of the RPC service method.
-		//
-		// OpenMediavault uses JSON Schema to validate parameters. A more
-		// detailed specification is provided here http://json-schema.org/
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		$this->validateMethodParams($params,'{
 			"type": "object",
 				"properties": {
-					"showDanglingImages": {	"type": "boolean" }
+					"showDanglingImages": {	"type": "boolean" },
+					"apiPort": { "type": "integer" } 
 					}}');
 
 		// Update the configuration object.
 		$object = array(
-			"showDanglingImages" => array_boolval($params, "showDanglingImages")
+			"showDanglingImages" => array_boolval($params, "showDanglingImages"),
+			"apiPort" => $params['apiPort']
 		);
 
-		// Update the configuration file. If it fails, throws an exception.
 		if (false === $xmlConfig->replace($this->getXpath(), $object)) {
-			throw new OMVException(
-				OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED,
-				$this->getXpath()
-			);
+			throw new OMVException(OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED, $this->getXpath());
 		}
-
-		// Notify configuration changes.
-		//
-		// This will notify event listeners such as the service module
-		// to perform certain tasks. The most common one is to mark the
-		// service as dirty.
+		
 		$dispatcher = &OMVNotifyDispatcher::getInstance();
-		$dispatcher->notify(
-			OMV_NOTIFY_MODIFY,
-			$this->getEventMessagePath(),
-			$object
-		);
+		$dispatcher->notify(OMV_NOTIFY_MODIFY, $this->getEventMessagePath(), $object);
 
 		return $object;
 	}

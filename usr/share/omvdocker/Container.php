@@ -85,43 +85,50 @@ class OMVModuleDockerContainer {
 	 * @return void
 	 * @access public
 	 */
-	public function __construct($id) {
+	public function __construct($id, $data, $apiPort) {
 		$this->id = $id;
 		$now = date("c");
-		$cmd = "docker inspect --format='{{json .}}' " . $id . " 2>&1";
-		OMVModuleDockerUtil::exec($cmd,$output,$res);
-		if(is_array($output) && !preg_match('/^Error.*$/', $output[0])) {
-			$containerData = json_decode($output[0]);
-			$this->id = $id;
-			$this->image = $containerData->Config->Image;
-			if(is_array($containerData->Config->Cmd)) {
-				$this->command = $containerData->Config->Cmd[0];
-			}
-			$this->created = OMVModuleDockerUtil::getWhen($now, $containerData->Created) . " ago";
-			if($containerData->State->Running) {
-				$this->status = "Up " . OMVModuleDockerUtil::getWhen($now, $containerData->State->StartedAt);
-				$this->state = "running";
-			} elseif ($containerData->State->Dead) {
-				$this->state = "dead";
-			} elseif (($containerData->State->ExitCode === 0) && (strcmp($containerData->State->Error, "") === 0)) {
-				$this->status = "Exited (0) " . OMVModuleDockerUtil::getWhen($now, $containerData->State->FinishedAt) . " ago";
-				$this->state = "stopped";
-			}
-			$this->ports = array();
-			foreach($containerData->NetworkSettings->Ports as $exposedport => $hostports) {
-				if($hostports) {
-					$this->ports[$exposedport] = array();
-					foreach($hostports as $hostport) {
-						$tmparray = array(
-							"HostIp" => $hostport->HostIp,
-							"HostPort" => $hostport->HostPort);
-						array_push($this->ports[$exposedport], $tmparray);
-					}
-				} else {
-					$this->ports[$exposedport] = NULL;
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+
+		$this->id = $id;
+		$item = $data[substr($id, 0, 12)];
+		$this->image = $item->Image;
+		$this->names = ltrim($item->Names[0], "/");
+		$this->status = $item->Status;
+		$this->command = $item->Command;
+		$this->created = OMVModuleDockerUtil::getWhen($now, date("c", $item->Created)) . " ago";
+		
+		$url = "http://localhost:" . $apiPort . "/containers/$id/json"; 
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		$containerData = json_decode($response);
+		if($containerData->State->Running) {
+			$this->state = "running";
+		} elseif ($containerData->State->Dead) {
+			$this->state = "dead";
+		} elseif (($containerData->State->ExitCode === 0) && (strcmp($containerData->State->Error, "") === 0)) {
+			$this->state = "stopped";
+		}
+		$this->ports = array();
+		foreach($containerData->NetworkSettings->Ports as $exposedport => $hostports) {
+			if($hostports) {
+				$this->ports[$exposedport] = array();
+				foreach($hostports as $hostport) {
+					$tmparray = array(
+						"HostIp" => $hostport->HostIp,
+						"HostPort" => $hostport->HostPort);
+					array_push($this->ports[$exposedport], $tmparray);
 				}
+			} else {
+				$this->ports[$exposedport] = NULL;
 			}
-			$this->names = ltrim($containerData->Name, "/");
 		}
 	}
 
@@ -132,7 +139,7 @@ class OMVModuleDockerContainer {
 	 * @access public
 	 */
 	public function getId() {
-		return $this->id;
+		return substr($this->id, 0, 12);
 	}
 
 	/**

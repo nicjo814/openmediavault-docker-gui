@@ -4,6 +4,7 @@ require_once("openmediavault/util.inc");
 require_once("Image.php");
 require_once("Container.php");
 
+
 /**
  * Helper class for Docker module
  */
@@ -15,21 +16,35 @@ class OMVModuleDockerUtil {
 	 * @return array $objects An array with Image objects
 	 *
 	 */
-	public static function getImages($incDangling) {
+	public static function getImages($apiPort, $incDangling) {
 		$objects=array();
-		$cmd="docker images -q 2>&1";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);
-		foreach($out as $id) {
-			$image = new OMVModuleDockerImage($id);
-			if(strcmp($image->getRepository(), "<none>") === 0) {
-				if($incDangling) {
-					continue;
-				}
-			}
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		$url = "http://localhost:" . $apiPort . "/images/json?all=";
+		if($incDangling) {
+			$url .= "0";
+		} else {
+			$url .= "1";
+		}
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		$data = array();
+		foreach(json_decode($response) as $item) {
+			$data[substr($item->Id, 0, 12)] = $item;
+		}
+		foreach($data as $item) {	
+			$image = new OMVModuleDockerImage($item->Id, $data, $apiPort);
 			$tmp=array(
 				"repository"=>rtrim(ltrim($image->getRepository(), "<"), ">"),
 				"tag"=>rtrim(ltrim($image->getTag(), "<"), ">"),
-				"id"=>$id,
+				"id"=>$image->getId(),
 				"created"=>$image->getCreated(),
 				"size"=>$image->getSize(),
 				"ports"=>$image->getPorts(),
@@ -45,35 +60,47 @@ class OMVModuleDockerUtil {
 	 * @return array $objects An array with Container objects
 	 *
 	 */
-	public static function getContainers() {
+	public static function getContainers($apiPort) {
 		$objects = array();
-		$cmd = "docker ps -aq 2>&1";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);
-		if(is_array($out) && count($out) > 0) {
-			foreach($out as $id) {
-				$container = new OMVModuleDockerContainer($id);
-				$ports = "";
-				foreach($container->getPorts() as $exposedport => $hostports) {
-					if($hostports) {
-						foreach($hostports as $hostport) {
-							$ports .= $hostport["HostIp"] . ":" . $hostport["HostPort"] . "->" . $exposedport . ", ";
-						}
-					} else {
-						$ports .= $exposedport . ", ";
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		$url = "http://localhost:" . $apiPort . "/containers/json?all=1";
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		$data = array();
+		foreach(json_decode($response) as $item) {
+			$data[substr($item->Id, 0, 12)] = $item;
+		}
+		foreach($data as $item) {	
+			$container = new OMVModuleDockerContainer($item->Id, $data, $apiPort);
+			$ports = "";
+			foreach($container->getPorts() as $exposedport => $hostports) {
+				if($hostports) {
+					foreach($hostports as $hostport) {
+						$ports .= $hostport["HostIp"] . ":" . $hostport["HostPort"] . "->" . $exposedport . ", ";
 					}
+				} else {
+					$ports .= $exposedport . ", ";
 				}
-				$ports = rtrim($ports, ", ");
-				$obj = array(
-					"id" => $id,
-					"image" => $container->getImage(),
-					"command" => $container->getCommand(),
-					"created" => $container->getCreated(),
-					"state" => $container->getState(),
-					"status" => $container->getStatus(),
-					"name" => $container->getName(),
-					"ports" => $ports);
-				array_push($objects, $obj);
 			}
+			$ports = rtrim($ports, ", ");
+			$obj = array(
+				"id" => $container->getId(),
+				"image" => $container->getImage(),
+				"command" => $container->getCommand(),
+				"created" => $container->getCreated(),
+				"state" => $container->getState(),
+				"status" => $container->getStatus(),
+				"name" => $container->getName(),
+				"ports" => $ports);
+			array_push($objects, $obj);
 		}
 		return $objects;
 	}
@@ -86,12 +113,7 @@ class OMVModuleDockerUtil {
 	 */
 	public static function getWhen($now, $eventTime) {
 		$when = "";
-		$timePattern = '/^([\d\-T\:]+).*$/';
-		preg_match($timePattern, $now, $matches);
-		$now = $matches[1];
-		preg_match($timePattern, $eventTime, $matches);
-		$eventTime = $matches[1];
-		$diff = date_diff(new DateTime($now),new DateTime($eventTime , new DateTimeZone("Etc/GMT+0")));
+		$diff = date_diff(new DateTime($now),new DateTime($eventTime));
 		if($diff->y > 0) {
 			$when = "$diff->y years";
 		} elseif($diff->m > 0) {
@@ -104,6 +126,8 @@ class OMVModuleDockerUtil {
 			$when = "$diff->i minutes";
 		} elseif($diff->s > 0) {
 			$when = "$diff->s seconds";
+		} else {
+			$when = "Less than a second";
 		}
 		return $when;
 	}
@@ -121,8 +145,8 @@ class OMVModuleDockerUtil {
 		$megabyte = $kilobyte * 1024;
 		$gigabyte = $megabyte * 1024;
 		$terabyte = $gigabyte * 1024;
-		*/
-		
+		 */
+
 		$kilobyte = 1000;
 		$megabyte = $kilobyte * 1000;
 		$gigabyte = $megabyte * 1000;
