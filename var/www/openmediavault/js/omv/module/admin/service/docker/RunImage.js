@@ -151,13 +151,15 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 				{html: " ", flex: 0, width: 24
 				}]
 		}];
-		for (i = 0; i < me.envvars.length; i++) {
+	
+		var keys = Object.keys(me.envvars);	
+		for (i = 0; i < keys.length; i++) {
 			envVarRows.push({
 				xtype: "module.admin.service.docker.envvarrow",
 				envCount: me.envCount,
 				id: "envVarRow-" + me.envCount,
-				nameVal: me.envvars[i].name,
-				valueVal: me.envvars[i].value,
+				nameVal: keys[i],
+				valueVal: me.envvars[keys[i]],
 				defaultVal: "true"
 			});
 			me.envCount = me.envCount+1;

@@ -115,10 +115,9 @@ class OMVModuleDockerImage {
 		if(is_array($imageData->Config->Env)) {
 			foreach($imageData->Config->Env as $eVar) {
 				$eVarAry = explode("=", $eVar); 
-				array_push($this->envVars, array("name" => $eVarAry[0], "value" => $eVarAry[1]));
+				$this->envVars[$eVarAry[0]] = $eVarAry[1];
 			}
 		}
-
 		curl_close($curl);
 	}
 
