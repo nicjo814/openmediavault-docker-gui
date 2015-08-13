@@ -76,6 +76,14 @@ class OMVModuleDockerContainer {
 	private $networkMode;
 
 	/**
+	 * Privileged mode of the container
+	 *
+	 * @var 	bool $privileged
+	 * @access private
+	 */
+	private $privileged;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -106,7 +114,6 @@ class OMVModuleDockerContainer {
 		$this->id = $id;
 		$item = $data[substr($id, 0, 12)];
 		$this->image = $item->Image;
-		$this->names = ltrim($item->Names[0], "/");
 		$this->status = $item->Status;
 		$this->command = $item->Command;
 		$this->created = OMVModuleDockerUtil::getWhen($now, date("c", $item->Created)) . " ago";
@@ -139,6 +146,8 @@ class OMVModuleDockerContainer {
 			}
 		}
 		$this->networkMode = $containerData->HostConfig->NetworkMode;
+		$this->privileged = $containerData->HostConfig->Privileged;
+		$this->names = ltrim($item->Names[0], "/");
 	}
 
 	/**
@@ -182,6 +191,16 @@ class OMVModuleDockerContainer {
 	}
 
 	/**
+	 * Get the init command of the container
+	 * 
+	 * @return string $command
+	 * @access public
+	 */
+	public function getCommand() {
+		return $this->command;
+	}
+
+	/**
 	 * Get the state of the container
 	 * 
 	 * @return string $state
@@ -208,7 +227,17 @@ class OMVModuleDockerContainer {
 	 * @access public
 	 */
 	public function getNetworkMode() {
-		return ucfirst($this->ports);
+		return $this->networkMode;
+	}
+
+	/**
+	 * Get the privileged mode of the container
+	 * 
+	 * @return bool $privileged
+	 * @access public
+	 */
+	public function getPrivileged() {
+		return $this->privileged;
 	}
 
 	/**
@@ -219,16 +248,6 @@ class OMVModuleDockerContainer {
 	 */
 	public function getName() {
 		return $this->names;
-	}
-
-	/**
-	 * Get the init command of the container
-	 * 
-	 * @return string $command
-	 * @access public
-	 */
-	public function getCommand() {
-		return $this->command;
 	}
 
 }
