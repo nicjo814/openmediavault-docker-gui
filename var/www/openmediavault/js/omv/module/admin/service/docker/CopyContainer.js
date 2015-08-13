@@ -79,7 +79,7 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 		var networkModes = Ext.create('Ext.data.Store', {
 			fields: ['mode'],
 			data : [
-				{"mode": "Bridged"},
+				{"mode": "Bridge"},
 				{"mode": "Host"},
 				{"mode": "None"}
 			]
@@ -189,7 +189,9 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 					}]
 			}]
 		});
-
+		
+		//Add hidden field that changes before rendering to allow sending of form
+		//even if no (regular) form field is dirty.
 		items.push({
 			xtype: "hiddenfield",
 			name: "makeDirty",
@@ -223,34 +225,28 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			portsObj[tmpString] = "";
 		}
 		for (i = 0; i < me.portbindings.length; i++) {
-			portFieldset.add({
-				xtype: "module.admin.service.docker.portrow",
-				portCount: me.portCount,
-				id: "dockerPortForward-" + me.portCount,
-				exposedPorts: exposedPorts
-			});
-			me.queryById("hostip-" + me.portCount).setValue(me.portbindings[i].hostip);
-			me.queryById("hostip-" + me.portCount).setReadOnly(true);
-			me.queryById("hostport-" + me.portCount).setValue(me.portbindings[i].hostport);
-			me.queryById("hostport-" + me.portCount).setReadOnly(true);
 			if(me.portbindings[i].containerportstring in portsObj) {
-				me.queryById("exposedPort-" + me.portCount).setValue(me.portbindings[i].containerportstring);
-				me.queryById("customPort-" + me.portCount).setValue("");
+				portFieldset.add({
+					xtype: "module.admin.service.docker.portrow",
+					portCount: me.portCount,
+					id: "dockerPortForward-" + me.portCount,
+					exposedPorts: exposedPorts,
+					hostip: me.portbindings[i].hostip,
+					hostport: me.portbindings[i].hostport,
+					exposedport: me.portbindings[i].containerportstring
+				});
 			} else {
-				me.queryById("exposedPort-" + me.portCount).setValue("Select");
-				me.queryById("customPort-" + me.portCount).setValue(me.portbindings[i].containerportnr);
+				portFieldset.add({
+					xtype: "module.admin.service.docker.portrow",
+					portCount: me.portCount,
+					id: "dockerPortForward-" + me.portCount,
+					exposedPorts: exposedPorts,
+					hostip: me.portbindings[i].hostip,
+					hostport: me.portbindings[i].hostport,
+					customport: me.portbindings[i].containerportnr,
+				});
 			}
-			me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
-			me.queryById("customPort-" + me.portCount).setReadOnly(true);
-			me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
-			me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
-			me.portForwards[me.portCount] = {
-				hostip: me.queryById("hostip-" + me.portCount).getValue(),
-				hostport: me.queryById("hostport-" + me.portCount).getValue(),
-				exposedPort: me.queryById("exposedPort-" + me.portCount).getValue(),
-				customPort: me.queryById("customPort-" + me.portCount).getValue()
-			};
-			me.portCount = me.portCount+1;
+			me.queryById("portForwardAddButton-" + me.portCount).fireEvent("setNewRow");
 		}
 		//Add an empty port forwarding row
 		portFieldset.add({
@@ -260,7 +256,7 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			exposedPorts: exposedPorts
 		});
 
-		//Add environment variables
+		//Add environment variables and an empty row
 		var envVarsFieldset = me.queryById("dockerEnvVars");
 		if(me.cenvvars === []) {
 			me.cenvvars = me.envvars;
@@ -285,54 +281,35 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 					nameVal: tmpString,
 					valueVal: me.cenvvars[tmpString]
 				});
-				me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
-				me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
-				me.envVars[me.envCount] = {
-					name: me.queryById("envName-" + me.envCount).getValue(),
-					value: me.queryById("envValue-" + me.envCount).getValue()
-				};
 			}
-			me.envCount = me.envCount+1;
+			me.queryById("envVarAddButton-" + me.envCount).fireEvent("setNewRow");
 		}
-		//Add empty environment variable row
 		envVarsFieldset.add({
 			xtype: "module.admin.service.docker.envvarrow",
 			envCount: me.envCount,
 			id: "envVarRow-" + me.envCount,
 		});
 
-		//Add bind mounts
+		//Add bind mounts and an empty row
 		var bindMountsFieldset = me.queryById("dockerBindMounts");
 		for (i = 0; i < me.bindmounts.length; i++) {
 			bindMountsFieldset.add({
 				xtype: "module.admin.service.docker.bindmountrow", 
 				bindCount: me.bindCount,
-				id: "bindMountRow-" + me.bindCount
+				id: "bindMountRow-" + me.bindCount,
+				from: me.bindmounts[i].from,
+				to: me.bindmounts[i].to
 			});
-			me.queryById("bindMountFrom-" + me.bindCount).setValue(me.bindmounts[i].from);
-			me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
-			me.queryById("bindMountTo-" + me.bindCount).setValue(me.bindmounts[i].to);
-			me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
-			me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
-			me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
-			me.bindMounts[me.bindCount] = {
-				from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
-				to: me.queryById("bindMountTo-" + me.bindCount).getValue()
-			};
-			me.bindCount = me.bindCount+1;
+			me.queryById("bindMountAddButton-" + me.bindCount).fireEvent("setNewRow");
 		}
-		//Add empty bind mount row
 		bindMountsFieldset.add({
 			xtype: "module.admin.service.docker.bindmountrow", 
 			bindCount: me.bindCount,
 			id: "bindMountRow-" + me.bindCount
 		});
-	},
-
-	afterRender: function() {
-		var me = this;
-		me.callParent(arguments);
-
+		
+		//Change the value of the hidden field to force sending
+		//of data even though no form field has changed value
 		Ext.getCmp("dockerMakeDirty").setValue("true");
 	},
 

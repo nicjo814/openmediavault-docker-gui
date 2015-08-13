@@ -42,7 +42,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			width: 24,
 			hidden: defVal,
 			listeners: {
-				scope: me,
+				scope: this,
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
@@ -63,7 +63,22 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 					} else {
 						Ext.Msg.alert("Bad input", errorMsg);
 					}
-				}	
+				},
+				setNewRow: function() {
+					var me = this;
+					if(me.defVal) {
+						me.up('window').envVars[me.envCount] = {
+							name: me.nameVal,
+							value: me.valueVal
+						};
+					}
+					me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+					me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+					me.queryById("envVarDelButton-" + me.envCount).setDisabled(defVal);
+					me.queryById("envName-" + me.envCount).setReadOnly(true);
+					me.queryById("envValue-" + me.envCount).setReadOnly(true);
+					me.up('window').envCount = me.envCount+1;
+				}
 			}
 		},{
 			xtype: "button",

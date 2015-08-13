@@ -7,18 +7,23 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 	border: false,
 	defaultType: "container",
 
+	from: "",
+	to: "",
+
 	initComponent: function() {
 		var me = this;
 		me.items = [{
 			xtype: "textfield",
 			name: "bindMountFrom-" + me.bindCount,
 			id: "bindMountFrom-" + me.bindCount,
-			flex: 1
+			flex: 1,
+			value: me.from
 		},{
 			xtype: "textfield",
 			name: "bindMountTo-" + me.bindCount,
 			id: "bindMountTo-" + me.bindCount,
-			flex: 1
+			flex: 1,
+			value: me.to
 		},{
 			xtype: "button",
 			id: "bindMountAddButton-" + me.bindCount,
@@ -27,6 +32,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			flex: 0,
 			width: 24,
 			listeners: {
+				scope: this,
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
@@ -35,8 +41,8 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 							to: me.queryById("bindMountTo-" + me.bindCount).getValue()
 						};
 						var nextCount = parseInt(me.bindCount)+1;
-						button.setHidden(true);
-						Ext.getCmp("bindMountDelButton-" + me.bindCount).setHidden(false);
+						me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+						me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
 						var newRow = Ext.create("OMV.module.admin.service.docker.BindMountRow", {
 							bindCount: nextCount,
 							id: "bindMountRow-" + nextCount
@@ -47,7 +53,19 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 					} else {
 						Ext.Msg.alert("Bad input", errorMsg);
 					}
-				}	
+				},	
+				setNewRow: function(button) {
+					var me = this;
+					me.up('window').bindMounts[me.bindCount] = {
+						from: me.from,
+						to: me.to
+					};
+					me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+					me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+					me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
+					me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+					me.up('window').bindCount = me.bindCount+1;
+				}
 			}
 		},{
 			xtype: "button",

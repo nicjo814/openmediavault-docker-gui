@@ -10,17 +10,24 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 		flex: 2
 	},
 
+	hostip: "0.0.0.0",
+	hostport: "",
+	exposedport: "Select",
+	customport: "",
+
 	initComponent: function() {
 		var me = this;
 		me.items = [{
 			xtype: "textfield",
 			name: "hostip-" + me.portCount,
 			value: "0.0.0.0",
-			id: "hostip-" + me.portCount
+			id: "hostip-" + me.portCount,
+			value: me.hostip
 		},{
 			xtype: "textfield",
 			name: "hostport-" + me.portCount,
-			id: "hostport-" + me.portCount
+			id: "hostport-" + me.portCount,
+			value: me.hostport
 		},{
 			xtype: "combo",
 			name: "exposedPort-" + me.portCount,
@@ -29,7 +36,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			queryMode: 'local',
 			displayField: 'name',
 			valueField: 'name',
-			value: "Select",
+			value: me.exposedport,
 			editable: false,
 			listeners: {
 				scope: me,
@@ -41,6 +48,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			xtype: "textfield",
 			name: "customPort-" + me.portCount,
 			id: "customPort-" + me.portCount,
+			value: me.customport,
 			listeners: {
 				scope: me,
 				change: function(combo, newValue, oldValue, eOpts) {
@@ -62,7 +70,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			width: 24,
 			flex: 0,
 			listeners: {
-				scope: me,
+				scope: this,
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
@@ -73,7 +81,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 							customPort: me.queryById("customPort-" + me.portCount).getValue()
 						};
 						var nextCount = parseInt(me.portCount)+1;
-						button.setHidden(true);
+						me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
 						me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
 						var newRow = Ext.create("OMV.module.admin.service.docker.PortRow", {
 							portCount: nextCount,
@@ -88,6 +96,22 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 					} else {
 						Ext.Msg.alert("Bad input", errorMsg);
 					}
+				},
+				setNewRow: function() {
+					var me = this;
+					me.up('window').portForwards[me.portCount] = {
+						hostip: me.hostip,
+						hostport: me.hostport,
+						exposedPort: me.exposedport,
+						customPort: me.customport
+					};
+					me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+					me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
+					me.queryById("hostip-" + me.portCount).setReadOnly(true);
+					me.queryById("hostport-" + me.portCount).setReadOnly(true);
+					me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
+					me.queryById("customPort-" + me.portCount).setReadOnly(true);
+					me.up('window').portCount = me.portCount+1;
 				}	
 			}
 		},{

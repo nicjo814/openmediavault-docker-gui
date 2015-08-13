@@ -69,7 +69,7 @@ Ext.define("OMV.module.admin.service.docker.RunImage", {
 		var networkModes = Ext.create('Ext.data.Store', {
 			fields: ['mode'],
 			data : [
-				{"mode": "Bridged"},
+				{"mode": "Bridge"},
 				{"mode": "Host"},
 				{"mode": "None"}
 			]

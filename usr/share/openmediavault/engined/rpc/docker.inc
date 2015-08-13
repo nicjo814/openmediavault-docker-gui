@@ -161,7 +161,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 
 		//Check which networking mode is selected
 		switch($params['networkMode']) {
-		case "Bridged":
+		case "Bridge":
 			$cmd .= "--net=bridge ";
 			foreach($params['portForwards'] as $portForward) {
 				if(!(strcmp($portForward['customPort'], "") === 0)) {
