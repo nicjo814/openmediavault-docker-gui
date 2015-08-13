@@ -84,6 +84,14 @@ class OMVModuleDockerContainer {
 	private $privileged;
 
 	/**
+	 * Restart policy of the container
+	 *
+	 * @var 	string $restartPolicy
+	 * @access private
+	 */
+	private $restartPolicy;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -147,6 +155,7 @@ class OMVModuleDockerContainer {
 		}
 		$this->networkMode = $containerData->HostConfig->NetworkMode;
 		$this->privileged = $containerData->HostConfig->Privileged;
+		$this->restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
 		$this->names = ltrim($item->Names[0], "/");
 	}
 
@@ -238,6 +247,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getPrivileged() {
 		return $this->privileged;
+	}
+
+	/**
+	 * Get the restart policy of the container
+	 * 
+	 * @return string $restartPolicy
+	 * @access public
+	 */
+	public function getRestartPolicy() {
+		return $this->restartPolicy;
 	}
 
 	/**
