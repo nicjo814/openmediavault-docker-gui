@@ -116,6 +116,14 @@ class OMVModuleDockerContainer {
 	private $portBindings;
 
 	/**
+	 * Bind mounts in the container
+	 *
+	 * @var 	array $bindMounts
+	 * @access private
+	 */
+	private $bindMounts;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -199,6 +207,12 @@ class OMVModuleDockerContainer {
 				));
 			}
 		}
+		$this->bindMounts = array();
+		foreach($containerData->HostConfig->Binds as $bind) {
+			array_push($this->bindMounts, array("from" => preg_split('/\:/',$bind)[0],
+				"to" => preg_split('/\:/', $bind)[1]));
+		}
+
 		$this->names = ltrim($item->Names[0], "/");
 	}
 
@@ -330,6 +344,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getPortBindings() {
 		return $this->portBindings;
+	}
+
+	/**
+	 * Get the bind mounts in the container
+	 * 
+	 * @return array $bindMounts
+	 * @access public
+	 */
+	public function getBindMounts() {
+		return $this->bindMounts;
 	}
 
 	/**

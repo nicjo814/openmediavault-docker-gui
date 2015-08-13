@@ -137,6 +137,7 @@ class OMVModuleDockerUtil {
 				"cenvvars" => $container->getEnvironmentVariables(),
 				"exposedports" => $exposedPorts,
 				"portbindings" => $container->getPortBindings(),
+				"bindmounts" => $container->getBindMounts(),
 				"ports" => $ports);
 			array_push($objects, $obj);
 		}

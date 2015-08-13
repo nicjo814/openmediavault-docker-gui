@@ -31,6 +31,7 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 	networkmode: "Bridge",
 	portbindings: [],
 	cenvvars: [],
+	bindmounts: [],
 
 
 	initComponent: function() {
@@ -148,20 +149,6 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			}]	
 		});
 
-		//Create environment variable rows defined in the image and one empty row
-		var envVarRows = [{
-			xtype: "container",
-			layout: "hbox",
-			shadow: false,
-			border: false,
-			defaultType: "container",
-			items: [{html: "<b>Name</b>", flex: 1},
-				{html: "<b>Value</b>", flex: 2},
-				{html: " ", flex: 0, width: 24
-				}]
-		}];
-	
-
 		//Add environment variables fieldset
 		items.push({
 			xtype: "fieldset",
@@ -170,7 +157,17 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			collapsible: true,
 			collapsed: true,
 			padding: "0 10 10 10",
-			items: envVarRows
+			items: [{
+				xtype: "container",
+				layout: "hbox",
+				shadow: false,
+				border: false,
+				defaultType: "container",
+				items: [{html: "<b>Name</b>", flex: 1},
+					{html: "<b>Value</b>", flex: 2},
+					{html: " ", flex: 0, width: 24
+					}]
+			}]
 		});
 
 		//Add bind mounts fieldset
@@ -190,13 +187,9 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 					{html: "<b>Container path</b>", flex: 1},
 					{html: " ", flex: 0, width: 24
 					}]
-			},{
-				xtype: "module.admin.service.docker.bindmountrow", 
-				bindCount: me.bindCount,
-				id: "bindMountRow-" + me.bindCount
 			}]
 		});
-		
+
 		items.push({
 			xtype: "hiddenfield",
 			name: "makeDirty",
@@ -231,10 +224,10 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 		}
 		for (i = 0; i < me.portbindings.length; i++) {
 			portFieldset.add({
-					xtype: "module.admin.service.docker.portrow",
-					portCount: me.portCount,
-					id: "dockerPortForward-" + me.portCount,
-					exposedPorts: exposedPorts
+				xtype: "module.admin.service.docker.portrow",
+				portCount: me.portCount,
+				id: "dockerPortForward-" + me.portCount,
+				exposedPorts: exposedPorts
 			});
 			me.queryById("hostip-" + me.portCount).setValue(me.portbindings[i].hostip);
 			me.queryById("hostip-" + me.portCount).setReadOnly(true);
@@ -266,7 +259,7 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			id: "dockerPortForward-" + me.portCount,
 			exposedPorts: exposedPorts
 		});
-		
+
 		//Add environment variables
 		var envVarsFieldset = me.queryById("dockerEnvVars");
 		if(me.cenvvars === []) {
@@ -294,6 +287,10 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 				});
 				me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
 				me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+				me.envVars[me.envCount] = {
+					name: me.queryById("envName-" + me.envCount).getValue(),
+					value: me.queryById("envValue-" + me.envCount).getValue()
+				};
 			}
 			me.envCount = me.envCount+1;
 		}
@@ -302,6 +299,33 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			xtype: "module.admin.service.docker.envvarrow",
 			envCount: me.envCount,
 			id: "envVarRow-" + me.envCount,
+		});
+
+		//Add bind mounts
+		var bindMountsFieldset = me.queryById("dockerBindMounts");
+		for (i = 0; i < me.bindmounts.length; i++) {
+			bindMountsFieldset.add({
+				xtype: "module.admin.service.docker.bindmountrow", 
+				bindCount: me.bindCount,
+				id: "bindMountRow-" + me.bindCount
+			});
+			me.queryById("bindMountFrom-" + me.bindCount).setValue(me.bindmounts[i].from);
+			me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
+			me.queryById("bindMountTo-" + me.bindCount).setValue(me.bindmounts[i].to);
+			me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+			me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+			me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+			me.bindMounts[me.bindCount] = {
+				from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
+				to: me.queryById("bindMountTo-" + me.bindCount).getValue()
+			};
+			me.bindCount = me.bindCount+1;
+		}
+		//Add empty bind mount row
+		bindMountsFieldset.add({
+			xtype: "module.admin.service.docker.bindmountrow", 
+			bindCount: me.bindCount,
+			id: "bindMountRow-" + me.bindCount
 		});
 	},
 

@@ -353,6 +353,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			privileged: record.get("privileged"),
 			networkmode: record.get("networkmode"),
 			portbindings: record.get("portbindings"),
+			bindmounts: record.get("bindmounts"),
 			cenvvars: record.get("cenvvars")
 		}).show();
 	},
