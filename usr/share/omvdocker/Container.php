@@ -92,6 +92,14 @@ class OMVModuleDockerContainer {
 	private $restartPolicy;
 
 	/**
+	 * Environment variables defined in the container
+	 *
+	 * @var 	array $envVars
+	 * @access private
+	 */
+	private $envVars;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -156,6 +164,13 @@ class OMVModuleDockerContainer {
 		$this->networkMode = $containerData->HostConfig->NetworkMode;
 		$this->privileged = $containerData->HostConfig->Privileged;
 		$this->restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
+		$this->envVars = array();
+		if(is_array($containerData->Config->Env)) {
+			foreach($containerData->Config->Env as $eVar) {
+				$eVarAry = explode("=", $eVar); 
+				$this->envVars[$eVarAry[0]] = $eVarAry[1];
+			}
+		}
 		$this->names = ltrim($item->Names[0], "/");
 	}
 
@@ -257,6 +272,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getRestartPolicy() {
 		return $this->restartPolicy;
+	}
+
+	/**
+	 * Get the environment variables defined in the container
+	 * 
+	 * @return array $envVars
+	 * @access public
+	 */
+	public function getEnvironmentVariables() {
+		return $this->envVars;
 	}
 
 	/**
