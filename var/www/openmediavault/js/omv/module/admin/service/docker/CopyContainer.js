@@ -161,23 +161,6 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 				}]
 		}];
 	
-		var keys = Object.keys(me.envvars);	
-		for (i = 0; i < keys.length; i++) {
-			envVarRows.push({
-				xtype: "module.admin.service.docker.envvarrow",
-				envCount: me.envCount,
-				id: "envVarRow-" + me.envCount,
-				nameVal: keys[i],
-				valueVal: me.envvars[keys[i]],
-				defaultVal: "true"
-			});
-			me.envCount = me.envCount+1;
-		}
-		envVarRows.push({
-			xtype: "module.admin.service.docker.envvarrow",
-			envCount: me.envCount,
-			id: "envVarRow-" + me.envCount,
-		});
 
 		//Add environment variables fieldset
 		items.push({
@@ -282,6 +265,43 @@ Ext.define("OMV.module.admin.service.docker.CopyContainer", {
 			portCount: me.portCount,
 			id: "dockerPortForward-" + me.portCount,
 			exposedPorts: exposedPorts
+		});
+		
+		//Add environment variables
+		var envVarsFieldset = me.queryById("dockerEnvVars");
+		if(me.cenvvars === []) {
+			me.cenvvars = me.envvars;
+		}
+		var keys = Object.keys(me.cenvvars);	
+		for (i = 0; i < keys.length; i++) {
+			tmpString = keys[i];
+			if(tmpString in me.envvars && me.cenvvars[tmpString] === me.envvars[tmpString]) {
+				envVarsFieldset.add({
+					xtype: "module.admin.service.docker.envvarrow",
+					envCount: me.envCount,
+					id: "envVarRow-" + me.envCount,
+					nameVal: tmpString,
+					valueVal: me.cenvvars[tmpString],
+					defaultVal: "true"
+				});
+			} else {
+				envVarsFieldset.add({
+					xtype: "module.admin.service.docker.envvarrow",
+					envCount: me.envCount,
+					id: "envVarRow-" + me.envCount,
+					nameVal: tmpString,
+					valueVal: me.cenvvars[tmpString]
+				});
+				me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+				me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+			}
+			me.envCount = me.envCount+1;
+		}
+		//Add empty environment variable row
+		envVarsFieldset.add({
+			xtype: "module.admin.service.docker.envvarrow",
+			envCount: me.envCount,
+			id: "envVarRow-" + me.envCount,
 		});
 	},
 
