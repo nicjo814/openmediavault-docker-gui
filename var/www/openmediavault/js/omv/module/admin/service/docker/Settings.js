@@ -37,13 +37,8 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 			items: [{
 				xtype: "checkbox",
 				name: "showDanglingImages",
-				fieldLabel: _("Show dangling"),
-				checked: false,
-				plugins: [{
-					ptype: "fieldinfo",
-					text: _("Check to show \"dangling\" images in the image grid")
-				}],
-
+				boxLabel: _("Show dangling images"),
+				checked: false
 			}]
 		}];
 	}
