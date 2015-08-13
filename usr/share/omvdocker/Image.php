@@ -106,10 +106,8 @@ class OMVModuleDockerImage {
 		}
 		$imageData = json_decode($response);
 		$this->ports = array();
-		if(is_array($imageData->Config->ExposedPorts)) {
-			foreach($imageData->Config->ExposedPorts as $exposedport => $hostports) {
-				array_push($this->ports, array("name" => $exposedport));
-			}
+		foreach($imageData->Config->ExposedPorts as $exposedport => $hostports) {
+			array_push($this->ports, array("name" => $exposedport));
 		}
 		$this->envVars = array();
 		if(is_array($imageData->Config->Env)) {

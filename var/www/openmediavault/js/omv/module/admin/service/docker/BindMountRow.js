@@ -30,7 +30,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
-						Ext.getCmp("dockerRunImageWindow").bindMounts[me.bindCount] = {
+						me.up('window').bindMounts[me.bindCount] = {
 							from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
 							to: me.queryById("bindMountTo-" + me.bindCount).getValue()
 						};
@@ -59,7 +59,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			hidden: true,
 			listeners: {
 				click: function(button, e , eOpts) {
-					delete Ext.getCmp("dockerRunImageWindow").bindMounts[me.bindCount];
+					delete me.up('window').bindMounts[me.bindCount];
 					Ext.getCmp("dockerBindMounts").remove("bindMountRow-" + me.bindCount);
 				}
 			}

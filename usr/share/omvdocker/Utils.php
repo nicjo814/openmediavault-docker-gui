@@ -53,6 +53,34 @@ class OMVModuleDockerUtil {
 		}
 		return $objects;
 	}
+	
+	/**
+	 * Returns a single image from it's ID
+	 *
+	 * @return OMVModuleDockerImage $image A single Docker image
+	 *
+	 */
+	public static function getImage($id, $apiPort) {
+		$objects = array();
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		$url = "http://localhost:" . $apiPort . "/images/json?all=1";
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		$data = array();
+		foreach(json_decode($response) as $item) {
+			$data[substr($item->Id, 0, 12)] = $item;
+		}
+		return (new OMVModuleDockerImage($data[$id]->Id, $data, $apiPort));
+	}
+
 
 	/**
 	 * Returns an array with Container objects on the system
@@ -90,6 +118,9 @@ class OMVModuleDockerUtil {
 					$ports .= $exposedport . ", ";
 				}
 			}
+			$image = OMVModuleDockerUtil::getImage(substr($container->getImageId(), 0, 12), $apiPort);
+			$exposedPorts = $image->getPorts();
+			$envvars = $image->getEnvVars();
 			$ports = rtrim($ports, ", ");
 			$obj = array(
 				"id" => $container->getId(),
@@ -99,6 +130,13 @@ class OMVModuleDockerUtil {
 				"state" => $container->getState(),
 				"status" => $container->getStatus(),
 				"name" => $container->getName(),
+				"privileged" => $container->getPrivileged(),
+				"restartpolicy" => $container->getRestartPolicy(),
+				"networkmode" => ucfirst($container->getNetworkMode()),
+				"envvars" => $envvars,
+				"cenvvars" => $container->getEnvironmentVariables(),
+				"exposedports" => $exposedPorts,
+				"portbindings" => $container->getPortBindings(),
 				"ports" => $ports);
 			array_push($objects, $obj);
 		}
@@ -108,7 +146,7 @@ class OMVModuleDockerUtil {
 	/**
 	 * Returns a single container from it's ID
 	 *
-	 * @return array $objects An array with Container objects
+	 * @return OMVModuleDockerContainer $container A single container object
 	 *
 	 */
 	public static function getContainer($id, $apiPort) {

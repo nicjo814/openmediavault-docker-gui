@@ -62,11 +62,11 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			width: 24,
 			flex: 0,
 			listeners: {
+				scope: me,
 				click: function(button, e , eOpts) {
-					//TODO: Validate form data before comitting
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
-						Ext.getCmp("dockerRunImageWindow").portForwards[me.portCount] = {
+						me.up('window').portForwards[me.portCount] = {
 							hostip: me.queryById("hostip-" + me.portCount).getValue(),
 							hostport: me.queryById("hostport-" + me.portCount).getValue(),
 							exposedPort: me.queryById("exposedPort-" + me.portCount).getValue(),
@@ -99,8 +99,9 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			flex: 0,
 			hidden: true,
 			listeners: {
+				scope: me,
 				click: function(button, e , eOpts) {
-					delete Ext.getCmp("dockerRunImageWindow").portForwards[me.portCount];
+					delete me.up('window').portForwards[me.portCount];
 					Ext.getCmp("dockerPortForward").remove("dockerPortForward-" + me.portCount);
 				}
 			}

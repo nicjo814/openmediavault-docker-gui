@@ -1,3 +1,7 @@
+// require("js/omv/module/admin/service/docker/PortRow.js")
+// require("js/omv/module/admin/service/docker/EnvVarRow.js")
+// require("js/omv/module/admin/service/docker/BindMountRow.js")
+// require("js/omv/module/admin/service/docker/CopyContainer.js")
 // require("js/omv/workspace/grid/Panel.js")
 // require("js/omv/data/Store.js")
 // require("js/omv/data/Model.js")
@@ -76,6 +80,13 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 						{ name: "created", type: "string" },
 						{ name: "status", type: "string" },
 						{ name: "ports", type: "string" },
+						{ name: "networkmode", type: "string" },
+						{ name: "restartpolicy", type: "string" },
+						{ name: "privileged", type: "boolean" },
+						{ name: "exposedports", type: "array" },
+						{ name: "envvars", type: "array" },
+						{ name: "cenvvars", type: "array" },
+						{ name: "portbindings", type: "array" },
 						{ name: "name", type: "string" }
 					]
 				}),
@@ -329,6 +340,22 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		}).show();
 	},
 
+	onCopyButton: function() {
+		var me = this;
+		var sm = me.getSelectionModel();
+		var records = sm.getSelection();
+		var record = records[0];
+		Ext.create("OMV.module.admin.service.docker.CopyContainer", {
+			image: record.get("image"),
+			ports: record.get("exposedports"),
+			envvars: record.get("envvars"),
+			restartpolicy: record.get("restartpolicy"),
+			privileged: record.get("privileged"),
+			networkmode: record.get("networkmode"),
+			portbindings: record.get("portbindings"),
+			cenvvars: record.get("cenvvars")
+		}).show();
+	},
 
 	doDeletion: function(record) {
 		var me = this;

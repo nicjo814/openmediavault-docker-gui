@@ -46,7 +46,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 				click: function(button, e , eOpts) {
 					var errorMsg = me.validateData();
 					if(errorMsg === "") {
-						Ext.getCmp("dockerRunImageWindow").envVars[me.envCount] = {
+						me.up('window').envVars[me.envCount] = {
 							name: me.queryById("envName-" + me.envCount).getValue(),
 							value: me.queryById("envValue-" + me.envCount).getValue()
 						};
@@ -77,7 +77,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			listeners: {
 				scope: me,
 				click: function(button, e , eOpts) {
-					delete Ext.getCmp("dockerRunImageWindow").envVars[me.envCount];
+					delete me.up('window').envVars[me.envCount];
 					Ext.getCmp("dockerEnvVars").remove("envVarRow-" + me.envCount);
 				}
 			}

@@ -108,6 +108,14 @@ class OMVModuleDockerContainer {
 	private $imageId;
 
 	/**
+	 * Port bindings in the container
+	 *
+	 * @var 	array $portBindings
+	 * @access private
+	 */
+	private $portBindings;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -180,6 +188,17 @@ class OMVModuleDockerContainer {
 			}
 		}
 		$this->imageId = $containerData->Image;
+		$this->portBindings = array();
+		foreach($containerData->HostConfig->PortBindings as $containerPort => $mappings) {
+			foreach($mappings as $mapping) {
+				array_push($this->portBindings, array(
+					"containerportstring" => $containerPort,
+					"containerportnr" => preg_split('/\//', $containerPort)[0],
+					"hostip" => $mapping->HostIp,
+					"hostport" => $mapping->HostPort
+				));
+			}
+		}
 		$this->names = ltrim($item->Names[0], "/");
 	}
 
@@ -252,7 +271,7 @@ class OMVModuleDockerContainer {
 	public function getPorts() {
 		return $this->ports;
 	}
-	
+
 	/**
 	 * Get the network mode of the contanier
 	 * 
@@ -301,6 +320,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getImageId() {
 		return $this->imageId;
+	}
+
+	/**
+	 * Get the port bindings of the container
+	 * 
+	 * @return array $portBindings
+	 * @access public
+	 */
+	public function getPortBindings() {
+		return $this->portBindings;
 	}
 
 	/**
