@@ -1,3 +1,8 @@
+// require("js/omv/workspace/grid/Panel.js")
+// require("js/omv/data/Store.js")
+// require("js/omv/data/Model.js")
+// require("js/omv/data/proxy/Rpc.js")
+
 Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 	extend: "OMV.workspace.grid.Panel",
 	alias: "widget.module.admin.service.docker.containergrid",
