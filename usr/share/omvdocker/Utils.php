@@ -106,6 +106,33 @@ class OMVModuleDockerUtil {
 	}
 
 	/**
+	 * Returns a single container from it's ID
+	 *
+	 * @return array $objects An array with Container objects
+	 *
+	 */
+	public static function getContainer($id, $apiPort) {
+		$objects = array();
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		$url = "http://localhost:" . $apiPort . "/containers/json?all=1";
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		$data = array();
+		foreach(json_decode($response) as $item) {
+			$data[substr($item->Id, 0, 12)] = $item;
+		}
+		return (new OMVModuleDockerContainer($data[$id]->Id, $data, $apiPort));
+	}
+
+	/**
 	 * Returns a string representing a time sometime in the past
 	 *
 	 * @return string $when A string representaion of a past time

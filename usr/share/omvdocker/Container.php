@@ -68,6 +68,14 @@ class OMVModuleDockerContainer {
 	private $ports;
 
 	/**
+	 * Network mode of the container
+	 *
+	 * @var 	string $networkMode
+	 * @access private
+	 */
+	private $networkMode;
+
+	/**
 	 * Name of the container
 	 *
 	 * @var 	string $names
@@ -130,6 +138,7 @@ class OMVModuleDockerContainer {
 				$this->ports[$exposedport] = NULL;
 			}
 		}
+		$this->networkMode = $containerData->HostConfig->NetworkMode;
 	}
 
 	/**
@@ -190,6 +199,16 @@ class OMVModuleDockerContainer {
 	 */
 	public function getPorts() {
 		return $this->ports;
+	}
+	
+	/**
+	 * Get the network mode of the contanier
+	 * 
+	 * @return string $networkMode
+	 * @access public
+	 */
+	public function getNetworkMode() {
+		return ucfirst($this->ports);
 	}
 
 	/**
