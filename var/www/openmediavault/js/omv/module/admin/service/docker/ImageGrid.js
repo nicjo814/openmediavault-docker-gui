@@ -4,6 +4,7 @@
 // require("js/omv/module/admin/service/docker/PullImage.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
 // require("js/omv/module/admin/service/docker/ImageInfo.js")
+// require("js/omv/module/admin/service/docker/SearchBox.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	extend: "OMV.workspace.grid.Panel",
@@ -68,6 +69,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var me = this;
 		Ext.apply(me, {
 			store: Ext.create("OMV.data.Store", {
+				pageSize: 10,
 				autoLoad: true,
 				model: OMV.data.Model.createImplicit({
 					fields: [
@@ -148,7 +150,56 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			hidden: false,
 			handler: Ext.Function.bind(me.onRefreshButton, me, [ me ]),
 			scope: me
-		}]
+		},'->',{
+			xtype: 'box',
+			autoEl: {tag: 'img', src:"images/search.png"}
+		},{
+			xtype: 'box',
+			html: "Search"
+		},{
+			xtype: "module.admin.service.docker.searchbox",
+			name: "searchCombo",
+			width: 350,
+			text: "Search",
+			hidden: false,
+			displayField: 'name',
+			valueField: 'name',
+
+			listConfig: {
+				loadingText: 'Searching...',
+				emptyText: 'No matching repositories found.',
+
+				// Custom rendering template for each item
+				getInnerTpl: function() {
+					return '<div>' +
+						'<h4>{name}</h4>{description}' +
+						'<br />stars: {stars}'
+					'</div>';
+				}
+			},
+
+			// override default onSelect to open pull image dialog
+			listeners: {
+				select: function(combo, selection) {
+					var repo = selection.getData().name
+					if (repo) {
+						Ext.create("OMV.module.admin.service.docker.PullImage", {
+							title: "Pull image",
+							rpcService: "Docker",
+							rpcMethod: "pullImage",
+							repo: repo,
+							hideStopButton: true,
+							listeners: {
+								scope: me,
+								exception: function(wnd, error) {
+									OMV.MessageBox.error(null, error);
+								}
+							}
+						}).show();
+					}
+				}
+			}
+		}];
 	},
 
 	onSelectionChange: function(model, records) {

@@ -82,6 +82,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 
 	cmdIsRunning: false,
 	getContentAllowed: false,
+	repo: "",
 
 	constructor: function() {
 		var me = this;
@@ -116,6 +117,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 					fieldLabel: _("Repository"),
 					name: "repository",
 					allowBlank: false,
+					value: me.repo,
 					listeners: {
 						scope: me,
 						change: function(field, newValue, oldValue, eOpts) {

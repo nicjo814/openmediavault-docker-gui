@@ -58,6 +58,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("pullImage");
 		$this->registerMethod("getImageInfo");
 		$this->registerMethod("deleteImage");
+		$this->registerMethod("searchImages");
 		
 		$this->registerMethod("getContainers");
 		$this->registerMethod("runContainer");
@@ -158,9 +159,41 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 					"id": { "type" : "string" }
 	}}');
 
-	$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-	$cmd = "docker rmi " . $params['id'];
-	OMVModuleDockerUtil::exec($cmd,$out,$res);	
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$cmd = "docker rmi " . $params['id'];
+		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	}
+
+	public function searchImages($params, $context) {
+		global $xmlConfig;
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$objects = array();
+		$settings = $xmlConfig->get($this->getXpath());
+		if (is_null($settings)) {
+			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
+		}
+
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		$url = "http://localhost:" . $settings['apiPort'] . "/images/search?term=" . $params["name"];
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		$data = json_decode($response);
+		
+		foreach($data as $repo) {
+			array_push($objects, array("name" => $repo->name,
+				"description" => $repo->description,
+				"stars" => $repo->star_count));
+				
+		}
+		return $objects;
 	}
 
 	public function getContainers($params, $context) {
