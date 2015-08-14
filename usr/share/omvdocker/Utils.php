@@ -24,12 +24,14 @@ class OMVModuleDockerUtil {
 			CURLOPT_TIMEOUT => 30,
 			CURLOPT_CONNECTTIMEOUT => 5
 		));
-		$url = "http://localhost:" . $apiPort . "/images/json?all=";
+		$url = "http://localhost:" . $apiPort . "/images/json?all=0";
+		/*
 		if($incDangling) {
 			$url .= "0";
 		} else {
 			$url .= "1";
 		}
+		 */
 		curl_setopt($curl, CURLOPT_URL, $url);
 		if(!($response = curl_exec($curl))){
 			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
