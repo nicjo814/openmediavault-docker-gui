@@ -1,7 +1,7 @@
 // require("js/omv/module/admin/service/docker/PortRow.js")
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
-// require("js/omv/module/admin/service/docker/CopyContainer.js")
+// require("js/omv/module/admin/service/docker/RunContainer.js")
 // require("js/omv/workspace/grid/Panel.js")
 // require("js/omv/data/Store.js")
 // require("js/omv/data/Model.js")
@@ -345,7 +345,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var sm = me.getSelectionModel();
 		var records = sm.getSelection();
 		var record = records[0];
-		Ext.create("OMV.module.admin.service.docker.CopyContainer", {
+		Ext.create("OMV.module.admin.service.docker.RunContainer", {
 			image: record.get("image"),
 			ports: record.get("exposedports"),
 			envvars: record.get("envvars"),

@@ -2,7 +2,7 @@
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
-// require("js/omv/module/admin/service/docker/RunImage.js")
+// require("js/omv/module/admin/service/docker/RunContainer.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	extend: "OMV.workspace.grid.Panel",
@@ -26,7 +26,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		"OMV.module.admin.service.docker.EnvVarRow",
 		"OMV.module.admin.service.docker.BindMountRow",
 		"OMV.module.admin.service.docker.PullImage",
-		"OMV.module.admin.service.docker.RunImage"
+		"OMV.module.admin.service.docker.RunContainer"
 	],
 
 	stateful: true,
@@ -204,7 +204,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var sm = me.getSelectionModel();
 		var records = sm.getSelection();
 		var record = records[0];
-		Ext.create("OMV.module.admin.service.docker.RunImage", {
+		Ext.create("OMV.module.admin.service.docker.RunContainer", {
+			title: "Run image",
 			image: record.get("repository") + ":" + record.get("tag"),
 			ports: record.get("ports"),
 			envvars: record.get("envvars")

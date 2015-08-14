@@ -4,7 +4,7 @@
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 
-Ext.define("OMV.module.admin.service.docker.CopyContainer", {
+Ext.define("OMV.module.admin.service.docker.RunContainer", {
 	extend: "OMV.workspace.window.Form",
 	requires: [
 		"OMV.module.admin.service.docker.PortRow",
