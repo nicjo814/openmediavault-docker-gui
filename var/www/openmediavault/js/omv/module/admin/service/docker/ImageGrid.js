@@ -112,6 +112,15 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			handler: Ext.Function.bind(me.onRunButton, me, [ me ]),
 			scope: me
 		},{
+			id: me.getId() + "-details",
+			xtype: "button",
+			text: "Details",
+			icon: "images/search.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			disabled: true,
+			handler: Ext.Function.bind(me.onDetailsButton, me, [ me ]),
+			scope: me
+		},{
 			id: me.getId() + "-delete",
 			xtype: "button",
 			text: me.deleteButtonText,
@@ -136,22 +145,25 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "pull", "run", "delete", "refresh" ];
+		var tbarBtnName = [ "pull", "run", "details", "delete", "refresh" ];
 		var tbarBtnDisabled = {
 			"pull": false,
 			"run": false,
+			"details": false,
 			"delete": false,
 			"refresh": false
 		};
 		// Enable/disable buttons depending on the number of selected rows.
 		if(records.length <= 0) {
 			tbarBtnDisabled["run"] = true;
+			tbarBtnDisabled["details"] = true;
 			tbarBtnDisabled["delete"] = true;
 		} else if(records.length == 1) {
 			tbarBtnDisabled["run"] = false;
 			tbarBtnDisabled["delete"] = false;
 		} else {
 			tbarBtnDisabled["run"] = true;
+			tbarBtnDisabled["details"] = true;
 			tbarBtnDisabled["delete"] = false;
 		}
 
@@ -210,6 +222,45 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			ports: record.get("ports"),
 			envvars: record.get("envvars")
 		}).show();
-	}
+	},
+
+	onDetailsButton: function() {
+		var me = this;
+		var sm = me.getSelectionModel();
+		var records = sm.getSelection();
+		var record = records[0];
+
+		var detailsWindow = Ext.create("OMV.workspace.window.Form", {
+			title: "Image details",
+			rpcService: "Docker",
+			rpcGetMethod: "getDetails",
+			rpcGetParams: {
+				id: record.get('id')
+			},
+			width: 800,
+			height: 700,
+			hideResetButton: true,
+			hideCancelButton: true,
+			okButtonText: _("Close"),
+			scrollable: false,
+
+			getFormItems: function() {
+				var me = this;
+
+				return [{
+					xtype: "textareafield",
+					name: "details",
+					grow: false,
+					height: 620,
+					readOnly: true,
+					fieldStyle: {
+						fontFamily: "courier",
+						fontSize: "12px"
+					}
+				}];
+			}
+		}).show();
+	},
+
 
 });

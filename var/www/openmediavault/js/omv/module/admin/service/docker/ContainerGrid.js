@@ -311,7 +311,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var detailsWindow = Ext.create("OMV.workspace.window.Form", {
 			title: "Container details",
 			rpcService: "Docker",
-			rpcGetMethod: "getContainerDetails",
+			rpcGetMethod: "getDetails",
 			rpcGetParams: {
 				id: record.get('id')
 			},
