@@ -3,6 +3,7 @@
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
+// require("js/omv/module/admin/service/docker/ImageInfo.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	extend: "OMV.workspace.grid.Panel",
@@ -121,6 +122,15 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			handler: Ext.Function.bind(me.onDetailsButton, me, [ me ]),
 			scope: me
 		},{
+			id: me.getId() + "-info",
+			xtype: "button",
+			text: "Info",
+			icon: "images/about.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			disabled: true,
+			handler: Ext.Function.bind(me.onInfoButton, me, [ me ]),
+			scope: me
+		},{
 			id: me.getId() + "-delete",
 			xtype: "button",
 			text: me.deleteButtonText,
@@ -145,11 +155,12 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "pull", "run", "details", "delete", "refresh" ];
+		var tbarBtnName = [ "pull", "run", "details", "info", "delete", "refresh" ];
 		var tbarBtnDisabled = {
 			"pull": false,
 			"run": false,
 			"details": false,
+			"info": false,
 			"delete": false,
 			"refresh": false
 		};
@@ -157,6 +168,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		if(records.length <= 0) {
 			tbarBtnDisabled["run"] = true;
 			tbarBtnDisabled["details"] = true;
+			tbarBtnDisabled["info"] = true;
 			tbarBtnDisabled["delete"] = true;
 		} else if(records.length == 1) {
 			tbarBtnDisabled["run"] = false;
@@ -164,6 +176,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		} else {
 			tbarBtnDisabled["run"] = true;
 			tbarBtnDisabled["details"] = true;
+			tbarBtnDisabled["info"] = true;
 			tbarBtnDisabled["delete"] = false;
 		}
 
@@ -262,5 +275,24 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		}).show();
 	},
 
+	onInfoButton: function() {
+		var me = this;
+		var sm = me.getSelectionModel();
+		var records = sm.getSelection();
+		var record = records[0];
+
+		var detailsWindow = Ext.create("OMV.module.admin.service.docker.ImageInfo", {
+			title: "Image info",
+			width: 800,
+			height: 700,
+			layout: "fit",
+			hideResetButton: true,
+			hideCancelButton: true,
+			okButtonText: _("Close"),
+			scrollable: false,
+			id: "dockerImageInfoWindow",
+			repository: record.get('repository')
+		}).show();
+	}
 
 });

@@ -56,6 +56,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 	public function initialize() {
 		$this->registerMethod("getImages");
 		$this->registerMethod("pullImage");
+		$this->registerMethod("getImageInfo");
 		$this->registerMethod("deleteImage");
 		
 		$this->registerMethod("getContainers");
@@ -126,35 +127,51 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		}
 	}
 
-	public function getDetails($params, $context) {
+	public function getImageInfo($params, $context) {
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$cmd = "docker inspect " . $params['id'] . " 2>&1";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);
-		//throw new OMVModuleDockerException($objects['details']);
-		return array("details" => implode("\n\r", $out));
+		$data = file_get_contents("https://hub.docker.com/r/" . $params['repository']);
+		$lines = explode("\n", $data);
+		$result = "";
+		if(is_array($lines)) {
+			if(preg_match('/^.*1\.1\.1\.0\.0\.0\.0\.0\.0\.0\"\>(.*)$/', $lines[0], $matches)) {
+				$result .= $matches[1]. "\n";
+			}
+			for($i = 1; $i < count($lines); $i++) {
+				if(!preg_match('/^.*div.*$/', $lines[$i])) {
+					$result .= $lines[$i] . "\n";
+				} else {
+					break;
+				}
+			}
+			if(strcmp($result, "") === 0) {
+				$result = "No information found";
+			}
+
+			return array("info" => $result);
+		}
 	}
-	
+
 	public function deleteImage($params, $context) {
 		$this->validateMethodParams($params, '{
 			"type": "object",
 				"properties": {
 					"id": { "type" : "string" }
-		}}');
+	}}');
 
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$cmd = "docker rmi " . $params['id'];
-		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+	$cmd = "docker rmi " . $params['id'];
+	OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
 
 	public function getContainers($params, $context) {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		
+
 		$settings = $xmlConfig->get($this->getXpath());
 		if (is_null($settings)) {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
 		}
-		
+
 		$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
 		return $objects;
 	}
@@ -169,16 +186,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				"restart": { "type" : "boolean" },
 				"networkMode": { "type" : "string" },
 				"portForwards": { "type" : "object", "optional" : true, "properties": {
-   					"hostip": { "type" : "string" },
+					"hostip": { "type" : "string" },
 					"hostport" : { "type" : "string" },
 					"exposedPort" : { "type" : "string" },
 					"customPort" : { "type" : "string" }}},
 				"envVars": { "type" : "object", "optional" : true, "properties": {
-   					"name": { "type" : "string" },
+					"name": { "type" : "string" },
 					"value" : { "type" : "string" }}}
 				"privileged": { "type" : "boolean" },
 				"bindMounts": { "type" : "object", "optional" : true, "properties": {
-   					"from": { "type" : "string" },
+					"from": { "type" : "string" },
 					"to" : { "type" : "string" }}}
 				"image": { "type" : "string" }
 			}}
@@ -186,7 +203,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		 */
 
 		$cmd = "docker run -d ";
-		
+
 		//Check if restart checkbox is enabled
 		if($params['restart']) {
 			$cmd .= "--restart=always ";
@@ -221,7 +238,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				$cmd .= "-e " . $envVar['name'] . "=" . $envVar['value'] . " ";
 			}
 		}
-		
+
 		//Check if privileged checkbox is enabled
 		if($params['privileged']) {
 			$cmd .= "--privileged ";
@@ -233,13 +250,13 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				$cmd .= "-v " . $bindMount['from'] . ":" . $bindMount['to'] . " ";
 			}
 		}
-		
+
 		//Check if a custom container name has been supplied
 		if(!(strcmp($params['containerName'], "") === 0)) {
 			$cmd .= "--name=" . $params['containerName'] . " ";
 		}
 
-		
+
 		//Add image to command
 		$cmd .= $params['image'] . " 2>&1";
 
@@ -252,46 +269,46 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$cmd = "docker start " . $params['id'] . " 2>&1";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
-	
+
 	public function stopContainer($params, $context) {
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		$cmd = "docker stop " . $params['id'] . " 2>&1";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
-	
+
 	public function restartContainer($params, $context) {
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 		$cmd = "docker restart " . $params['id'] . " 2>&1";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
-	
+
 	public function deleteContainer($params, $context) {
 		$this->validateMethodParams($params, '{
 			"type": "object",
 				"properties": {
 					"id": { "type" : "string" }
-		}}');
+	}}');
 
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$cmd = "docker rm " . $params['id'] . " 2>&1";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+	$cmd = "docker rm " . $params['id'] . " 2>&1";
+	OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
 
 	public function getSettings($params, $context) {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		
+
 		$object = $xmlConfig->get($this->getXpath());
 		if (is_null($object)) {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
 		}
-		
+
 		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
 		$object["apiPort"] = intval($object["apiPort"]);
-		
+
 		return $object;
 	}
-	
+
 	public function setSettings($params, $context) {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
@@ -299,23 +316,31 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			"type": "object",
 				"properties": {
 					"showDanglingImages": {	"type": "boolean" },
-					"apiPort": { "type": "integer" } 
-					}}');
+						"apiPort": { "type": "integer" } 
+	}}');
 
-		// Update the configuration object.
-		$object = array(
-			"showDanglingImages" => array_boolval($params, "showDanglingImages"),
-			"apiPort" => $params['apiPort']
-		);
+	// Update the configuration object.
+	$object = array(
+		"showDanglingImages" => array_boolval($params, "showDanglingImages"),
+		"apiPort" => $params['apiPort']
+	);
 
-		if (false === $xmlConfig->replace($this->getXpath(), $object)) {
-			throw new OMVException(OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED, $this->getXpath());
-		}
-		
-		$dispatcher = &OMVNotifyDispatcher::getInstance();
-		$dispatcher->notify(OMV_NOTIFY_MODIFY, $this->getEventMessagePath(), $object);
+	if (false === $xmlConfig->replace($this->getXpath(), $object)) {
+		throw new OMVException(OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED, $this->getXpath());
+	}
 
-		return $object;
+	$dispatcher = &OMVNotifyDispatcher::getInstance();
+	$dispatcher->notify(OMV_NOTIFY_MODIFY, $this->getEventMessagePath(), $object);
+
+	return $object;
+	}
+
+	public function getDetails($params, $context) {
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$cmd = "docker inspect " . $params['id'] . " 2>&1";
+		OMVModuleDockerUtil::exec($cmd,$out,$res);
+		//throw new OMVModuleDockerException($objects['details']);
+		return array("details" => implode("\n\r", $out));
 	}
 
 	//throw new OMVModuleDockerException($cmd);
