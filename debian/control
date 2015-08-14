@@ -1,4 +1,4 @@
-Source: openmediavault-docker
+Source: openmediavault-docker-gui
 Section: net
 XB-Plugin-Section: filesystems
 Priority: optional
@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9.0.0 )
 Standards-Version: 3.9.3
 Homepage: http://omv-extras.org/
 
-Package: openmediavault-docker
+Package: openmediavault-docker-gui
 Architecture: amd64
 Depends: ${misc:Depends}, openmediavault (>= 1.7), php5-curl
 Description: OpenMediaVault plugin for Docker
