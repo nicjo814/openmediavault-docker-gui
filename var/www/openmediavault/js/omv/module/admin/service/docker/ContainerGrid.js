@@ -346,6 +346,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var records = sm.getSelection();
 		var record = records[0];
 		Ext.create("OMV.module.admin.service.docker.RunContainer", {
+			title: "Copy container",
 			image: record.get("image"),
 			ports: record.get("exposedports"),
 			envvars: record.get("envvars"),

@@ -56,10 +56,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 	public function initialize() {
 		$this->registerMethod("getImages");
 		$this->registerMethod("pullImage");
-		$this->registerMethod("runImage");
 		$this->registerMethod("deleteImage");
 		
 		$this->registerMethod("getContainers");
+		$this->registerMethod("runContainer");
 		$this->registerMethod("startContainer");
 		$this->registerMethod("stopContainer");
 		$this->registerMethod("restartContainer");
@@ -126,7 +126,32 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		}
 	}
 
-	public function runImage($params, $context)
+	public function deleteImage($params, $context) {
+		$this->validateMethodParams($params, '{
+			"type": "object",
+				"properties": {
+					"id": { "type" : "string" }
+		}}');
+
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$cmd = "docker rmi " . $params['id'];
+		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	}
+
+	public function getContainers($params, $context) {
+		global $xmlConfig;
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		
+		$settings = $xmlConfig->get($this->getXpath());
+		if (is_null($settings)) {
+			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
+		}
+		
+		$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
+		return $objects;
+	}
+
+	public function runContainer($params, $context)
 	{
 		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
 		/*
@@ -206,31 +231,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 
 		OMVModuleDockerUtil::exec($cmd,$out,$res);	
 
-	}
-
-	public function deleteImage($params, $context) {
-		$this->validateMethodParams($params, '{
-			"type": "object",
-				"properties": {
-					"id": { "type" : "string" }
-		}}');
-
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$cmd = "docker rmi " . $params['id'];
-		OMVModuleDockerUtil::exec($cmd,$out,$res);	
-	}
-
-	public function getContainers($params, $context) {
-		global $xmlConfig;
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		
-		$settings = $xmlConfig->get($this->getXpath());
-		if (is_null($settings)) {
-			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
-		}
-		
-		$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
-		return $objects;
 	}
 
 	public function startContainer($params, $context) {

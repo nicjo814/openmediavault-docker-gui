@@ -12,8 +12,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 		"OMV.module.admin.service.docker.BindMountRow",
 	],
 
-	title: _("Copy container"),
-	id: "dockerCopyContainerWindow",
+	title: _("Run container"),
 	layout: "fit",
 	width: 600,
 	closable: true,
@@ -21,7 +20,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 	buttonAlign: "center",
 
 	rpcService   : "Docker",
-	rpcSetMethod : "runImage",
+	rpcSetMethod : "runContainer",
 
 	//Some variables that are used
 	ports: [],
