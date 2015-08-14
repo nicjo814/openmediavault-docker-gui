@@ -64,6 +64,10 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 				name: "image",
 				id: "dockerImageName"
 			},{
+				xtype: "textfield",
+				fieldLabel: _("Container name"),
+				name: "containerName"
+			},{
 				xtype: "checkbox",
 				name: "restart",
 				boxLabel: "Restart on system reboot"
@@ -321,7 +325,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 			networkMode: me.getForm().findField("networkMode").getValue(),
 			portForwards: me.portForwards,
 			envVars: me.envVars,
-			bindMounts: me.bindMounts
+			bindMounts: me.bindMounts,
+			containerName: me.getForm().findField("containerName").getValue()
 		};
 		if(me.mode === "remote") {
 			var rpcOptions = {

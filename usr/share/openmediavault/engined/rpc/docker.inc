@@ -225,7 +225,13 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				$cmd .= "-v " . $bindMount['from'] . ":" . $bindMount['to'] . " ";
 			}
 		}
+		
+		//Check if a custom container name has been supplied
+		if(!(strcmp($params['containerName'], "") === 0)) {
+			$cmd .= "--name=" . $params['containerName'] . " ";
+		}
 
+		
 		//Add image to command
 		$cmd .= $params['image'] . " 2>&1";
 
