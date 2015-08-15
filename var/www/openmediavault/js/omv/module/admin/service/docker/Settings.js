@@ -16,6 +16,10 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                 labelSeparator: ""
             },
             items: [{
+				xtype: "checkbox",
+				name: "enabled",
+				boxLabel: _("Enable the plugin"),
+			},{
 				xtype: "numberfield",
 				anchor: '100%',
 				maxValue: 65535,

@@ -9,17 +9,19 @@ set -e
 case "$1" in
   configure)
 
+	service docker stop
 	echo '### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.
 OMVDOCKER_API=""
 OMVDOCKER_IMAGE_PATH=""
 DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"
 ### Do not add any configuration below this line. They will be removed when the plugin is removed' >> /etc/default/docker
-
+	service docker start
 
     if ! omv_config_exists "/config/services/docker"; then
       echo "Initialize configuration"
       object="<showDanglingImages>0</showDanglingImages>"
 	  object="${object}<apiPort>42005</apiPort>"
+	  object="${object}<enabled>0</enabled>"
       omv_config_add_element "/config/services" "docker" "${object}" true
     fi
 

@@ -246,6 +246,10 @@ class OMVModuleDockerUtil {
 	 */
 	function changeDockerSettings($apiPort)
 	{ 
+		//Stop the Docker daemon before making config changes
+		$cmd = "service docker stop";
+		OMVModuleDockerUtil::exec($cmd,$out,$res);
+		
 		$fileName = "/etc/default/docker";
 		$data = file_get_contents($fileName);
 		$lines = explode("\n", $data);
@@ -274,9 +278,9 @@ class OMVModuleDockerUtil {
 			'### Do not add any configuration below this line. They will be removed when the plugin is removed' . "\n";
 
 		file_put_contents("$fileName", $result);
-		
-		//Restart the Docker daemon for changes to take effect
-		$cmd = "service docker restart 2>&1";
+
+		//Start the daemon agai after changes have benn made
+		$cmd = "service docker start";
 		OMVModuleDockerUtil::exec($cmd,$out,$res);
 	}
 

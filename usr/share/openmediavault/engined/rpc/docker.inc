@@ -337,6 +337,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		}
 
 		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
+		$object["enabled"] = boolval($object["enabled"]);
 		$object["apiPort"] = intval($object["apiPort"]);
 
 		return $object;
@@ -349,7 +350,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			"type": "object",
 				"properties": {
 					"showDanglingImages": {	"type": "boolean" },
-						"apiPort": { "type": "integer" } 
+					"enabled": {	"type": "boolean" },
+					"apiPort": { "type": "integer" } 
 	}}');
 
 	//Get the old settings object
@@ -358,13 +360,15 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
 	}
 
-	if($oldSettings['apiPort'] !== $params['apiPort']) {
+	if((($oldSettings['apiPort'] !== $params['apiPort']) && $params['enabled']) ||
+		($params['enabled'] && !$oldSettings['enabled'])) {
 		OMVModuleDockerUtil::changeDockerSettings($params['apiPort']);
 	}
 
 	// Update the configuration object.
 	$object = array(
 		"showDanglingImages" => array_boolval($params, "showDanglingImages"),
+		"enabled" => array_boolval($params, "enabled"),
 		"apiPort" => $params['apiPort']
 	);
 
