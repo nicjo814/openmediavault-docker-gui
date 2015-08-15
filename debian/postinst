@@ -19,7 +19,7 @@ DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"
     if ! omv_config_exists "/config/services/docker"; then
       echo "Initialize configuration"
       object="<showDanglingImages>0</showDanglingImages>"
-	  object="${object}<apiPort>4243</apiPort>"
+	  object="${object}<apiPort>42005</apiPort>"
       omv_config_add_element "/config/services" "docker" "${object}" true
     fi
 
