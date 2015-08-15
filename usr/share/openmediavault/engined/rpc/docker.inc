@@ -352,6 +352,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 						"apiPort": { "type": "integer" } 
 	}}');
 
+	//Get the old settings object
+	$oldSettings = $xmlConfig->get($this->getXpath());
+	if (is_null($oldSettings)) {
+		throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
+	}
+
+	if($oldSettings['apiPort'] !== $params['apiPort']) {
+		OMVModuleDockerUtil::changeDockerSettings($params['apiPort']);
+	}
+
 	// Update the configuration object.
 	$object = array(
 		"showDanglingImages" => array_boolval($params, "showDanglingImages"),

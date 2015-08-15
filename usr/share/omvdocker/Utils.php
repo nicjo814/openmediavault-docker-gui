@@ -240,6 +240,47 @@ class OMVModuleDockerUtil {
 	}
 
 	/**
+	 * Change the Docker daemon settings
+	 *
+	 * @param string apiPort The new API port to use
+	 */
+	function changeDockerSettings($apiPort)
+	{ 
+		$fileName = "/etc/default/docker";
+		$data = file_get_contents($fileName);
+		$lines = explode("\n", $data);
+		$result = "";
+		$socketSet = false;
+		foreach($lines as $line) {
+			if(strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
+				break;
+			} else {
+				if(preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
+					$socketSet = true;
+				}
+				$result .= $line . "\n";
+			}
+		}
+		$result .= '### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.' . "\n";
+		if($socketSet) {
+			$result .= 'OMVDOCKER_API="-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
+		} else {
+			$result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock -H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
+
+		}
+
+		$result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n" .
+			'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"' . "\n" .
+			'### Do not add any configuration below this line. They will be removed when the plugin is removed' . "\n";
+
+		file_put_contents("$fileName", $result);
+		
+		//Restart the Docker daemon for changes to take effect
+		$cmd = "service docker restart 2>&1";
+		OMVModuleDockerUtil::exec($cmd,$out,$res);
+	}
+
+	/**
 	 * Helper function to execute a command and throw an exception on error
 	 * (requires stderr redirected to stdout for proper exception message).
 	 * 
