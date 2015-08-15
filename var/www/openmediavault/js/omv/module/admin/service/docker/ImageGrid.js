@@ -164,6 +164,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			hidden: false,
 			displayField: 'name',
 			valueField: 'name',
+			pageSize: 10,
 
 			listConfig: {
 				loadingText: 'Searching...',
@@ -171,13 +172,12 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 
 				// Custom rendering template for each item
 				getInnerTpl: function() {
-					return '<div>' +
-						'<h4>{name}</h4>{description}' +
-						'<br />stars: {stars}'
+					return '<div class="search-item">' +
+						'<h4><span>{name}</h4>{description}' +
+						'<br />stars: {stars}</span>' +
 					'</div>';
 				}
 			},
-
 			// override default onSelect to open pull image dialog
 			listeners: {
 				select: function(combo, selection) {
