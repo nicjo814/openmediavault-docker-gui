@@ -43,7 +43,8 @@ Ext.define("OMV.module.admin.service.docker.SearchBox", {
 					service: "Docker",
 					method: "searchImages",
 					params: {
-						name: this.getValue()
+						name: this.getValue(),
+						filterParam: Ext.getCmp("imageSearchFilter").getValue()
 					}
 				}
 			});

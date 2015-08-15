@@ -186,12 +186,36 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		}
 		curl_close($curl);
 		$data = json_decode($response);
-		
+
 		foreach($data as $repo) {
-			array_push($objects, array("name" => $repo->name,
-				"description" => $repo->description,
-				"stars" => $repo->star_count));
-				
+			switch($params['filterParam']) {
+			case "all":
+					array_push($objects, array("name" => $repo->name,
+						"description" => $repo->description,
+						"stars" => $repo->star_count));
+				break;
+			case "trusted":
+				if($repo->is_trusted) {
+					array_push($objects, array("name" => $repo->name,
+						"description" => $repo->description,
+						"stars" => $repo->star_count));
+				}
+				break;
+			case "official":
+				if($repo->is_official) {
+					array_push($objects, array("name" => $repo->name,
+						"description" => $repo->description,
+						"stars" => $repo->star_count));
+				}
+				break;
+			case "trustedofficial":
+				if($repo->is_official && $repo->is_trusted) {
+					array_push($objects, array("name" => $repo->name,
+						"description" => $repo->description,
+						"stars" => $repo->star_count));
+				}
+				break;
+			}
 		}
 		return $objects;
 	}
@@ -350,8 +374,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			"type": "object",
 				"properties": {
 					"showDanglingImages": {	"type": "boolean" },
-					"enabled": {	"type": "boolean" },
-					"apiPort": { "type": "integer" } 
+						"enabled": {	"type": "boolean" },
+						"apiPort": { "type": "integer" } 
 	}}');
 
 	//Get the old settings object

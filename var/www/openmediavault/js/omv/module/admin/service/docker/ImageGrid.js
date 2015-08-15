@@ -96,6 +96,24 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 
 	getTopToolbarItems: function(c) {
 		var me = this;
+
+		var searchFilterStore = new Ext.data.ArrayStore({
+			fields: [
+				{name: "display", type: "string"},
+				{name: "value", type: "string"}
+			]
+		});
+
+		var filterStoreData = [
+			["All", "all"],
+			["Trusted", "trusted"],
+			["Official", "official"],
+			["Trusted&Official", "trustedofficial"]
+		];
+
+		searchFilterStore.loadData(filterStoreData, false);
+		console.log(searchFilterStore);
+
 		return [{
 			id: me.getId() + "-pull",
 			xtype: "button",
@@ -157,25 +175,18 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			xtype: 'box',
 			html: "Search"
 		},{
-			xtype: "combobox",
+			xtype: "combo",
 			name: "imageSearchFilter",
-			width: 100,
-			hidden: false,
-			displayField: 'filterName',
-			valueField: 'filterValue',
+			id: "imageSearchFilter",
+			store: searchFilterStore,
 			queryMode: "local",
-			store: Ext.create('Ext.data.Store', {
-				fields: [
-					{name: "filterName", type: "string"},
-					{name: "filterValue", type: "string"}
-				],
-				data : [
-					{"filterName": "All", "filterValue": "all"},
-					{"filterName": "Trusted", "filterValue": "trusted"},
-					{"filterName": "Official", "filterValue": "official"},
-					{"filterName": "Trusted&Official", "filterValue": "trustedofficial"}
-				]
-			})
+			width: 120,
+			hidden: false,
+			editable: false,
+			displayField: 'display',
+			valueField: 'value',
+			triggerAction: "all",
+			value: filterStoreData[0][0]
 		},{
 			xtype: "module.admin.service.docker.searchbox",
 			name: "searchCombo",
