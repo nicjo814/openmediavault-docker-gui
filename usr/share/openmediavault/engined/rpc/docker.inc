@@ -360,8 +360,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
 	}
 
-	if((($oldSettings['apiPort'] !== $params['apiPort']) && $params['enabled']) ||
-		($params['enabled'] && !$oldSettings['enabled'])) {
+	if($params['enabled']) {
 		OMVModuleDockerUtil::changeDockerSettings($params['apiPort']);
 	}
 

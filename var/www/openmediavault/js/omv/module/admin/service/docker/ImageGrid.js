@@ -157,6 +157,26 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			xtype: 'box',
 			html: "Search"
 		},{
+			xtype: "combobox",
+			name: "imageSearchFilter",
+			width: 100,
+			hidden: false,
+			displayField: 'filterName',
+			valueField: 'filterValue',
+			queryMode: "local",
+			store: Ext.create('Ext.data.Store', {
+				fields: [
+					{name: "filterName", type: "string"},
+					{name: "filterValue", type: "string"}
+				],
+				data : [
+					{"filterName": "All", "filterValue": "all"},
+					{"filterName": "Trusted", "filterValue": "trusted"},
+					{"filterName": "Official", "filterValue": "official"},
+					{"filterName": "Trusted&Official", "filterValue": "trustedofficial"}
+				]
+			})
+		},{
 			xtype: "module.admin.service.docker.searchbox",
 			name: "searchCombo",
 			width: 350,
@@ -175,7 +195,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 					return '<div class="search-item">' +
 						'<h4><span>{name}</h4>{description}' +
 						'<br />stars: {stars}</span>' +
-					'</div>';
+						'</div>';
 				}
 			},
 			// override default onSelect to open pull image dialog

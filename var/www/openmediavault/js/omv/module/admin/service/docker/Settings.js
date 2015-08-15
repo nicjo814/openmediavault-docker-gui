@@ -30,7 +30,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				plugins: [{
 					ptype: "fieldinfo",
 					text: _("Network port that the Docker API listens on")
-				}]
+				}],
 			}]
 		},{
 			xtype: "fieldset",

@@ -248,7 +248,7 @@ class OMVModuleDockerUtil {
 	{ 
 		//Stop the Docker daemon before making config changes
 		$cmd = "service docker stop";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);
+		OMVUtil::exec($cmd, $out, $res);
 		
 		$fileName = "/etc/default/docker";
 		$data = file_get_contents($fileName);
@@ -281,7 +281,7 @@ class OMVModuleDockerUtil {
 
 		//Start the daemon agai after changes have benn made
 		$cmd = "service docker start";
-		OMVModuleDockerUtil::exec($cmd,$out,$res);
+		OMVUtil::exec($cmd, $out, $res);
 	}
 
 	/**
