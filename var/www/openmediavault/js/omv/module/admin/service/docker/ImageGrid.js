@@ -112,7 +112,6 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		];
 
 		searchFilterStore.loadData(filterStoreData, false);
-		console.log(searchFilterStore);
 
 		return [{
 			id: me.getId() + "-pull",

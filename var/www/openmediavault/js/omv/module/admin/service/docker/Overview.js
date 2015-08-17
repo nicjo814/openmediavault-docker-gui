@@ -17,15 +17,12 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
         this.on("afterrender", function () {
             var parent = this.up("tabpanel");
 			
-			console.log(parent);
             if (!parent) {
                 return;
             }
 
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
-			console.log(overviewPanel);
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
-			console.log(settingsPanel);
             var checked = settingsPanel.findField("enabled").checked;
 
             if (overviewPanel) {

@@ -355,6 +355,17 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 
+		$dockerVersion = "0";
+		$dockerVersionInfo = "";
+		$cmd = "docker version 2>&1";
+		OMVUtil::exec($cmd,$out,$res);
+		if(preg_match('/.*command not found$/',$out[0])) {
+			$dockerVersionInfo = "Docker not installed";
+		} else {
+			preg_match('/Client version\: (.*)$/', $out[0], $matches);
+			$dockerVersion = $matches[1];
+			$dockerVersionInfo = implode("\n", $out);
+		}
 		$object = $xmlConfig->get($this->getXpath());
 		if (is_null($object)) {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
@@ -363,6 +374,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
 		$object["enabled"] = boolval($object["enabled"]);
 		$object["apiPort"] = intval($object["apiPort"]);
+		$object["version"] = $dockerVersion;
+		$object["versionInfo"] = $dockerVersionInfo;
 
 		return $object;
 	}

@@ -12,15 +12,12 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
         this.on("load", function () {
             var parent = this.up("tabpanel");
 			
-			console.log(parent);
             if (!parent) {
                 return;
             }
 
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
-			console.log(overviewPanel);
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
-			console.log(settingsPanel);
             var checked = settingsPanel.findField("enabled").checked;
 
             if (overviewPanel) {
@@ -41,10 +38,10 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
         return [{
             xtype: "fieldset",
             title: _("General"),
-            fieldDefaults: {
-                labelSeparator: ""
-            },
-            items: [{
+			fieldDefaults: {
+				labelSeparator: ""
+			},
+			items: [{
 				xtype: "checkbox",
 				name: "enabled",
 				boxLabel: _("Enable the plugin"),
@@ -60,6 +57,18 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 					ptype: "fieldinfo",
 					text: _("Network port that the Docker API listens on")
 				}],
+			},{
+				xtype: "fieldset",
+				title: _("Information"),
+				fieldDefaults: {
+					labelSeparator: ""
+				},
+				items: [{
+					xtype: "textareafield",
+					name: "versionInfo",
+					readOnly: true,
+					grow: true
+				}]
 			}]
 		},{
 			xtype: "fieldset",
@@ -73,6 +82,9 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				boxLabel: _("Show dangling images"),
 				checked: false
 			}]
+		},{
+			xtype: "hiddenfield",
+			name: "version"
 		}];
 	}
 });
