@@ -70,7 +70,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("getSettings");
 		$this->registerMethod("setSettings");
 		$this->registerMethod("getDetails");
-		$this->registerMethod("installDocker");
 	}
 
 	public function getImages($params, $context) {
@@ -437,33 +436,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		OMVModuleDockerUtil::exec($cmd,$out,$res);
 		//throw new OMVModuleDockerException($objects['details']);
 		return array("details" => implode("\n\r", $out));
-	}
-
-	public function installDocker($params, $context)
-	{
-		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
-
-		// Create a background process.
-		$bgStatusFilename = $this->createBgProcStatus();
-		$pid = $this->fork();
-		if ($pid > 0)   // Parent process.
-		{
-			$this->initializeBgProcStatus($bgStatusFilename, $pid);
-			return $bgStatusFilename;
-		}
-
-		// Child process.
-		try {
-			$bgOutputFilename = $this->createBgProcOutput();
-			$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
-			$cmd = "curl -sSL https://get.docker.com/ | sh 2>&1";
-			$this->exec($cmd, $output, $bgOutputFilename);
-			$this->finalizeBgProcStatus($bgStatusFilename, $output);
-
-		} catch(Exception $e) {
-			$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
-			exit(1);
-		}
 	}
 
 	//throw new OMVModuleDockerException($cmd);
