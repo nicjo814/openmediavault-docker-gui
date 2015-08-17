@@ -218,7 +218,13 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 						"stars" => $repo->star_count));
 				}
 				break;
+			default:
+				array_push($objects, array("name" => $repo->name,
+					"description" => $repo->description,
+					"stars" => $repo->star_count));
+				break;
 			}
+
 		}
 		return $objects;
 	}
