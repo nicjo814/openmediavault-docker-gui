@@ -24,17 +24,18 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
             var checked = settingsPanel.findField("enabled").checked;
+			var version = settingsPanel.findField("version").getValue();
 
             if (overviewPanel) {
-                if (checked) {
-                    overviewPanel.enable();
-                    overviewPanel.tab.show();
+                if (checked && version !== "0") {
+					overviewPanel.enable();
+					overviewPanel.tab.show();
 					parent.setActiveTab(overviewPanel);
-                } else {
-                    overviewPanel.disable();
-                    overviewPanel.tab.hide();
+				} else {
+					overviewPanel.disable();
+					overviewPanel.tab.hide();
 					parent.setActiveTab(settingsPanel);
-                }
+				}
 			}
 		}, this);
 
@@ -54,6 +55,7 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 		collapsible: true,
 		title: 'Docker Containers'
 	}]
+
 });
 
 OMV.WorkspaceManager.registerPanel({

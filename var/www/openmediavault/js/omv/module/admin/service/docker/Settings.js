@@ -18,16 +18,30 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
-            var checked = settingsPanel.findField("enabled").checked;
+			var installButton = settingsPanel.queryById("installDockerButton");
+            var dockerVersion = settingsPanel.findField("version").getValue();
+            if(dockerVersion === "0") {
+				settingsPanel.findField("enabled").setValue(0);
+			}
+			var checked = settingsPanel.findField("enabled").getValue();
 
             if (overviewPanel) {
                 if (checked) {
-                    overviewPanel.enable();
                     overviewPanel.tab.show();
+                    overviewPanel.enable();
                 } else {
                     overviewPanel.disable();
                     overviewPanel.tab.hide();
                 }
+				if (dockerVersion === "0") {
+					settingsPanel.findField("enabled").setDisabled(true);
+					settingsPanel.findField("apiPort").setDisabled(true);
+					installButton.setHidden(false);
+				} else {
+					settingsPanel.findField("enabled").setDisabled(false);
+					settingsPanel.findField("apiPort").setDisabled(false);
+					installButton.setHidden(true);
+				}
 			}
 		}, this);
 
@@ -46,17 +60,26 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				name: "enabled",
 				boxLabel: _("Enable the plugin"),
 			},{
+				id: "installDockerButton",
+				xtype: "button",
+				text: "Install",
+				icon: "images/download.png",
+				tooltip: "Install Docker",
+				iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+				handler: Ext.Function.bind(this.onInstallButton, this, [ this ]),
+				scope: this
+			},{
 				xtype: "numberfield",
 				anchor: '100%',
 				maxValue: 65535,
 				minValue: 0,
 				name: "apiPort",
-				fieldLabel: _("API port"),
 				allowBlank: false,
 				plugins: [{
 					ptype: "fieldinfo",
 					text: _("Network port that the Docker API listens on")
 				}],
+				padding: "10 0 0 0",
 			},{
 				xtype: "fieldset",
 				title: _("Information"),
@@ -86,6 +109,21 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 			xtype: "hiddenfield",
 			name: "version"
 		}];
+	},
+
+	onInstallButton: function() {
+		Ext.create("OMV.window.Execute", {
+			title          : "Install Docker",
+			rpcService     : "Docker",
+			rpcMethod      : "installDocker",
+			hideStopButton : true,
+			listeners      : {
+				scope     : this,
+				exception : function(wnd, error) {
+					OMV.MessageBox.error(null, error);
+				}
+			}
+		}).show();
 	}
 });
 

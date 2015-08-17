@@ -70,24 +70,28 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("getSettings");
 		$this->registerMethod("setSettings");
 		$this->registerMethod("getDetails");
+		$this->registerMethod("installDocker");
 	}
 
 	public function getImages($params, $context) {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		
+
 		$settings = $xmlConfig->get($this->getXpath());
 		if (is_null($settings)) {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
 		}
 
-		if($settings["showDanglingImages"]) {
-			$incDangling = false;
-		} else {
-			$incDangling = true;
+		$objects = array();
+		if($settings['enabled']) {
+			if($settings["showDanglingImages"]) {
+				$incDangling = false;
+			} else {
+				$incDangling = true;
+			}
+
+			$objects = OMVModuleDockerUtil::getImages($settings['apiPort'], $incDangling);
 		}
-		
-		$objects = OMVModuleDockerUtil::getImages($settings['apiPort'], $incDangling);
 		return $objects;
 	}
 
@@ -96,36 +100,36 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
 		$this->validateMethodParams($params, '{
 			"type": "object",
-			"properties": {
-				"repository": { "type" : "string" },
-				"tag": { "type" : "string" }
-			}}
-		');
-		if(strcmp($params['tag'], "") === 0)  {
-			$params['tag'] = "latest";
-		}
+				"properties": {
+					"repository": { "type" : "string" },
+						"tag": { "type" : "string" }
+	}}
+	');
+	if(strcmp($params['tag'], "") === 0)  {
+		$params['tag'] = "latest";
+	}
 
-		// Create a background process.
-		$bgStatusFilename = $this->createBgProcStatus();
-		$pid = $this->fork();
-		if ($pid > 0)   // Parent process.
-		{
-			$this->initializeBgProcStatus($bgStatusFilename, $pid);
-			return $bgStatusFilename;
-		}
+	// Create a background process.
+	$bgStatusFilename = $this->createBgProcStatus();
+	$pid = $this->fork();
+	if ($pid > 0)   // Parent process.
+	{
+		$this->initializeBgProcStatus($bgStatusFilename, $pid);
+		return $bgStatusFilename;
+	}
 
-		// Child process.
-		try {
-			$bgOutputFilename = $this->createBgProcOutput();
-			$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
-			$cmd = "docker pull " . $params['repository'] . ":" . $params['tag'];
-			$this->exec($cmd, $output, $bgOutputFilename);
-			$this->finalizeBgProcStatus($bgStatusFilename, $output);
+	// Child process.
+	try {
+		$bgOutputFilename = $this->createBgProcOutput();
+		$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+		$cmd = "docker pull " . $params['repository'] . ":" . $params['tag'];
+		$this->exec($cmd, $output, $bgOutputFilename);
+		$this->finalizeBgProcStatus($bgStatusFilename, $output);
 
-		} catch(Exception $e) {
-			$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
-			exit(1);
-		}
+	} catch(Exception $e) {
+		$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+		exit(1);
+	}
 	}
 
 	public function getImageInfo($params, $context) {
@@ -159,9 +163,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 					"id": { "type" : "string" }
 	}}');
 
-		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
-		$cmd = "docker rmi " . $params['id'];
-		OMVModuleDockerUtil::exec($cmd,$out,$res);	
+	$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+	$cmd = "docker rmi " . $params['id'];
+	OMVModuleDockerUtil::exec($cmd,$out,$res);	
 	}
 
 	public function searchImages($params, $context) {
@@ -190,9 +194,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		foreach($data as $repo) {
 			switch($params['filterParam']) {
 			case "all":
-					array_push($objects, array("name" => $repo->name,
-						"description" => $repo->description,
-						"stars" => $repo->star_count));
+				array_push($objects, array("name" => $repo->name,
+					"description" => $repo->description,
+					"stars" => $repo->star_count));
 				break;
 			case "trusted":
 				if($repo->is_trusted) {
@@ -224,12 +228,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		global $xmlConfig;
 		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
 
+		$objects = array();
+
 		$settings = $xmlConfig->get($this->getXpath());
 		if (is_null($settings)) {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
 		}
 
-		$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
+		if($settings['enabled']) {
+			$objects = OMVModuleDockerUtil::getContainers($settings['apiPort']);
+		}
 		return $objects;
 	}
 
@@ -357,13 +365,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 
 		$dockerVersion = "0";
 		$dockerVersionInfo = "";
-		$cmd = "docker version 2>&1";
+		$cmd = "docker --version 2>&1";
 		OMVUtil::exec($cmd,$out,$res);
-		if(preg_match('/.*command not found$/',$out[0])) {
+
+		if(!preg_match('/^Docker version ([\d\.]+)\,.*$/', $out[0], $matches)) {
 			$dockerVersionInfo = "Docker not installed";
 		} else {
-			preg_match('/Client version\: (.*)$/', $out[0], $matches);
 			$dockerVersion = $matches[1];
+			$cmd = "docker version";
+			unset($out);
+			OMVUtil::exec($cmd,$out,$res);
 			$dockerVersionInfo = implode("\n", $out);
 		}
 		$object = $xmlConfig->get($this->getXpath());
@@ -388,6 +399,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				"properties": {
 					"showDanglingImages": {	"type": "boolean" },
 						"enabled": {	"type": "boolean" },
+						"versionInfo": {	"type": "string" },
+						"version": {	"type": "string" },
 						"apiPort": { "type": "integer" } 
 	}}');
 
@@ -424,6 +437,33 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		OMVModuleDockerUtil::exec($cmd,$out,$res);
 		//throw new OMVModuleDockerException($objects['details']);
 		return array("details" => implode("\n\r", $out));
+	}
+
+	public function installDocker($params, $context)
+	{
+		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
+
+		// Create a background process.
+		$bgStatusFilename = $this->createBgProcStatus();
+		$pid = $this->fork();
+		if ($pid > 0)   // Parent process.
+		{
+			$this->initializeBgProcStatus($bgStatusFilename, $pid);
+			return $bgStatusFilename;
+		}
+
+		// Child process.
+		try {
+			$bgOutputFilename = $this->createBgProcOutput();
+			$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+			$cmd = "curl -sSL https://get.docker.com/ | sh 2>&1";
+			$this->exec($cmd, $output, $bgOutputFilename);
+			$this->finalizeBgProcStatus($bgStatusFilename, $output);
+
+		} catch(Exception $e) {
+			$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+			exit(1);
+		}
 	}
 
 	//throw new OMVModuleDockerException($cmd);
