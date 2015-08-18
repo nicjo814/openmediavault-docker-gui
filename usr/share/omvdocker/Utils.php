@@ -279,7 +279,13 @@ class OMVModuleDockerUtil {
 
 		file_put_contents("$fileName", $result);
 
-		//Start the daemon agai after changes have benn made
+		//Start the daemon again after changes have benn made
+		$cmd = "service docker stop";
+		OMVUtil::exec($cmd, $out, $res);
+		$cmd = "service docker start";
+		OMVUtil::exec($cmd, $out, $res);
+		$cmd = "service docker stop";
+		OMVUtil::exec($cmd, $out, $res);
 		$cmd = "service docker start";
 		OMVUtil::exec($cmd, $out, $res);
 	}

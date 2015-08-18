@@ -1,6 +1,6 @@
 Source: openmediavault-docker-gui
 Section: net
-XB-Plugin-Section: filesystems
+XB-Plugin-Section: virtualization
 Priority: optional
 Maintainer: OpenMediaVault Plugin Developers <plugins@omv-extras.org>
 Build-Depends: debhelper (>= 9.0.0 )

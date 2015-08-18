@@ -21,14 +21,15 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
             var dockerVersion = settingsPanel.findField("version").getValue();
 			var checked = settingsPanel.findField("enabled").checked
 
-            if (overviewPanel) {
-                if (checked) {
-                    overviewPanel.tab.show();
-                    overviewPanel.enable();
-                } else {
-                    overviewPanel.disable();
-                    overviewPanel.tab.hide();
-                }
+			if (overviewPanel) {
+				if (checked) {
+					overviewPanel.tab.show();
+					overviewPanel.enable();
+					parent.setActiveTab(overviewPanel);
+				} else {
+					overviewPanel.disable();
+					overviewPanel.tab.hide();
+				}
 				if (dockerVersion === "0") {
 					settingsPanel.findField("enabled").setDisabled(true);
 					settingsPanel.findField("apiPort").setDisabled(true);
@@ -42,10 +43,10 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 		this.callParent(arguments);
 	},
 
-    getFormItems: function() {
-        return [{
-            xtype: "fieldset",
-            title: _("General"),
+	getFormItems: function() {
+		return [{
+			xtype: "fieldset",
+			title: _("General"),
 			fieldDefaults: {
 				labelSeparator: ""
 			},

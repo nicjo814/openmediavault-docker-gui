@@ -12,8 +12,8 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 		type: 'vbox',
 		align: 'stretch'
 	},
-
-    initComponent : function() {
+    
+	initComponent : function() {
         this.on("afterrender", function () {
             var parent = this.up("tabpanel");
 			
@@ -41,7 +41,6 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 
 		this.callParent(arguments);
 	},
-
 	items: [{
 		xtype: 'module.admin.service.docker.imagegrid',
 		flex: 1,
