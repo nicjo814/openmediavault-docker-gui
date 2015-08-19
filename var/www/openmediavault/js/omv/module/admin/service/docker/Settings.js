@@ -1,5 +1,6 @@
 // require("js/omv/WorkspaceManager.js")
 // require("js/omv/workspace/form/Panel.js")
+// require("js/omv/module/admin/service/docker/ImageGrid.js")
 
 Ext.define("OMV.module.admin.service.docker.Settings", {
     extend: "OMV.workspace.form.Panel",
@@ -25,6 +26,8 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				if (checked) {
 					overviewPanel.tab.show();
 					overviewPanel.enable();
+					overviewPanel.down("dockerImageGrid").doReload();
+					overviewPanel.down("dockerContainerGrid").doReload();
 					parent.setActiveTab(overviewPanel);
 				} else {
 					overviewPanel.disable();

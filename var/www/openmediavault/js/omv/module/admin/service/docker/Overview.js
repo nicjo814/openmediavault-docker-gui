@@ -42,14 +42,14 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 		this.callParent(arguments);
 	},
 	items: [{
-		xtype: 'module.admin.service.docker.imagegrid',
+		xtype: 'dockerImageGrid',
 		flex: 1,
 		collapsible: true,
 		title: 'Docker Images'
 	},{
 		xtype: 'splitter'
 	},{
-		xtype: 'module.admin.service.docker.containergrid',
+		xtype: 'dockerContainerGrid',
 		flex: 1,
 		collapsible: true,
 		title: 'Docker Containers'

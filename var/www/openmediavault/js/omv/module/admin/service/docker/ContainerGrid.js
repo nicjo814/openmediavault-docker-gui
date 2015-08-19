@@ -9,7 +9,7 @@
 
 Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 	extend: "OMV.workspace.grid.Panel",
-	alias: "widget.module.admin.service.docker.containergrid",
+	alias: "widget.dockerContainerGrid",
 
 	id: "dockerContainerGrid",
 	disableDeleteButton: true,
