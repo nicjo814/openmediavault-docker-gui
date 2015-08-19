@@ -8,8 +8,8 @@ set -e
 
 case "$1" in
   configure)
-
-    if ! omv_config_exists "/config/services/docker"; then
+    
+	  if ! omv_config_exists "/config/services/docker"; then
       echo "Initialize configuration"
       object="<showDanglingImages>0</showDanglingImages>"
 	  object="${object}<apiPort>42005</apiPort>"
