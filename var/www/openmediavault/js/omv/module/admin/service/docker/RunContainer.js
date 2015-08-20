@@ -261,7 +261,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 
 		//Add environment variables and an empty row
 		var envVarsFieldset = me.queryById("dockerEnvVars");
-		if(me.cenvvars === []) {
+		if(me.cenvvars.length === 0) {
 			me.cenvvars = me.envvars;
 		}
 		var keys = Object.keys(me.cenvvars);	
