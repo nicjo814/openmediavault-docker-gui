@@ -193,25 +193,14 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			tbarBtnDisabled["details"] = true;
 			tbarBtnDisabled["delete"] = true;
 		} else if(records.length == 1) {
-			// Disable 'Start' and 'Delete' buttons if selected node is not stopped
+			// Disable 'Delete' button if selected node is not stopped
 			Ext.Array.each(records, function(record) {
 				if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
-					tbarBtnDisabled["start"] = true;
 					tbarBtnDisabled["delete"] = true;
 					return false;
 				}
 			});
-			// Disable 'Stop' button if selected node is not running
-			Ext.Array.each(records, function(record) {
-				if(!(record.get("state") === "running")) {
-					tbarBtnDisabled["stop"] = true;
-					return false;
-				}
-			});
 		} else {
-			tbarBtnDisabled["start"] = true;
-			tbarBtnDisabled["stop"] = true;
-			tbarBtnDisabled["restart"] = true;
 			tbarBtnDisabled["copy"] = true;
 			tbarBtnDisabled["details"] = true;
 			// Disable 'Delete' button if selected nodes are not stopped
@@ -239,20 +228,37 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 	onStartButton: function() {
 		var me = this;
 		var sm = me.getSelectionModel();
-		var records = sm.getSelection();
-		var record = records[0];
+		var selRecords = sm.getSelection();
+		var record = selRecords[0];
+		var index;
+		var idList = "";
+		for(i = 0; i < selRecords.length; i++) {
+			if(i === 0) {
+				idList = selRecords[i].get("id");
+			} else {
+				idList = idList + " " + selRecords[i].get("id");
+			}
+		}
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
 				sm.deselectAll();
-				me.doReload();
+				me.store.load({
+					scope: me,
+					callback: function(records, operation, success) {
+						for(i = 0; i < selRecords.length; i++) {
+							index = me.store.find('name', selRecords[i].get("name"));
+							sm.select(index, true);
+						}
+					}
+				});
 			},
 			relayErrors: false,
 			rpcData: {
 				service: "Docker",
 				method: "startContainer",
 				params: {
-					id: record.get("id")
+					id: idList
 				}
 			}
 		});
@@ -261,20 +267,37 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 	onStopButton: function() {
 		var me = this;
 		var sm = me.getSelectionModel();
-		var records = sm.getSelection();
-		var record = records[0];
+		var selRecords = sm.getSelection();
+		var record = selRecords[0];
+		var index;
+		var idList = "";
+		for(i = 0; i < selRecords.length; i++) {
+			if(i === 0) {
+				idList = selRecords[i].get("id");
+			} else {
+				idList = idList + " " + selRecords[i].get("id");
+			}
+		}
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
 				sm.deselectAll();
-				me.doReload();
+				me.store.load({
+					scope: me,
+					callback: function(records, operation, success) {
+						for(i = 0; i < selRecords.length; i++) {
+							index = me.store.find('name', selRecords[i].get("name"));
+							sm.select(index, true);
+						}
+					}
+				});
 			},
 			relayErrors: false,
 			rpcData: {
 				service: "Docker",
 				method: "stopContainer",
 				params: {
-					id: record.get("id")
+					id: idList
 				}
 			}
 		});
@@ -283,25 +306,42 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 	onRestartButton: function() {
 		var me = this;
 		var sm = me.getSelectionModel();
-		var records = sm.getSelection();
-		var record = records[0];
+		var selRecords = sm.getSelection();
+		var record = selRecords[0];
+		var index;
+		var idList = "";
+		for(i = 0; i < selRecords.length; i++) {
+			if(i === 0) {
+				idList = selRecords[i].get("id");
+			} else {
+				idList = idList + " " + selRecords[i].get("id");
+			}
+		}
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
 				sm.deselectAll();
-				me.doReload();
+				me.store.load({
+					scope: me,
+					callback: function(records, operation, success) {
+						for(i = 0; i < selRecords.length; i++) {
+							index = me.store.find('name', selRecords[i].get("name"));
+							sm.select(index, true);
+						}
+					}
+				});
 			},
 			relayErrors: false,
 			rpcData: {
 				service: "Docker",
 				method: "restartContainer",
 				params: {
-					id: record.get("id")
+					id: idList
 				}
 			}
 		});
 	},
-	
+
 	onDetailsButton: function() {
 		var me = this;
 		var sm = me.getSelectionModel();
