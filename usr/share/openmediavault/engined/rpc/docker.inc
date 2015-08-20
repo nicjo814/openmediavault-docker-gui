@@ -70,6 +70,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("getSettings");
 		$this->registerMethod("setSettings");
 		$this->registerMethod("getDetails");
+		$this->registerMethod("getRootFolders");
 	}
 
 	public function getImages($params, $context) {
@@ -441,6 +442,33 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		//throw new OMVModuleDockerException($objects['details']);
 		return array("details" => implode("\n\r", $out));
 	}
+
+    public function getRootFolders($params, $context)
+    {
+        global $xmlConfig;
+
+        // Validate the RPC caller context.
+        $this->validateMethodContext(
+            $context,
+            array( "role" => OMV_ROLE_ADMINISTRATOR )
+        );
+
+        // List the directory contents.
+        $result = array();
+        $path = sprintf("/%s", rtrim($params['path'], "/"));
+        if ( strlen($path) == 0 )
+            $path = "/";
+
+        foreach (new DirectoryIterator($path) as $item)
+        {
+            if ($item->isDot())
+                continue;
+            if (!$item->isDir())
+                continue;
+            $result[] = $item->getFilename();
+        }
+        return $result;
+    }
 
 	//throw new OMVModuleDockerException($cmd);
 }

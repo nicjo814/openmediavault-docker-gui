@@ -1,6 +1,11 @@
+// require("js/omv/workspace/window/plugin/ConfigObject.js")
+// require("js/omv/module/admin/service/docker/RootFolderBrowser.js")
 Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 	extend: "Ext.container.Container",
 	alias: "widget.module.admin.service.docker.bindmountrow", 
+    requires : [
+        "OMV.workspace.window.plugin.ConfigObject"
+    ],
 
 	layout: "hbox",
 	shadow: false,
@@ -9,15 +14,37 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 
 	from: "",
 	to: "",
+    plugins: [{
+        ptype : "configobject"
+    }],
+	uuid : OMV.UUID_UNDEFINED,
 
 	initComponent: function() {
 		var me = this;
+		me.uuid = OMV.UUID_UNDEFINED;
 		me.items = [{
 			xtype: "textfield",
 			name: "bindMountFrom-" + me.bindCount,
 			id: "bindMountFrom-" + me.bindCount,
 			flex: 1,
-			value: me.from
+			value: me.from,
+            triggers       : {
+                folder : {
+                    cls     : Ext.baseCSSPrefix + "form-folder-trigger",
+                    handler : "onTriggerClick"
+                }
+            },
+            onTriggerClick : function() {
+                Ext.create("OMV.window.RootFolderBrowser", {
+                    listeners : {
+                        scope  : this,
+                        select : function(wnd, node, path) {
+                            // Set the selected path.
+                            this.setValue(path);
+                        }
+                    }
+                }).show();
+            }
 		},{
 			xtype: "textfield",
 			name: "bindMountTo-" + me.bindCount,
