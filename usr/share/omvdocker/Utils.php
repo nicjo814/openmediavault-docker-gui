@@ -246,10 +246,15 @@ class OMVModuleDockerUtil {
 	 */
 	function changeDockerSettings($apiPort)
 	{ 
-		//Stop the Docker daemon before making config changes
-		$cmd = "service docker stop";
-		OMVUtil::exec($cmd, $out, $res);
 		
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "1") {
+			//Stop the Docker daemon before making config changes
+			$cmd = "service docker stop";
+			OMVUtil::exec($cmd, $out, $res);
+		}
+
 		$fileName = "/etc/default/docker";
 		$data = file_get_contents($fileName);
 		$lines = explode("\n", $data);

@@ -16,26 +16,24 @@ case "$1" in
 			    service docker stop
 		fi
 		sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/default/docker
-		if [ $DOCKERSERVICE -eq 1 ]; then
-			    service docker start
-		fi
+		service docker start
 	fi
 
-    if omv_config_exists $CONFIG; then
-      echo "Deleting Configuration"
-      omv_config_delete $CONFIG;
-    fi
+	if omv_config_exists $CONFIG; then
+		echo "Deleting Configuration"
+		omv_config_delete $CONFIG;
+	fi
 
-    if ! omv_config_exists $CONFIG; then
-      echo "Configuration Deleted"
-    fi
+	if ! omv_config_exists $CONFIG; then
+		echo "Configuration Deleted"
+	fi
 
-    ;;
+	;;
 
-  *)
-    echo "postrm called with unknown argument \`$1'" >&2
-    exit 1
-    ;;
+*)
+	echo "postrm called with unknown argument \`$1'" >&2
+	exit 1
+	;;
 esac
 
 #DEBHELPER#
