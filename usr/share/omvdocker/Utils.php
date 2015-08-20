@@ -275,7 +275,7 @@ class OMVModuleDockerUtil {
 
 		$result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n" .
 			'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"' . "\n" .
-			'### Do not add any configuration below this line. They will be removed when the plugin is removed' . "\n";
+			'### Do not add any configuration below this line. They will be removed when the plugin is removed';
 
 		file_put_contents("$fileName", $result);
 

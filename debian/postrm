@@ -10,10 +10,15 @@ CONFIG="/config/services/docker"
 case "$1" in
   purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
 	
-	  if [ -f /etc/default/docker ]; then
-		service docker stop
-		sed -i '/### Do not change these lines. They are added and updated by the OMV Docker GUI plugin./,$d' /etc/default/docker
-		service docker start
+	if [ -f /etc/default/docker ]; then
+		DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
+		if [ $DOCKERSERVICE -eq 1 ]; then
+			    service docker stop
+		fi
+		sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/default/docker
+		if [ $DOCKERSERVICE -eq 1 ]; then
+			    service docker start
+		fi
 	fi
 
     if omv_config_exists $CONFIG; then
