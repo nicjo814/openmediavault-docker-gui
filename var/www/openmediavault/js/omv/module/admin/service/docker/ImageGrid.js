@@ -361,19 +361,6 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var sm = me.getSelectionModel();
 		var records = sm.getSelection();
 		var record = records[0];
-
-		var detailsWindow = Ext.create("OMV.module.admin.service.docker.ImageInfo", {
-			title: "Image info",
-			width: 800,
-			height: 700,
-			layout: "fit",
-			hideResetButton: true,
-			hideCancelButton: true,
-			okButtonText: _("Close"),
-			scrollable: false,
-			id: "dockerImageInfoWindow",
-			repository: record.get('repository')
-		}).show();
+		window.open('https://hub.docker.com/r/' + record.get("repository"));	
 	}
-
 });
