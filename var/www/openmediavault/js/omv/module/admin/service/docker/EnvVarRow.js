@@ -25,9 +25,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			id: "envName-" + me.envCount,
 			value: me.nameVal,
 			flex: 1,
-			readOnly: defVal,
-			regex: /^[a-zA-Z_]+[a-zA-Z0-9_]*$/,
-			invalidText: "Invalid name of environment value"
+			readOnly: defVal
 		},{
 			xtype: "textfield",
 			name: "envValue-" + me.envCount,
@@ -46,7 +44,8 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 			listeners: {
 				scope: this,
 				click: function(button, e , eOpts) {
-					if(me.queryById("envName-" + me.envCount).isValid()) {
+					var errorMsg = me.validateData();
+					if(errorMsg === "") {
 						me.up('window').envVars[me.envCount] = {
 							name: me.queryById("envName-" + me.envCount).getValue(),
 							value: me.queryById("envValue-" + me.envCount).getValue()
@@ -62,7 +61,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 						me.queryById("envName-" + me.envCount).setReadOnly(true);
 						me.queryById("envValue-" + me.envCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Error", "Bad input detected");
+						Ext.Msg.alert("Bad input", errorMsg);
 					}
 				},
 				setNewRow: function() {
@@ -106,5 +105,15 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 		Ext.apply(me, {
 		});
 		me.callParent(arguments);
+	},
+
+	validateData: function() {
+		var me = this;
+		var name = me.queryById("envName-" + me.envCount).getValue();
+		var errorMsg = "";
+		if (!(/^[a-zA-Z_]+[a-zA-Z0-9_]*$/.test(name))) {
+			errorMsg = errorMsg + "Invalid name supplied";
+		}
+		return errorMsg;
 	}
 });
