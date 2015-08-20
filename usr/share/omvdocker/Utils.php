@@ -287,6 +287,22 @@ class OMVModuleDockerUtil {
 		//Start the daemon again after changes have been made
 		$cmd = "service docker start";
 		OMVUtil::exec($cmd, $out, $res);
+		unset($out);
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "0") {
+			for($i = 0; $i < 5; $i++) {
+				unset($out);
+				$cmd = "service docker start";
+				OMVUtil::exec($cmd, $out, $res);
+				unset($out);
+				$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+				OMVUtil::exec($cmd, $out, $res);
+				if($out[0] === "1") {
+					break;
+				}
+			}
+		}
 	}
 
 	/**
