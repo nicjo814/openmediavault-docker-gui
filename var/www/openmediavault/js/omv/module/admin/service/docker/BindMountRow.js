@@ -17,19 +17,13 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			name: "bindMountFrom-" + me.bindCount,
 			id: "bindMountFrom-" + me.bindCount,
 			flex: 1,
-			value: me.from,
-			regex: /^[\/]{1}.*$/,
-			invalidText: "Must be an absolute path that begins with /",
-			allowBlank: false
+			value: me.from
 		},{
 			xtype: "textfield",
 			name: "bindMountTo-" + me.bindCount,
 			id: "bindMountTo-" + me.bindCount,
 			flex: 1,
-			value: me.to,
-			regex: /^[\/]{1}.*$/,
-			invalidText: "Must be an absolute path that begins with /",
-			allowBlank: false
+			value: me.to
 		},{
 			xtype: "button",
 			id: "bindMountAddButton-" + me.bindCount,
@@ -40,7 +34,8 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 			listeners: {
 				scope: this,
 				click: function(button, e , eOpts) {
-					if(me.queryById("bindMountFrom-" + me.bindCount).isValid() && me.queryById("bindMountTo-" + me.bindCount).isValid()) {
+					var errorMsg = me.validateData();
+					if(errorMsg === "") {
 						me.up('window').bindMounts[me.bindCount] = {
 							from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
 							to: me.queryById("bindMountTo-" + me.bindCount).getValue()
@@ -56,7 +51,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 						me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
 						me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Error", "Bad input detected");
+						Ext.Msg.alert("Bad input", errorMsg);
 					}
 				},	
 				setNewRow: function(button) {
@@ -90,5 +85,20 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 		Ext.apply(me, {
 		});
 		me.callParent(arguments);
+	},
+
+	validateData: function() {
+		var me = this;
+		var from = me.queryById("bindMountFrom-" + me.bindCount).getValue();
+		var to = me.queryById("bindMountTo-" + me.bindCount).getValue();
+
+		var errorMsg = "";
+		if (from === "") {
+			errorMsg = errorMsg + "Host path must not be empty</br>";
+		}
+		if (to === "") {
+			errorMsg = errorMsg + "Container path must not be empty</br>";
+		}
+		return errorMsg;
 	}
 });
