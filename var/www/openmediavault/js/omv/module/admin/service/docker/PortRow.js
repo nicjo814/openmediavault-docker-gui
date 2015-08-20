@@ -11,9 +11,9 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 	},
 
 	hostip: "0.0.0.0",
-	hostport: 0,
+	hostport: "",
 	exposedport: "Select",
-	customport: 0,
+	customport: "",
 
 	initComponent: function() {
 		var me = this;
@@ -22,14 +22,9 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			name: "hostip-" + me.portCount,
 			value: "0.0.0.0",
 			id: "hostip-" + me.portCount,
-			value: me.hostip,
-			regex: /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-			invalidText: "Not a valid IP number"
+			value: me.hostip
 		},{
-			xtype: "numberfield",
-			minValue: 1,
-			maxValue: 65535,
-			invalidText: "Not a valid port number (1-65535)",
+			xtype: "textfield",
 			name: "hostport-" + me.portCount,
 			id: "hostport-" + me.portCount,
 			value: me.hostport
@@ -50,18 +45,14 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 				}
 			}
 		},{
-			xtype: "numberfield",
-			allowBlank: true,
-			minValue: 1,
-			maxValue: 65535,
-			invalidText: "Not a valid port number (1-65535)",
+			xtype: "textfield",
 			name: "customPort-" + me.portCount,
 			id: "customPort-" + me.portCount,
 			value: me.customport,
 			listeners: {
 				scope: me,
 				change: function(combo, newValue, oldValue, eOpts) {
-					if(newValue === null) {
+					if(newValue === "") {
 						me.queryById("exposedPort-" + me.portCount).setDisabled(false);
 					} else {
 						me.queryById("exposedPort-" + me.portCount).setValue("Select");
@@ -81,9 +72,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 			listeners: {
 				scope: this,
 				click: function(button, e , eOpts) {
-					if(me.queryById("hostip-" + me.portCount).isValid() && me.queryById("hostport-" + me.portCount).isValid() && 
-					   (me.queryById("exposedPort-" + me.portCount).getValue() !== "Select" || me.queryById("customPort-" + me.portCount).isValid()) &&
-					  	me.queryById("customPort-" + me.portCount).getValue() !== null) {
+					var errorMsg = me.validateData();
+					if(errorMsg === "") {
 						me.up('window').portForwards[me.portCount] = {
 							hostip: me.queryById("hostip-" + me.portCount).getValue(),
 							hostport: me.queryById("hostport-" + me.portCount).getValue(),
@@ -104,7 +94,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 						me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
 						me.queryById("customPort-" + me.portCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Error", "Bad input detected");
+						Ext.Msg.alert("Bad input", errorMsg);
 					}
 				},
 				setNewRow: function() {
@@ -143,6 +133,27 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 		Ext.apply(me, {
 		});
 		me.callParent(arguments);
-	}
+	},
 
+	validateData: function() {
+		var me = this;
+		var hostip = me.queryById("hostip-" + me.portCount).getValue();
+		var hostport = me.queryById("hostport-" + me.portCount).getValue();
+		var exposedport = me.queryById("exposedPort-" + me.portCount).getValue();
+		var customport = me.queryById("customPort-" + me.portCount).getValue();
+		var errorMsg = "";
+		if (!(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(hostip))) {
+			errorMsg = errorMsg + "Illegal host ip supplied</br>";
+		}
+		if(isNaN(hostport) || hostport > 65535 || hostport === "" || hostport < 1) {
+			errorMsg = errorMsg + "Illegal host port supplied</br>";
+		}
+		if(exposedport === "Select" && customport === "") {
+			errorMsg = errorMsg + "Either an exposed port, or a custom port must be specified</br>";
+		}
+		if(customport !== "" && (isNaN(customport) || customport > 65535 || customport < 1)) {
+			errorMsg = errorMsg + "Illegal custom port supplied</br>";
+		}
+		return errorMsg;
+	}
 });
