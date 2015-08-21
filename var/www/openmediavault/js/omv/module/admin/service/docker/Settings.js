@@ -68,18 +68,18 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 					ptype: "fieldinfo",
 					text: _("Network port that the Docker API listens on")
 				}],
-			},{
-				xtype: "fieldset",
-				title: _("Information"),
-				fieldDefaults: {
-					labelSeparator: ""
-				},
-				items: [{
-					xtype: "textareafield",
-					name: "versionInfo",
-					readOnly: true,
-					grow: true
-				}]
+			}]
+		},{
+			xtype: "fieldset",
+			title: _("Information"),
+			fieldDefaults: {
+				labelSeparator: ""
+			},
+			items: [{
+				xtype: "textareafield",
+				name: "versionInfo",
+				readOnly: true,
+				grow: true
 			}]
 		},{
 			xtype: "fieldset",
