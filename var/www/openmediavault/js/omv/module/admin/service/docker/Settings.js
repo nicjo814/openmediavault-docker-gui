@@ -82,6 +82,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				grow: true
 			}]
 		},{
+			/*
 			xtype: "fieldset",
 			title: _("Image grid"),
 			fieldDefaults: {
@@ -94,6 +95,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				checked: false
 			}]
 		},{
+	   		*/
 			xtype: "hiddenfield",
 			name: "version"
 		}];

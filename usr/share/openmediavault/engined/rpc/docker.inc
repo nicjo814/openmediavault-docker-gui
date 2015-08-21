@@ -388,7 +388,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $this->getXpath());
 		}
 
-		$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
+		//$object["showDanglingImages"] = boolval($object["showDanglingImages"]);
 		$object["enabled"] = boolval($object["enabled"]);
 		$object["apiPort"] = intval($object["apiPort"]);
 		$object["version"] = $dockerVersion;
@@ -403,7 +403,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodParams($params,'{
 			"type": "object",
 				"properties": {
-					"showDanglingImages": {	"type": "boolean" },
 						"enabled": {	"type": "boolean" },
 						"versionInfo": {	"type": "string" },
 						"version": {	"type": "string" },
@@ -420,7 +419,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 
 	// Update the configuration object.
 	$object = array(
-		"showDanglingImages" => array_boolval($params, "showDanglingImages"),
+		//"showDanglingImages" => array_boolval($params, "showDanglingImages"),
 		"enabled" => array_boolval($params, "enabled"),
 		"apiPort" => $params['apiPort']
 	);
