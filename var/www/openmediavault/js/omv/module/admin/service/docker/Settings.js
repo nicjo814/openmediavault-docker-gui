@@ -66,7 +66,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 				allowBlank: false,
 				plugins: [{
 					ptype: "fieldinfo",
-					text: _("Network port that the Docker API listens on")
+					text: _("Network port that the Docker API listens on. The plugin must be enabled for a change to be committed")
 				}],
 			}]
 		},{
