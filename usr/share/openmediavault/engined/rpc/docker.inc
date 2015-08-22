@@ -409,7 +409,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 						"version": {	"type": "string" },
 						"apiPort": { "type": "integer" },
 						"sharedfolderref": { "type": "string" },
-						"uuid": { "type": "string" }
+						"uuid": { "type": "string" },
+						"orgpath": { "type": "string" },
+						"destpath": { "type": "string" }
 	}}');
 
 	//Get the old settings object
