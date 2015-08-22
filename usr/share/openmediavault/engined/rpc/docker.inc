@@ -430,7 +430,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			$share = $xmlConfig->get($xpath);
 			$xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] . "']";
 			$mntent = $xmlConfig->get($xpath);
-			$absPath = rtrim($mntent['dir'] . "/" . $share['reldirpath'], "/");
+			$absPath = rtrim(rtrim($mntent['dir'], "/") . "/" . $share['reldirpath'], "/");
 		} else {
 			$sharedFolder = "";
 		}
