@@ -13,7 +13,11 @@ case "$1" in
 	if [ -f /etc/default/docker ]; then
 		DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
 		if [ $DOCKERSERVICE -eq 1 ]; then
-			    service docker stop
+			DOCKERCONTAINERS=`docker ps -q | wc -l`
+			if [ $DOCKERCONTAINERS -gt 0 ]; then
+				docker ps -q | xargs docker kill
+			fi
+			service docker stop
 		fi
 		sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/default/docker
 		service docker start
