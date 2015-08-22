@@ -1,6 +1,8 @@
 // require("js/omv/WorkspaceManager.js")
 // require("js/omv/workspace/form/Panel.js")
 // require("js/omv/module/admin/service/docker/ImageGrid.js")
+// require("js/omv/workspace/window/plugin/ConfigObject.js")
+// require("js/omv/form/field/SharedFolderComboBox.js")
 
 Ext.define("OMV.module.admin.service.docker.Settings", {
     extend: "OMV.workspace.form.Panel",
@@ -8,11 +10,18 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
     rpcService: "Docker",
     rpcGetMethod: "getSettings",
     rpcSetMethod: "setSettings",
-    
+    plugins: [{
+		ptype: "configobject"
+	}],
+
+	uuid: "",
+
     initComponent : function() {
         this.on("load", function () {
-            var parent = this.up("tabpanel");
-			
+
+			this.uuid = OMV.UUID_UNDEFINED;
+			var parent = this.up("tabpanel");
+				
             if (!parent) {
                 return;
             }
@@ -47,6 +56,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 	},
 
 	getFormItems: function() {
+		var me = this;
 		return [{
 			xtype: "fieldset",
 			title: _("General"),
@@ -68,6 +78,15 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 					ptype: "fieldinfo",
 					text: _("Network port that the Docker API listens on. The plugin must be enabled for a change to be committed")
 				}],
+			},{
+				xtype: "sharedfoldercombo",
+				name: "sharedfolderref",
+				plugins: [{
+					ptype: "fieldinfo",
+					text: _("The location of the Docker base path (this setting is optional and defaults to /var/lib/docker if unset). The plugin must be enabled for a change to be committed")
+				}],
+				allowNone: true,
+				allowBlank: true
 			}]
 		},{
 			xtype: "fieldset",
@@ -83,19 +102,19 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 			}]
 		},{
 			/*
-			xtype: "fieldset",
-			title: _("Image grid"),
-			fieldDefaults: {
-				labelSeparator: ""
-			},
-			items: [{
-				xtype: "checkbox",
-				name: "showDanglingImages",
-				boxLabel: _("Show dangling images"),
-				checked: false
-			}]
-		},{
-	   		*/
+xtype: "fieldset",
+title: _("Image grid"),
+fieldDefaults: {
+labelSeparator: ""
+},
+items: [{
+xtype: "checkbox",
+name: "showDanglingImages",
+boxLabel: _("Show dangling images"),
+checked: false
+}]
+},{
+*/
 			xtype: "hiddenfield",
 			name: "version"
 		}];

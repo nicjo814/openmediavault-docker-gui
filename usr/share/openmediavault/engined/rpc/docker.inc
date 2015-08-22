@@ -393,6 +393,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$object["apiPort"] = intval($object["apiPort"]);
 		$object["version"] = $dockerVersion;
 		$object["versionInfo"] = $dockerVersionInfo;
+		$object["sharedfolderref"] = $object["sharedfolderref"];
 
 		return $object;
 	}
@@ -406,7 +407,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 						"enabled": {	"type": "boolean" },
 						"versionInfo": {	"type": "string" },
 						"version": {	"type": "string" },
-						"apiPort": { "type": "integer" } 
+						"apiPort": { "type": "integer" },
+						"sharedfolderref": { "type": "string" },
+						"uuid": { "type": "string" }
 	}}');
 
 	//Get the old settings object
@@ -416,18 +419,30 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 	}
 
 	$newApiPort = $oldSettings['apiPort'];
+	$sharedFolder = $oldSettings['sharedfolderref'];
 	//Make sure that the plugin is enabled to avoid unnecessary restarts of the docker
 	//service.
 	if($params['enabled']) {
-		OMVModuleDockerUtil::changeDockerSettings($params['apiPort']);
 		$newApiPort = $params['apiPort'];
+		if($params['sharedfolderref']) {
+			$sharedFolder = $params['sharedfolderref'];
+			$xpath = "//system/shares/sharedfolder[uuid='" . $params['sharedfolderref'] . "']";
+			$share = $xmlConfig->get($xpath);
+			$xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] . "']";
+			$mntent = $xmlConfig->get($xpath);
+			$absPath = rtrim($mntent['dir'] . "/" . $share['reldirpath'], "/");
+		} else {
+			$sharedFolder = "";
+		}
+		OMVModuleDockerUtil::changeDockerSettings($newApiPort, $absPath);
 	}
 
 	// Update the configuration object.
 	$object = array(
 		//"showDanglingImages" => array_boolval($params, "showDanglingImages"),
 		"enabled" => array_boolval($params, "enabled"),
-		"apiPort" => $newApiPort
+		"apiPort" => $newApiPort,
+		"sharedfolderref" => $sharedFolder
 	);
 
 	if (false === $xmlConfig->replace($this->getXpath(), $object)) {
@@ -448,32 +463,32 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		return array("details" => implode("\n\r", $out));
 	}
 
-    public function getRootFolders($params, $context)
-    {
-        global $xmlConfig;
+	public function getRootFolders($params, $context)
+	{
+		global $xmlConfig;
 
-        // Validate the RPC caller context.
-        $this->validateMethodContext(
-            $context,
-            array( "role" => OMV_ROLE_ADMINISTRATOR )
-        );
+		// Validate the RPC caller context.
+		$this->validateMethodContext(
+			$context,
+			array( "role" => OMV_ROLE_ADMINISTRATOR )
+		);
 
-        // List the directory contents.
-        $result = array();
-        $path = sprintf("/%s", rtrim($params['path'], "/"));
-        if ( strlen($path) == 0 )
-            $path = "/";
+		// List the directory contents.
+		$result = array();
+		$path = sprintf("/%s", rtrim($params['path'], "/"));
+		if ( strlen($path) == 0 )
+			$path = "/";
 
-        foreach (new DirectoryIterator($path) as $item)
-        {
-            if ($item->isDot())
-                continue;
-            if (!$item->isDir())
-                continue;
-            $result[] = $item->getFilename();
-        }
-        return $result;
-    }
+		foreach (new DirectoryIterator($path) as $item)
+		{
+			if ($item->isDot())
+				continue;
+			if (!$item->isDir())
+				continue;
+			$result[] = $item->getFilename();
+		}
+		return $result;
+	}
 
 	//throw new OMVModuleDockerException($cmd);
 }
