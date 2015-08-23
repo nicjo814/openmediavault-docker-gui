@@ -1,0 +1,158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: openmediavault-docker-gui\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-08-23 09:36-0500\n"
+"PO-Revision-Date: 2015-08-23 14:38+0000\n"
+"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"Language-Team: Hungarian (Hungary) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/hu_HU/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: hu_HU\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Bind mounts"
+msgstr ""
+
+msgid "COMMAND"
+msgstr ""
+
+msgid "CONTAINER ID"
+msgstr ""
+
+msgid "CREATED"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Container name"
+msgstr ""
+
+msgid "Copy in progress"
+msgstr ""
+
+msgid "Copy operation is progressing in the background.<br />"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Destination path"
+msgstr ""
+
+msgid "Docker"
+msgstr ""
+
+msgid "Docker image"
+msgstr ""
+
+msgid "Enable the plugin"
+msgstr ""
+
+msgid "Environment variables"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "IMAGE"
+msgstr ""
+
+msgid "IMAGE ID"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "NAMES"
+msgstr ""
+
+msgid ""
+"Network port that the Docker API listens on. The plugin must be enabled for "
+"a change to be committed"
+msgstr ""
+
+msgid "Networking"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Output"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "PORTS"
+msgstr ""
+
+msgid "Parameters"
+msgstr ""
+
+msgid "Please wait ..."
+msgstr ""
+
+msgid "Port forwarding"
+msgstr ""
+
+msgid "Pull Image"
+msgstr ""
+
+msgid "Pull image"
+msgstr ""
+
+msgid "REPOSITORY"
+msgstr ""
+
+msgid "Repository"
+msgstr ""
+
+msgid "Run Image"
+msgstr ""
+
+msgid "Run container"
+msgstr ""
+
+msgid "STATUS"
+msgstr ""
+
+msgid "Select a directory"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Source path for copying of Docker image/container data"
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "Stop"
+msgstr ""
+
+msgid "TAG"
+msgstr ""
+
+msgid "Tag"
+msgstr ""
+
+msgid ""
+"The location of the Docker base path (this setting is optional and defaults "
+"to /var/lib/docker if unset). The plugin must be enabled for a change to be "
+"committed"
+msgstr ""
+
+msgid "VIRTUAL SIZE"
+msgstr ""
