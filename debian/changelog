@@ -1,6 +1,7 @@
 openmediavault-docker-gui (0.2.0) UNRELEASED; urgency=low
 
   * Beta release
+  * Layout change to the RunContainer component
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 08:28:06 +0200
 
