@@ -4,6 +4,7 @@
 // require("js/omv/workspace/window/plugin/ConfigObject.js")
 // require("js/omv/form/field/SharedFolderComboBox.js")
 // require("js/omv/module/admin/service/docker/RootFolderBrowser.js")
+// require("js/omv/window/MessageBox.js")
 
 Ext.define("OMV.module.admin.service.docker.Settings", {
     extend: "OMV.workspace.form.Panel",
@@ -173,6 +174,28 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 					listeners: {
 						scope: this,
 						click: function(button, e , eOpts) {
+							OMV.Rpc.request({
+								scope: this,
+								callback: function(id, success, response) {
+									OMV.MessageBox.show({
+										title: _("Copy in progress"),
+										msg: _("Copy operation is progressing in the background.<br />" +
+											   "Refresh overview tab to see the progress"),
+										scope: me,
+										buttons: Ext.Msg.OK
+									});
+
+								},
+								relayErrors: false,
+								rpcData: {
+									service: "Docker",
+									method: "copyDockerData",
+									params: {
+										srcpath: this.getForm().findField("orgpath").getValue(),
+										sharedfolderref: this.getForm().findField("destpath").getValue()
+									}
+								}
+							});
 
 						}
 					}

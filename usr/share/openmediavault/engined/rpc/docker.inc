@@ -71,6 +71,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("setSettings");
 		$this->registerMethod("getDetails");
 		$this->registerMethod("getRootFolders");
+		$this->registerMethod("copyDockerData");
 	}
 
 	public function getImages($params, $context) {
@@ -490,6 +491,119 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			$result[] = $item->getFilename();
 		}
 		return $result;
+	}
+
+	public function copyDockerData($params, $context) {
+		global $xmlConfig;
+		$this->validateMethodContext($context, array("role" => OMV_ROLE_ADMINISTRATOR));
+		$this->validateMethodParams($params,'{
+			"type": "object",
+				"properties": {
+						"srcpath": {	"type": "string" },
+						"sharedfolderref": {	"type": "string" }
+	}}');
+
+		$absPath = "";
+		if($params['sharedfolderref']) {
+			$xpath = "//system/shares/sharedfolder[uuid='" . $params['sharedfolderref'] . "']";
+			$share = $xmlConfig->get($xpath);
+			$xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] . "']";
+			$mntent = $xmlConfig->get($xpath);
+			$absPath = rtrim(rtrim($mntent['dir'], "/") . "/" . $share['reldirpath'], "/");
+		}
+		if((strcmp($params['srcpath'], "") === 0) || (strcmp($absPath, "") === 0)) {
+			throw new OMVModuleDockerException("Either source or destination path is empty");
+		}
+
+		$srcpath = $params['srcpath'];
+		$destpath = $absPath;
+
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "1") {
+			unset($out);
+			$cmd = "docker ps -q | wc -l";
+			OMVUtil::exec($cmd, $out, $res);
+			if($out[0] > 0) {
+				unset($out);
+				//Kill any running Docker containers
+				$cmd = "docker ps -q | xargs docker kill";
+				OMVUtil::exec($cmd, $out, $res);
+			}
+			//Stop the Docker daemon before making config changes
+			$cmd = "service docker stop";
+			OMVUtil::exec($cmd, $out, $res);
+		}
+		unset($out);
+
+		if(file_exists($srcpath . "/containers") && file_exists($srcpath . "/volumes")) {
+			if(file_exists($srcpath . "/devicemapper/mnt")) {
+				$cmd = "umount $srcpath/devicemapper/mnt/*";
+				OMVUtil::exec($cmd, $out, $res);
+			}
+			// Create a background process.
+			$bgStatusFilename = $this->createBgProcStatus();
+			$pid = $this->fork();
+			if ($pid > 0)   // Parent process.
+			{
+				$this->initializeBgProcStatus($bgStatusFilename, $pid);
+				return $bgStatusFilename;
+			}
+
+			// Child process.
+			try {
+				$bgOutputFilename = $this->createBgProcOutput();
+				$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+				$cmd = "cp -R $srcpath/* $destpath";
+				$this->exec($cmd, $output, $bgOutputFilename);
+				$this->finalizeBgProcStatus($bgStatusFilename, $output);
+
+			} catch(Exception $e) {
+				$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+				exit(1);
+			}
+		} else {
+			//Start the daemon again after changes have been made
+			$cmd = "service docker start";
+			OMVUtil::exec($cmd, $out, $res);
+			unset($out);
+			$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+			OMVUtil::exec($cmd, $out, $res);
+			if($out[0] === "0") {
+				for($i = 0; $i < 5; $i++) {
+					unset($out);
+					$cmd = "service docker start";
+					OMVUtil::exec($cmd, $out, $res);
+					unset($out);
+					$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+					OMVUtil::exec($cmd, $out, $res);
+					if($out[0] === "1") {
+						break;
+					}
+				}
+			}
+			throw new OMVModuleDockerException("Not a valid Docker source path specified");
+		}
+
+		//Start the daemon again after changes have been made
+		$cmd = "service docker start";
+		OMVUtil::exec($cmd, $out, $res);
+		unset($out);
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "0") {
+			for($i = 0; $i < 5; $i++) {
+				unset($out);
+				$cmd = "service docker start";
+				OMVUtil::exec($cmd, $out, $res);
+				unset($out);
+				$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+				OMVUtil::exec($cmd, $out, $res);
+				if($out[0] === "1") {
+					break;
+				}
+			}
+		}
 	}
 
 	//throw new OMVModuleDockerException($cmd);

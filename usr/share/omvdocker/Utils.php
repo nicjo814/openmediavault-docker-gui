@@ -341,7 +341,7 @@ class OMVModuleDockerUtil {
 			}
 		}
 	}
-
+	
 	/**
 	 * Helper function to execute a command and throw an exception on error
 	 * (requires stderr redirected to stdout for proper exception message).
