@@ -24,7 +24,6 @@
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
-// require("js/omv/module/admin/service/docker/ImageInfo.js")
 // require("js/omv/module/admin/service/docker/SearchBox.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
