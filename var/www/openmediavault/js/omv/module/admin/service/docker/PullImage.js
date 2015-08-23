@@ -41,11 +41,6 @@
  * @param hideCloseButton Hide the 'Close' button. Defaults to FALSE.
  * @param adaptButtonState Automatically adjust the button states while the
  *   command is running. Defaults to TRUE.
- * @param progress TRUE to display a progress bar. This is useful when the
- *   executed application does not have any output to be displayed in the
- *   content area. If set to TRUE the content area will not be displayed.
- *   Defaults to FALSE.
- * @param progressText The progress bar text. Defaults to 'Please wait ...'.
  * @param scrollBottom Set to TRUE to automatically scroll down the content.
  *   Defaults to TRUE.
  * @param welcomeText The text that is displayed when the dialog is shown.
@@ -75,8 +70,6 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 	hideStopButton: false,
 	hideCloseButton: false,
 	adaptButtonState: true,
-	progress: false,
-	progressText: _("Please wait ..."),
 	scrollBottom: true,
 	welcomeText: "",
 
@@ -113,44 +106,72 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 				xtype: "fieldset",
 				title: _("Parameters"),
 				items: [{
-					xtype: "textfield",
-					fieldLabel: _("Repository"),
-					name: "repository",
-					allowBlank: false,
-					value: me.repo,
-					listeners: {
-						scope: me,
-						change: function(field, newValue, oldValue, eOpts) {
-							me.setButtonDisabled("start", !me.fp.getForm().isValid());
+					xtype: "container",
+					layout: "hbox",
+					pading: "0 0 10 0",
+					items: [{
+						xtype: "textfield",
+						name: "repository",
+						allowBlank: false,
+						value: me.repo,
+						listeners: {
+							scope: me,
+							change: function(field, newValue, oldValue, eOpts) {
+								me.setButtonDisabled("start", !me.fp.getForm().isValid());
+								if(newValue === "") {
+									me.down('panel').queryById("dockerImageInfoButton").setDisabled(true);
+								} else { 
+									me.down('panel').queryById("dockerImageInfoButton").setDisabled(false);
+								}
+							}
+						},
+						flex: 3,
+						plugins: [{
+							ptype: "fieldinfo",
+							text: _("Repository")
+						}],
+					},{
+						xtype: "textfield",
+						name: "tag",
+						allowBlank: true,
+						flex: 1,
+						plugins: [{
+							ptype: "fieldinfo",
+							text: _("Tag")
+						}],
+					},{
+						xtype: "button",
+						itemId: "dockerImageInfoButton",
+						icon: "images/about.png",
+						iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+						flex: 0,
+						width: 24,
+						tooltip: "Image information",
+						listeners: {
+							scope: this,
+							click: function(button, e , eOpts) {
+								console.log(this);
+								window.open("https://hub.docker.com/r/" + this.down('panel').getForm().findField("repository").getValue());
+							}
 						}
-					}
-				},{
-					xtype: "textfield",
-					fieldLabel: _("Tag"),
-					name: "tag",
-					allowBlank: true
+
+					}]
 				}]
 			}]
 		});
-		var outtype;
-		if (false === me.progress) {
-			outtype = Ext.create("Ext.form.FieldSet", {
-				title: _("Output"),
-				items: [{
-					xtype: "textareafield",
-					name: "content",
-					cls: "x-form-textarea-monospaced",
-					value: me.welcomeText,
-					readOnly: true,
-					grow: true,
-					height: 300
-				}]
-			});
-		} else {
-			me.content = "";
-			outtype = me.contentCtrl = Ext.create("Ext.ProgressBar", {
-			});
-		}
+		outtype = Ext.create("Ext.form.FieldSet", {
+			title: _("Output"),
+			items: [{
+				xtype: "textareafield",
+				name: "content",
+				cls: "x-form-textarea-monospaced",
+				value: me.welcomeText,
+				readOnly: true,
+				grow: true,
+				height: 340
+			}]
+		});
+
 		me.fp.add(outtype);
 		Ext.apply(me, {
 			items: [ me.fp
@@ -177,8 +198,12 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 				scope: me
 			}],
 		});
-		if (false === me.progress) {
-			me.contentCtrl = me.fp.getForm().findField("content");
+		me.contentCtrl = me.fp.getForm().findField("content");
+
+		if(me.fp.getForm().findField("repository").getValue() === "") {
+			me.fp.queryById("dockerImageInfoButton").setDisabled(true);
+		} else {
+			me.fp.queryById("dockerImageInfoButton").setDisabled(false);
 		}
 		me.callParent(arguments);
 		me.on("show", function() {
@@ -210,15 +235,8 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 					this.cmdContentPos = 0;
 					// Reset controls.
 					this.setValue("");
-					if (true === this.progress) {
-						this.contentCtrl.reset();
-						this.contentCtrl.wait({
-							text: this.progressText
-						});
-					} else {
-						// Display waiting mask.
-						this.contentCtrl.mask(_("Please wait ..."));
-					}
+					// Display waiting mask.
+					this.contentCtrl.mask(_("Please wait ..."));
 					// Update the button states.
 					this.setButtonDisabled("stop", false);
 					this.setButtonDisabled("close", true);
@@ -255,10 +273,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 		OMV.Rpc.request({
 			scope: me,
 			callback: function(id, success, response) {
-				if (true === this.progress)
-					this.contentCtrl.reset();
-				else
-					this.contentCtrl.unmask();
+				this.contentCtrl.unmask();
 				if (success) {
 					// Update the button states.
 					this.setButtonDisabled("start", false);
@@ -302,7 +317,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 						this.cmdIsRunning = response.running;
 						// Hide the waiting mask if the first content is
 						// transmitted.
-						if ((false === this.progress) && (0 < response.pos))
+						if (0 < response.pos)
 							this.contentCtrl.unmask();
 						// Update the command content.
 						this.appendValue(response.output);
@@ -312,10 +327,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 							Ext.Function.defer(this.doGetOutput,
 											   this.rpcDelay, this);
 						} else {
-							if (true === this.progress)
-								this.contentCtrl.reset();
-							else
-								this.contentCtrl.unmask();
+							this.contentCtrl.unmask();
 							this.fireEvent("finish", this, response);
 						}
 						// Update button states.
@@ -394,11 +406,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 	getValue: function() {
 		var me = this;
 		var value = "";
-		if(false === me.progress) {
-			value = me.contentCtrl.getValue();
-		} else {
-			value = me.content;
-		}
+		value = me.contentCtrl.getValue();
 		return value;
 	},
 
@@ -409,15 +417,11 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 	 */
 	setValue: function(value, scrollBottom) {
 		var me = this;
-		if(false === me.progress) {
-			me.contentCtrl.setValue(value);
-			if(true === me.scrollBottom) {
-				var el = me.contentCtrl.inputEl;
-				if(el && el.dom)
-					el.dom.scrollTop = el.dom.scrollHeight
-			}
-		} else {
-			me.content = value;
+		me.contentCtrl.setValue(value);
+		if(true === me.scrollBottom) {
+			var el = me.contentCtrl.inputEl;
+			if(el && el.dom)
+				el.dom.scrollTop = el.dom.scrollHeight
 		}
 	},
 
@@ -428,12 +432,8 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 	 */
 	appendValue: function(value) {
 		var me = this;
-		if(false === me.progress) {
-			var content = me.contentCtrl.getValue();
-			me.contentCtrl.setValue(content + value);
-		} else {
-			me.content += value;
-		}
+		var content = me.contentCtrl.getValue();
+		me.contentCtrl.setValue(content + value);
 	},
 
 	/**
