@@ -1,5 +1,11 @@
+openmediavault-docker-gui (0.2.0) UNRELEASED; urgency=low
+
+  * Beta release
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 08:28:06 +0200
+
 openmediavault-docker-gui (0.1.0) unstable; urgency=low
 
   * Initial release.
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 23 Jul 2015 11:13:32 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 08:27:36 +0200
