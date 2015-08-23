@@ -36,9 +36,11 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 	title: _("Run container"),
 	layout: "fit",
 	width: 600,
+	height: 700,
 	closable: true,
 	resizable: true,
 	buttonAlign: "center",
+	grow: false,
 
 	rpcService   : "Docker",
 	rpcSetMethod : "runContainer",
@@ -179,7 +181,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 			title: _("Environment variables"),
 			id: "dockerEnvVars",
 			collapsible: true,
-			collapsed: true,
+			collapsed: false,
 			padding: "0 10 10 10",
 			items: [{
 				xtype: "container",
