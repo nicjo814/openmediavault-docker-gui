@@ -166,7 +166,7 @@ class OMVModuleDockerContainer {
 		$containerData = json_decode($response);
 		if($containerData->State->Running) {
 			$this->state = "running";
-		} elseif ($containerData->State->Dead) {
+		} elseif (($containerData->State->Dead) || ($containerData->State->ExitCode !== 0)) {
 			$this->state = "dead";
 		} elseif (($containerData->State->ExitCode === 0) && (strcmp($containerData->State->Error, "") === 0)) {
 			$this->state = "stopped";
