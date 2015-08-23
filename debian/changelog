@@ -1,9 +1,15 @@
-openmediavault-docker-gui (0.2.0) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.1) UNRELEASED; urgency=low
+
+  * Added license information 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 22:31:49 +0200
+
+openmediavault-docker-gui (0.2.0) unstable; urgency=low
 
   * Beta release
   * Layout change to the RunContainer component
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 08:28:06 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 23 Aug 2015 22:31:36 +0200
 
 openmediavault-docker-gui (0.1.0) unstable; urgency=low
 
