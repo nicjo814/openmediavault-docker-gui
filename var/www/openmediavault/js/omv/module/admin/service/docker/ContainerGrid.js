@@ -23,6 +23,7 @@
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
+// require("js/omv/module/admin/service/docker/ExecuteCmd.js")
 // require("js/omv/workspace/grid/Panel.js")
 // require("js/omv/data/Store.js")
 // require("js/omv/data/Model.js")
@@ -171,6 +172,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			handler: Ext.Function.bind(me.onDetailsButton, me, [ me ]),
 			scope: me
 		},{
+			id: me.getId() + "-execute",
+			xtype: "button",
+			text: _("Run cmd"),
+			icon: "images/docker_exec.png",
+			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+			disabled: true,
+			handler: Ext.Function.bind(me.onExecuteButton, me, [ me ]),
+			scope: me
+		},{
 			id: me.getId() + "-delete",
 			xtype: "button",
 			text: _("Delete"),
@@ -195,13 +205,14 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var me = this;
 		if(me.hideTopToolbar)
 			return;
-		var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "delete", "refresh" ];
+		var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "execute", "delete", "refresh" ];
 		var tbarBtnDisabled = {
 			"start": false,
 			"stop": false,
 			"restart": false,
 			"copy": false,
 			"details": false,
+			"execute": false,
 			"delete": false,
 			"refresh": false
 		};
@@ -212,12 +223,21 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			tbarBtnDisabled["restart"] = true;
 			tbarBtnDisabled["copy"] = true;
 			tbarBtnDisabled["details"] = true;
+			tbarBtnDisabled["execute"] = true;
 			tbarBtnDisabled["delete"] = true;
 		} else if(records.length == 1) {
 			// Disable 'Delete' button if selected node is not stopped
 			Ext.Array.each(records, function(record) {
 				if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
 					tbarBtnDisabled["delete"] = true;
+					return false;
+				}
+			});
+			
+			// Disable 'Execute' button if selected node is not running
+			Ext.Array.each(records, function(record) {
+				if(!(record.get("state") === "running")) {
+					tbarBtnDisabled["execute"] = true;
 					return false;
 				}
 			});
@@ -397,6 +417,26 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 						fontSize: "12px"
 					}
 				}];
+			}
+		}).show();
+	},
+
+	onExecuteButton : function() {
+		var me = this;
+		var sm = me.getSelectionModel();
+		var records = sm.getSelection();
+		var record = records[0];
+		Ext.create("OMV.module.admin.service.docker.ExecuteCmd", {
+			title: _("Execute command"),
+			rpcService: "Docker",
+			rpcMethod: "executeCommand",
+			hideStopButton: true,
+			containerId: record.get("id"),
+			listeners: {
+				scope: me,
+				exception: function(wnd, error) {
+					OMV.MessageBox.error(null, error);
+				}
 			}
 		}).show();
 	},

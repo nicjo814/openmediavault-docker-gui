@@ -76,6 +76,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("getDetails");
 		$this->registerMethod("getRootFolders");
 		$this->registerMethod("copyDockerData");
+		$this->registerMethod("executeCommand");
 	}
 
 	public function getImages($params, $context) {
@@ -100,41 +101,40 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		return $objects;
 	}
 
-	public function pullImage($params, $context)
-	{
+	public function pullImage($params, $context) {
 		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
 		$this->validateMethodParams($params, '{
 			"type": "object",
 				"properties": {
 					"repository": { "type" : "string" },
 						"tag": { "type" : "string" }
-	}}
-	');
-	if(strcmp($params['tag'], "") === 0)  {
-		$params['tag'] = "latest";
-	}
+		}}
+		');
+		if(strcmp($params['tag'], "") === 0)  {
+			$params['tag'] = "latest";
+		}
 
-	// Create a background process.
-	$bgStatusFilename = $this->createBgProcStatus();
-	$pid = $this->fork();
-	if ($pid > 0)   // Parent process.
-	{
-		$this->initializeBgProcStatus($bgStatusFilename, $pid);
-		return $bgStatusFilename;
-	}
+		// Create a background process.
+		$bgStatusFilename = $this->createBgProcStatus();
+		$pid = $this->fork();
+		if ($pid > 0)   // Parent process.
+		{
+			$this->initializeBgProcStatus($bgStatusFilename, $pid);
+			return $bgStatusFilename;
+		}
 
-	// Child process.
-	try {
-		$bgOutputFilename = $this->createBgProcOutput();
-		$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
-		$cmd = "docker pull " . $params['repository'] . ":" . $params['tag'];
-		$this->exec($cmd, $output, $bgOutputFilename);
-		$this->finalizeBgProcStatus($bgStatusFilename, $output);
+		// Child process.
+		try {
+			$bgOutputFilename = $this->createBgProcOutput();
+			$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+			$cmd = "docker pull " . $params['repository'] . ":" . $params['tag'];
+			$this->exec($cmd, $output, $bgOutputFilename);
+			$this->finalizeBgProcStatus($bgStatusFilename, $output);
 
-	} catch(Exception $e) {
-		$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
-		exit(1);
-	}
+		} catch(Exception $e) {
+			$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+			exit(1);
+		}
 	}
 
 	public function getImageInfo($params, $context) {
@@ -399,7 +399,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodParams($params,'{
 			"type": "object",
 				"properties": {
-						"enabled": {	"type": "boolean" },
+					"enabled": {	"type": "boolean" },
 						"versionInfo": {	"type": "string" },
 						"version": {	"type": "string" },
 						"apiPort": { "type": "integer" },
@@ -493,57 +493,90 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->validateMethodParams($params,'{
 			"type": "object",
 				"properties": {
-						"srcpath": {	"type": "string" },
+					"srcpath": {	"type": "string" },
 						"sharedfolderref": {	"type": "string" }
 	}}');
 
-		$absPath = "";
-		if($params['sharedfolderref']) {
-			$xpath = "//system/shares/sharedfolder[uuid='" . $params['sharedfolderref'] . "']";
-			$share = $xmlConfig->get($xpath);
-			$xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] . "']";
-			$mntent = $xmlConfig->get($xpath);
-			$absPath = rtrim(rtrim($mntent['dir'], "/") . "/" . $share['reldirpath'], "/");
+	$absPath = "";
+	if($params['sharedfolderref']) {
+		$xpath = "//system/shares/sharedfolder[uuid='" . $params['sharedfolderref'] . "']";
+		$share = $xmlConfig->get($xpath);
+		$xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] . "']";
+		$mntent = $xmlConfig->get($xpath);
+		$absPath = rtrim(rtrim($mntent['dir'], "/") . "/" . $share['reldirpath'], "/");
+	}
+	if((strcmp($params['srcpath'], "") === 0) || (strcmp($absPath, "") === 0)) {
+		throw new OMVModuleDockerException("Either source or destination path is empty");
+	}
+
+	$srcpath = $params['srcpath'];
+	$destpath = $absPath;
+	OMVModuleDockerUtil::stopDockerService();		
+
+	if(file_exists($srcpath . "/containers") && file_exists($srcpath . "/volumes")) {
+		if(file_exists($srcpath . "/devicemapper/mnt")) {
+			$cmd = "umount $srcpath/devicemapper/mnt/*";
+			OMVUtil::exec($cmd, $out, $res);
 		}
-		if((strcmp($params['srcpath'], "") === 0) || (strcmp($absPath, "") === 0)) {
-			throw new OMVModuleDockerException("Either source or destination path is empty");
+		// Create a background process.
+		$bgStatusFilename = $this->createBgProcStatus();
+		$pid = $this->fork();
+		if ($pid > 0)   // Parent process.
+		{
+			$this->initializeBgProcStatus($bgStatusFilename, $pid);
+			return $bgStatusFilename;
 		}
 
-		$srcpath = $params['srcpath'];
-		$destpath = $absPath;
-		OMVModuleDockerUtil::stopDockerService();		
+		// Child process.
+		try {
+			$bgOutputFilename = $this->createBgProcOutput();
+			$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+			$cmd = "cp -R $srcpath/* $destpath";
+			$this->exec($cmd, $output, $bgOutputFilename);
+			$this->finalizeBgProcStatus($bgStatusFilename, $output);
 
-		if(file_exists($srcpath . "/containers") && file_exists($srcpath . "/volumes")) {
-			if(file_exists($srcpath . "/devicemapper/mnt")) {
-				$cmd = "umount $srcpath/devicemapper/mnt/*";
-				OMVUtil::exec($cmd, $out, $res);
-			}
-			// Create a background process.
-			$bgStatusFilename = $this->createBgProcStatus();
-			$pid = $this->fork();
-			if ($pid > 0)   // Parent process.
-			{
-				$this->initializeBgProcStatus($bgStatusFilename, $pid);
-				return $bgStatusFilename;
-			}
-
-			// Child process.
-			try {
-				$bgOutputFilename = $this->createBgProcOutput();
-				$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
-				$cmd = "cp -R $srcpath/* $destpath";
-				$this->exec($cmd, $output, $bgOutputFilename);
-				$this->finalizeBgProcStatus($bgStatusFilename, $output);
-
-			} catch(Exception $e) {
-				$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
-				exit(1);
-			}
-		} else {
-			OMVModuleDockerUtil::startDockerService();
-			throw new OMVModuleDockerException("Not a valid Docker source path specified");
+		} catch(Exception $e) {
+			$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+			exit(1);
 		}
+	} else {
 		OMVModuleDockerUtil::startDockerService();
+		throw new OMVModuleDockerException("Not a valid Docker source path specified");
+	}
+	OMVModuleDockerUtil::startDockerService();
+	}
+
+	public function executeCommand($params, $context) {
+		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
+		$this->validateMethodParams($params, '{
+			"type": "object",
+				"properties": {
+					"cmd": { "type" : "string" },
+					"containerId": { "type" : "string" }
+	}}
+	');
+	
+	// Create a background process.
+	$bgStatusFilename = $this->createBgProcStatus();
+	$pid = $this->fork();
+	if ($pid > 0)   // Parent process.
+	{
+		$this->initializeBgProcStatus($bgStatusFilename, $pid);
+		return $bgStatusFilename;
+	}
+
+	// Child process.
+	try {
+		$bgOutputFilename = $this->createBgProcOutput();
+		$this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+		$cmd = "docker exec -t " . $params['containerId'] . " " . $params['cmd'];
+		$this->exec($cmd, $output, $bgOutputFilename);
+		$this->finalizeBgProcStatus($bgStatusFilename, $output);
+
+	} catch(Exception $e) {
+		$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+		exit(1);
+	}
 	}
 
 	//throw new OMVModuleDockerException($cmd);
