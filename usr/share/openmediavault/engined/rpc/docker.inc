@@ -511,24 +511,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 
 		$srcpath = $params['srcpath'];
 		$destpath = $absPath;
-
-		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-		OMVUtil::exec($cmd, $out, $res);
-		if($out[0] === "1") {
-			unset($out);
-			$cmd = "docker ps -q | wc -l";
-			OMVUtil::exec($cmd, $out, $res);
-			if($out[0] > 0) {
-				unset($out);
-				//Kill any running Docker containers
-				$cmd = "docker ps -q | xargs docker kill";
-				OMVUtil::exec($cmd, $out, $res);
-			}
-			//Stop the Docker daemon before making config changes
-			$cmd = "service docker stop";
-			OMVUtil::exec($cmd, $out, $res);
-		}
-		unset($out);
+		OMVModuleDockerUtil::stopDockerService();		
 
 		if(file_exists($srcpath . "/containers") && file_exists($srcpath . "/volumes")) {
 			if(file_exists($srcpath . "/devicemapper/mnt")) {
@@ -557,47 +540,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 				exit(1);
 			}
 		} else {
-			//Start the daemon again after changes have been made
-			$cmd = "service docker start";
-			OMVUtil::exec($cmd, $out, $res);
-			unset($out);
-			$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-			OMVUtil::exec($cmd, $out, $res);
-			if($out[0] === "0") {
-				for($i = 0; $i < 5; $i++) {
-					unset($out);
-					$cmd = "service docker start";
-					OMVUtil::exec($cmd, $out, $res);
-					unset($out);
-					$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-					OMVUtil::exec($cmd, $out, $res);
-					if($out[0] === "1") {
-						break;
-					}
-				}
-			}
+			OMVModuleDockerUtil::startDockerService();
 			throw new OMVModuleDockerException("Not a valid Docker source path specified");
 		}
-
-		//Start the daemon again after changes have been made
-		$cmd = "service docker start";
-		OMVUtil::exec($cmd, $out, $res);
-		unset($out);
-		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-		OMVUtil::exec($cmd, $out, $res);
-		if($out[0] === "0") {
-			for($i = 0; $i < 5; $i++) {
-				unset($out);
-				$cmd = "service docker start";
-				OMVUtil::exec($cmd, $out, $res);
-				unset($out);
-				$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-				OMVUtil::exec($cmd, $out, $res);
-				if($out[0] === "1") {
-					break;
-				}
-			}
-		}
+		OMVModuleDockerUtil::startDockerService();
 	}
 
 	//throw new OMVModuleDockerException($cmd);

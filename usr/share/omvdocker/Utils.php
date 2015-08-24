@@ -34,6 +34,7 @@ class OMVModuleDockerUtil {
 	/**
 	 * Returns the result of a call to the Docker API
 	 *
+	 * @param string $url The URL to use in the API call
 	 * @return array $objects An array with Image objects
 	 *
 	 */
@@ -52,6 +53,54 @@ class OMVModuleDockerUtil {
 		return $response;
 	}
 
+	/**
+	 * Stops the Docker service
+	 *
+	 */
+	public static function stopDockerService() {
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "1") {
+			unset($out);
+			$cmd = "docker ps -q | wc -l";
+			OMVUtil::exec($cmd, $out, $res);
+			if($out[0] > 0) {
+				unset($out);
+				//Kill any running Docker containers
+				$cmd = "docker ps -q | xargs docker kill";
+				OMVUtil::exec($cmd, $out, $res);
+			}
+			//Stop the Docker daemon before making config changes
+			$cmd = "service docker stop";
+			OMVUtil::exec($cmd, $out, $res);
+		}
+	}
+
+	/**
+	 * Starts the Docker service
+	 *
+	 */
+	public static function startDockerService() {
+		//Start the daemon again after changes have been made
+		$cmd = "service docker start";
+		OMVUtil::exec($cmd, $out, $res);
+		unset($out);
+		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+		OMVUtil::exec($cmd, $out, $res);
+		if($out[0] === "0") {
+			for($i = 0; $i < 5; $i++) {
+				unset($out);
+				$cmd = "service docker start";
+				OMVUtil::exec($cmd, $out, $res);
+				unset($out);
+				$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+				OMVUtil::exec($cmd, $out, $res);
+				if($out[0] === "1") {
+					break;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Returns an array with Image objects on the system
@@ -88,7 +137,7 @@ class OMVModuleDockerUtil {
 		}
 		return $objects;
 	}
-	
+
 	/**
 	 * Returns a single image from it's ID
 	 *
@@ -249,25 +298,7 @@ class OMVModuleDockerUtil {
 	 */
 	function changeDockerSettings($apiPort, $absPath)
 	{ 
-		
-		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-		OMVUtil::exec($cmd, $out, $res);
-		if($out[0] === "1") {
-			unset($out);
-			$cmd = "docker ps -q | wc -l";
-			OMVUtil::exec($cmd, $out, $res);
-			if($out[0] > 0) {
-				unset($out);
-				//Kill any running Docker containers
-				$cmd = "docker ps -q | xargs docker kill";
-				OMVUtil::exec($cmd, $out, $res);
-			}
-			//Stop the Docker daemon before making config changes
-			$cmd = "service docker stop";
-			OMVUtil::exec($cmd, $out, $res);
-		}
-		unset($out);
-
+		OMVModuleDockerUtil::stopDockerService();		
 		$fileName = "/etc/default/docker";
 		$data = file_get_contents($fileName);
 		$lines = explode("\n", $data);
@@ -280,25 +311,7 @@ class OMVModuleDockerUtil {
 				if(preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
 					$socketSet = true;
 				} elseif((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
-					//Start the daemon again after changes have been made
-					$cmd = "service docker start";
-					OMVUtil::exec($cmd, $out, $res);
-					unset($out);
-					$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-					OMVUtil::exec($cmd, $out, $res);
-					if($out[0] === "0") {
-						for($i = 0; $i < 5; $i++) {
-							unset($out);
-							$cmd = "service docker start";
-							OMVUtil::exec($cmd, $out, $res);
-							unset($out);
-							$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-							OMVUtil::exec($cmd, $out, $res);
-							if($out[0] === "1") {
-								break;
-							}
-						}
-					}
+					OMVModuleDockerUtil::startDockerService();
 					throw new OMVModuleDockerException("Docker base path relocation detected in configuration file\n" .
 						"Please remove it manually ($matches[1])\n");
 				}
@@ -313,7 +326,6 @@ class OMVModuleDockerUtil {
 			$result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock -H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
 
 		}
-
 		if(strcmp($absPath, "") !==0) {
 			$result .= 'OMVDOCKER_IMAGE_PATH="-g ' . $absPath . '"' . "\n";
 		} else {
@@ -321,30 +333,10 @@ class OMVModuleDockerUtil {
 		}
 		$result .= 'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"' . "\n" .
 			'### Do not add any configuration below this line. It will be removed when the plugin is removed';
-
 		file_put_contents("$fileName", $result);
-
-		//Start the daemon again after changes have been made
-		$cmd = "service docker start";
-		OMVUtil::exec($cmd, $out, $res);
-		unset($out);
-		$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-		OMVUtil::exec($cmd, $out, $res);
-		if($out[0] === "0") {
-			for($i = 0; $i < 5; $i++) {
-				unset($out);
-				$cmd = "service docker start";
-				OMVUtil::exec($cmd, $out, $res);
-				unset($out);
-				$cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-				OMVUtil::exec($cmd, $out, $res);
-				if($out[0] === "1") {
-					break;
-				}
-			}
-		}
+		OMVModuleDockerUtil::startDockerService();
 	}
-	
+
 	/**
 	 * Helper function to execute a command and throw an exception on error
 	 * (requires stderr redirected to stdout for proper exception message).
