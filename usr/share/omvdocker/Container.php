@@ -165,12 +165,6 @@ class OMVModuleDockerContainer {
 	public function __construct($id, $data, $apiPort) {
 		$this->id = $id;
 		$now = date("c");
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 
 		$this->id = $id;
 		$item = $data[substr($id, 0, 12)];
@@ -180,10 +174,7 @@ class OMVModuleDockerContainer {
 		$this->created = OMVModuleDockerUtil::getWhen($now, date("c", $item->Created)) . " ago";
 		
 		$url = "http://localhost:" . $apiPort . "/containers/$id/json"; 
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$containerData = json_decode($response);
 		if($containerData->State->Running) {
 			$this->state = "running";

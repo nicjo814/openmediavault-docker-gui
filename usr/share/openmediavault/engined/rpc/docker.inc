@@ -182,18 +182,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,$this->getXpath());
 		}
 
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 		$url = "http://localhost:" . $settings['apiPort'] . "/images/search?term=" . $params["name"];
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
-		curl_close($curl);
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$data = json_decode($response);
 
 		foreach($data as $repo) {

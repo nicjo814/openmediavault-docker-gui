@@ -32,6 +32,28 @@ require_once("Container.php");
 class OMVModuleDockerUtil {
 
 	/**
+	 * Returns the result of a call to the Docker API
+	 *
+	 * @return array $objects An array with Image objects
+	 *
+	 */
+	public static function doApiCall($url) {
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_CONNECTTIMEOUT => 5
+		));
+		curl_setopt($curl, CURLOPT_URL, $url);
+		if(!($response = curl_exec($curl))){
+			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+		}
+		curl_close($curl);
+		return $response;
+	}
+
+
+	/**
 	 * Returns an array with Image objects on the system
 	 *
 	 * @return array $objects An array with Image objects
@@ -39,12 +61,6 @@ class OMVModuleDockerUtil {
 	 */
 	public static function getImages($apiPort, $incDangling) {
 		$objects=array();
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 		$url = "http://localhost:" . $apiPort . "/images/json?all=0";
 		/*
 		if($incDangling) {
@@ -53,11 +69,7 @@ class OMVModuleDockerUtil {
 			$url .= "1";
 		}
 		 */
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
-		curl_close($curl);
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$data = array();
 		foreach(json_decode($response) as $item) {
 			$data[substr($item->Id, 0, 12)] = $item;
@@ -85,18 +97,8 @@ class OMVModuleDockerUtil {
 	 */
 	public static function getImage($id, $apiPort) {
 		$objects = array();
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 		$url = "http://localhost:" . $apiPort . "/images/json?all=1";
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
-		curl_close($curl);
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$data = array();
 		foreach(json_decode($response) as $item) {
 			$data[substr($item->Id, 0, 12)] = $item;
@@ -113,18 +115,8 @@ class OMVModuleDockerUtil {
 	 */
 	public static function getContainers($apiPort) {
 		$objects = array();
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 		$url = "http://localhost:" . $apiPort . "/containers/json?all=1";
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
-		curl_close($curl);
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$data = array();
 		foreach(json_decode($response) as $item) {
 			$data[substr($item->Id, 0, 12)] = $item;
@@ -175,18 +167,8 @@ class OMVModuleDockerUtil {
 	 */
 	public static function getContainer($id, $apiPort) {
 		$objects = array();
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
 		$url = "http://localhost:" . $apiPort . "/containers/json?all=1";
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
-		curl_close($curl);
+		$response = OMVModuleDockerUtil::doApiCall($url);
 		$data = array();
 		foreach(json_decode($response) as $item) {
 			$data[substr($item->Id, 0, 12)] = $item;

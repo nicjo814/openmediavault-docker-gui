@@ -100,13 +100,6 @@ class OMVModuleDockerImage {
 	 */
 	public function __construct($id, $data, $apiPort) {
 		$now = date("c");
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_CONNECTTIMEOUT => 5
-		));
-
 		$this->id = $id;
 		$item = $data[substr($id, 0, 12)];
 
@@ -121,10 +114,8 @@ class OMVModuleDockerImage {
 		$this->size = OMVModuleDockerUtil::bytesToSize($item->VirtualSize);
 
 		$url = "http://localhost:" . $apiPort . "/images/$id/json";
-		curl_setopt($curl, CURLOPT_URL, $url);
-		if(!($response = curl_exec($curl))){
-			throw new OMVModuleDockerException('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
-		}
+		$response = OMVModuleDockerUtil::doApiCall($url);
+
 		$imageData = json_decode($response);
 		$this->ports = array();
 		foreach($imageData->Config->ExposedPorts as $exposedport => $hostports) {
@@ -137,7 +128,6 @@ class OMVModuleDockerImage {
 				$this->envVars[$eVarAry[0]] = $eVarAry[1];
 			}
 		}
-		curl_close($curl);
 	}
 
 	/**
