@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<images>
 <image>
 	<name>Kodi Headless</name>
 	<repo>nicjo814/docker-kodi-headless</repo>
@@ -6,3 +7,11 @@
 	<category>Video</category>
 	<imageurl>http://kodi.tv/wp-content/themes/paradise/Paradise/images/logo.png</imageurl>
 </image>
+<image>
+	<name>Kodi Headless</name>
+	<repo>nicjo814/docker-kodi-headless</repo>
+	<desc>Headless docker image for running Kodi server</desc>
+	<category>Video</category>
+	<imageurl>http://kodi.tv/wp-content/themes/paradise/Paradise/images/logo.png</imageurl>
+</image>
+</images>
