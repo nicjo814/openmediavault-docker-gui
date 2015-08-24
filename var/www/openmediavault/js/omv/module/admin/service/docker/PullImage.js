@@ -148,7 +148,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 						iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 						flex: 0,
 						width: 24,
-						tooltip: "Image information",
+						tooltip: _("Image information"),
 						listeners: {
 							scope: this,
 							click: function(button, e , eOpts) {

@@ -82,7 +82,7 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
 						me.queryById("envName-" + me.envCount).setReadOnly(true);
 						me.queryById("envValue-" + me.envCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Bad input", errorMsg);
+						Ext.Msg.alert(_("Bad input"), errorMsg);
 					}
 				},
 				setNewRow: function() {

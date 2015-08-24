@@ -115,7 +115,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
 						me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
 						me.queryById("customPort-" + me.portCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Bad input", errorMsg);
+						Ext.Msg.alert(_("Bad input"), errorMsg);
 					}
 				},
 				setNewRow: function() {

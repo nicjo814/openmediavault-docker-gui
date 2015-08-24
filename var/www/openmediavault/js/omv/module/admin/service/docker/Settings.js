@@ -191,7 +191,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 					iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 					flex: 0,
 					width: 24,
-					tooltip: "Start copying of data",
+					tooltip: _("Start copying of data"),
 					listeners: {
 						scope: this,
 						click: function(button, e , eOpts) {

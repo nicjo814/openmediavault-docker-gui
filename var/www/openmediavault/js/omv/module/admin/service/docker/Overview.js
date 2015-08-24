@@ -66,14 +66,14 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 		xtype: 'dockerImageGrid',
 		flex: 1,
 		collapsible: true,
-		title: 'Docker Images'
+		title: _('Docker Images')
 	},{
 		xtype: 'splitter'
 	},{
 		xtype: 'dockerContainerGrid',
 		flex: 1,
 		collapsible: true,
-		title: 'Docker Containers'
+		title: _('Docker Containers')
 	}]
 
 });

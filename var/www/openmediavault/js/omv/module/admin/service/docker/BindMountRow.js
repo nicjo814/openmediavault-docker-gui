@@ -99,7 +99,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 						me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
 						me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
 					} else {
-						Ext.Msg.alert("Bad input", errorMsg);
+						Ext.Msg.alert(_("Bad input"), errorMsg);
 					}
 				},	
 				setNewRow: function(button) {

@@ -93,11 +93,11 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 			},{
 				xtype: "checkbox",
 				name: "restart",
-				boxLabel: "Restart on system reboot"
+				boxLabel: _("Restart on system reboot")
 			},{
 				xtype: "checkbox",
 				name: "privileged",
-				boxLabel: "Run container in privileged mode"
+				boxLabel: _("Run container in privileged mode")
 			}]	
 		});
 
@@ -126,7 +126,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 			items: [{
 				xtype: "combo",
 				store: networkModes,
-				fieldLabel: "Network mode",
+				fieldLabel: _("Network mode"),
 				queryMode: 'local',
 				displayField: 'mode',
 				valueField: 'mode',
@@ -360,7 +360,6 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 					service: me.rpcService,
 					method: me.rpcSetMethod || "set",
 					params: params
-					//params: me.getRpcSetParams()
 				}
 			};
 			if(me.fireEvent("beforesubmit", me, rpcOptions) === false)

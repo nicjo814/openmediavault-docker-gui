@@ -128,7 +128,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		return [{
 			id: me.getId() + "-start",
 			xtype: "button",
-			text: "Start",
+			text: _("Start"),
 			icon: "images/play.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -137,7 +137,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-stop",
 			xtype: "button",
-			text: "Stop",
+			text: _("Stop"),
 			icon: "images/docker_stop.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -146,7 +146,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-restart",
 			xtype: "button",
-			text: "Restart",
+			text: _("Restart"),
 			icon: "images/undo.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -155,7 +155,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-copy",
 			xtype: "button",
-			text: "Copy",
+			text: _("Copy"),
 			icon: "images/docker_copy.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -164,7 +164,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-details",
 			xtype: "button",
-			text: "Details",
+			text: _("Details"),
 			icon: "images/search.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -173,7 +173,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-delete",
 			xtype: "button",
-			text: me.deleteButtonText,
+			text: _("Delete"),
 			icon: "images/delete.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -182,7 +182,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		},{
 			id: me.getId() + "-refresh",
 			xtype: "button",
-			text: "Refresh",
+			text: _("Refresh"),
 			icon: "images/refresh.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			hidden: false,
@@ -370,7 +370,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var record = records[0];
 
 		var detailsWindow = Ext.create("OMV.workspace.window.Form", {
-			title: "Container details",
+			title: _("Container details"),
 			rpcService: "Docker",
 			rpcGetMethod: "getDetails",
 			rpcGetParams: {
@@ -407,7 +407,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 		var records = sm.getSelection();
 		var record = records[0];
 		Ext.create("OMV.module.admin.service.docker.RunContainer", {
-			title: "Copy container",
+			title: _("Copy container"),
 			image: record.get("image"),
 			ports: record.get("exposedports"),
 			envvars: record.get("envvars"),

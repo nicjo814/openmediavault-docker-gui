@@ -154,7 +154,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		},{
 			id: me.getId() + "-details",
 			xtype: "button",
-			text: "Details",
+			text: _("Details"),
 			icon: "images/search.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -163,7 +163,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		},{
 			id: me.getId() + "-info",
 			xtype: "button",
-			text: "Info",
+			text: _("Info"),
 			icon: "images/about.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			disabled: true,
@@ -181,7 +181,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		},{
 			id: me.getId() + "-refresh",
 			xtype: "button",
-			text: "Refresh",
+			text: _("Refresh"),
 			icon: "images/refresh.png",
 			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
 			hidden: false,
@@ -192,7 +192,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			autoEl: {tag: 'img', src:"images/search.png"}
 		},{
 			xtype: 'box',
-			html: "Search"
+			html: _("Search")
 		},{
 			xtype: "combo",
 			name: "imageSearchFilter",
@@ -210,15 +210,15 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 			xtype: "module.admin.service.docker.searchbox",
 			name: "searchCombo",
 			width: 350,
-			text: "Search",
+			text: _("Search"),
 			hidden: false,
 			displayField: 'name',
 			valueField: 'name',
 			pageSize: 10,
 
 			listConfig: {
-				loadingText: 'Searching...',
-				emptyText: 'No matching repositories found.',
+				loadingText: _('Searching...'),
+				emptyText: _('No matching repositories found.'),
 
 				// Custom rendering template for each item
 				getInnerTpl: function() {
@@ -234,7 +234,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 					var repo = selection.getData().name
 					if (repo) {
 						Ext.create("OMV.module.admin.service.docker.PullImage", {
-							title: "Pull image",
+							title: _("Pull image"),
 							rpcService: "Docker",
 							rpcMethod: "pullImage",
 							repo: repo,
@@ -297,7 +297,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 	onPullButton : function() {
 		var me = this;
 		Ext.create("OMV.module.admin.service.docker.PullImage", {
-			title          : "Pull image",
+			title          : _("Pull image"),
 			rpcService     : "Docker",
 			rpcMethod      : "pullImage",
 			hideStopButton : true,
@@ -331,7 +331,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var records = sm.getSelection();
 		var record = records[0];
 		Ext.create("OMV.module.admin.service.docker.RunContainer", {
-			title: "Run image",
+			title: _("Run image"),
 			image: record.get("repository") + ":" + record.get("tag"),
 			ports: record.get("ports"),
 			envvars: record.get("envvars")
@@ -345,7 +345,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 		var record = records[0];
 
 		var detailsWindow = Ext.create("OMV.workspace.window.Form", {
-			title: "Image details",
+			title: _("Image details"),
 			rpcService: "Docker",
 			rpcGetMethod: "getDetails",
 			rpcGetParams: {
