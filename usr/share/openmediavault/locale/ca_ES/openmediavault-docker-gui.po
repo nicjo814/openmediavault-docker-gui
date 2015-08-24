@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-23 09:36-0500\n"
-"PO-Revision-Date: 2015-08-23 14:38+0000\n"
+"POT-Creation-Date: 2015-08-24 05:54-0500\n"
+"PO-Revision-Date: 2015-08-24 10:54+0000\n"
 "Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
 "Language-Team: Catalan (Spain) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/ca_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -16,6 +16,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ca_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Bad input"
+msgstr ""
 
 msgid "Bind mounts"
 msgstr ""
@@ -35,7 +38,16 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Container details"
+msgstr ""
+
 msgid "Container name"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Copy container"
 msgstr ""
 
 msgid "Copy in progress"
@@ -48,6 +60,9 @@ msgid "Delete"
 msgstr ""
 
 msgid "Destination path"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "Docker"
@@ -71,10 +86,22 @@ msgstr ""
 msgid "IMAGE ID"
 msgstr ""
 
+msgid "Image details"
+msgstr ""
+
+msgid "Image information"
+msgstr ""
+
+msgid "Info"
+msgstr ""
+
 msgid "Information"
 msgstr ""
 
 msgid "NAMES"
+msgstr ""
+
+msgid "Network mode"
 msgstr ""
 
 msgid ""
@@ -115,7 +142,16 @@ msgstr ""
 msgid "REPOSITORY"
 msgstr ""
 
+msgid "Refresh"
+msgstr ""
+
 msgid "Repository"
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Restart on system reboot"
 msgstr ""
 
 msgid "Run Image"
@@ -124,7 +160,16 @@ msgstr ""
 msgid "Run container"
 msgstr ""
 
+msgid "Run container in privileged mode"
+msgstr ""
+
+msgid "Run image"
+msgstr ""
+
 msgid "STATUS"
+msgstr ""
+
+msgid "Search"
 msgstr ""
 
 msgid "Select a directory"
@@ -137,6 +182,9 @@ msgid "Source path for copying of Docker image/container data"
 msgstr ""
 
 msgid "Start"
+msgstr ""
+
+msgid "Start copying of data"
 msgstr ""
 
 msgid "Stop"
