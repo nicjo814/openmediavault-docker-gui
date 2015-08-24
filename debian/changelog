@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.2) UNRELEASED; urgency=low
+
+  * Made it possible to execute command inside container
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Mon, 24 Aug 2015 21:11:35 +0200
+
 openmediavault-docker-gui (0.2.1) unstable; urgency=low
 
   * Added license information 
