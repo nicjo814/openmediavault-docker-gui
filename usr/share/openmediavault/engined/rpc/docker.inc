@@ -77,6 +77,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->registerMethod("getRootFolders");
 		$this->registerMethod("copyDockerData");
 		$this->registerMethod("executeCommand");
+		$this->registerMethod("getDockerRepo");
 	}
 
 	public function getImages($params, $context) {
@@ -577,6 +578,31 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
 		$this->finalizeBgProcStatus($bgStatusFilename, "", $e);
 		exit(1);
 	}
+	}
+
+	public function getDockerRepo($params, $context) {
+		$this->validateMethodContext($context,array( "role" => OMV_ROLE_ADMINISTRATOR ));
+		$logoPath = "/var/www/openmediavault/images/dockerrepo/";
+		$baseUrl = "https://cdn.rawgit.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-repo/master/";
+		$imgBase = $baseUrl . "logos/";
+		$repoUrl = $baseUrl . "dockerlist.xml";
+
+		$cmd = "mkdir -p $logoPath";
+		OMVUtil::exec($cmd, $out, $res);
+
+		$data = file_get_contents($repoUrl);
+		$xml = simplexml_load_string($data);
+		$objects = array();
+		foreach($xml as $image) {
+			copy($imgBase . $image->imageurl, $logoPath . $image->imageurl);
+			$temp = array("name" => $image->name,
+				"category" => $image->category,
+				"logo" => $image->imageurl,
+				"desc" => $image->desc,
+				"repo" => $image->repo);
+			array_push($objects, $temp);
+		}
+		return $objects;
 	}
 
 	//throw new OMVModuleDockerException($cmd);
