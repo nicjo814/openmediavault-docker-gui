@@ -4,6 +4,7 @@ openmediavault-docker-gui (0.2.3) UNRELEASED; urgency=low
   * Removed closing php tags
   * Better compliance with PHP coding standards
   * Changed some license texts
+  * Layout fix for RunContainer component
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 26 Aug 2015 10:35:23 +0200
 
