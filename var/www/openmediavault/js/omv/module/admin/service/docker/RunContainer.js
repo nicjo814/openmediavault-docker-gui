@@ -32,11 +32,11 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     title: _("Run container"),
     layout: "fit",
     width: 600,
-    height: 700,
+    maxHeight: 700,
     closable: true,
     resizable: true,
     buttonAlign: "center",
-    grow: false,
+    grow: true,
 
     rpcService   : "Docker",
     rpcSetMethod : "runContainer",
