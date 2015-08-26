@@ -1,9 +1,16 @@
-openmediavault-docker-gui (0.2.2) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.3) UNRELEASED; urgency=low
+
+  * Fixed indentation
+  * Removed closing php tags
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 26 Aug 2015 10:35:23 +0200
+
+openmediavault-docker-gui (0.2.2) unstable; urgency=low
 
   * Made it possible to execute command inside container
   * Docker repo feature implemented
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Mon, 24 Aug 2015 21:11:35 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 26 Aug 2015 10:35:14 +0200
 
 openmediavault-docker-gui (0.2.1) unstable; urgency=low
 
