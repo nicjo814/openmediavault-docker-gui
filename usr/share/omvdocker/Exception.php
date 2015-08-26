@@ -18,18 +18,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /**
  * OMVModuleDockerException class
  *
  */
 class OMVModuleDockerException extends Exception {
-
     public function __construct($message = "", $code = 0, Exception $previous = NULL) {
         parent::__construct($message, $code, $previous);
     }
-
 }
 
 ?>

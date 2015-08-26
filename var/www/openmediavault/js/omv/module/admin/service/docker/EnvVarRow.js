@@ -1,140 +1,140 @@
 /**
- * @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
- * @author    Volker Theile <volker.theile@openmediavault.org>
- * @author    OpenMediaVault Plugin Developers <plugins@omv-extras.org>
- * @copyright Copyright (c) 2009-2013 Volker Theile
- * @copyright Copyright (c) 2014-2015 OpenMediaVault Plugin Developers
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+* @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
+* @author    Volker Theile <volker.theile@openmediavault.org>
+* @author    OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+* @copyright Copyright (c) 2009-2013 Volker Theile
+* @copyright Copyright (c) 2014-2015 OpenMediaVault Plugin Developers
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
-	extend: "Ext.container.Container",
-	alias: "widget.module.admin.service.docker.envvarrow",
+    extend: "Ext.container.Container",
+    alias: "widget.module.admin.service.docker.envvarrow",
 
-	layout: "hbox",
-	shadow: false,
-	border: false,
-	defaultType: "container",
-	nameVal: "",
-	valueVal: "",
-	defaultVal: "false",
+    layout: "hbox",
+    shadow: false,
+    border: false,
+    defaultType: "container",
+    nameVal: "",
+    valueVal: "",
+    defaultVal: "false",
 
-	initComponent: function() {
-		var me = this;
-		var defVal;
-		if(me.defaultVal === "true") {
-			defVal = true;
-		} else {
-			defVal = false;
-		}
+    initComponent: function() {
+        var me = this;
+        var defVal;
+        if(me.defaultVal === "true") {
+            defVal = true;
+        } else {
+            defVal = false;
+        }
 
-		me.items = [{
-			xtype: "textfield",
-			name: "envName-" + me.envCount,
-			id: "envName-" + me.envCount,
-			value: me.nameVal,
-			flex: 1,
-			readOnly: defVal
-		},{
-			xtype: "textfield",
-			name: "envValue-" + me.envCount,
-			id: "envValue-" + me.envCount,
-			value: me.valueVal,
-			flex: 2,
-			readOnly: defVal
-		},{
-			xtype: "button",
-			id: "envVarAddButton-" + me.envCount,
-			icon: "images/add.png",
-			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-			flex: 0,
-			width: 24,
-			hidden: defVal,
-			listeners: {
-				scope: this,
-				click: function(button, e , eOpts) {
-					var errorMsg = me.validateData();
-					if(errorMsg === "") {
-						me.up('window').envVars[me.envCount] = {
-							name: me.queryById("envName-" + me.envCount).getValue(),
-							value: me.queryById("envValue-" + me.envCount).getValue()
-						};
-						var nextCount = parseInt(me.envCount)+1;
-						button.setHidden(true);
-						me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
-						var newRow = Ext.create("OMV.module.admin.service.docker.EnvVarRow", {
-							envCount: nextCount,
-							id: "envVarRow-" + nextCount
-						});
-						Ext.getCmp("dockerEnvVars").add(newRow);
-						me.queryById("envName-" + me.envCount).setReadOnly(true);
-						me.queryById("envValue-" + me.envCount).setReadOnly(true);
-					} else {
-						Ext.Msg.alert(_("Bad input"), errorMsg);
-					}
-				},
-				setNewRow: function() {
-					var me = this;
-					if(me.defVal) {
-						me.up('window').envVars[me.envCount] = {
-							name: me.nameVal,
-							value: me.valueVal
-						};
-					}
-					me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
-					me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
-					me.queryById("envVarDelButton-" + me.envCount).setDisabled(defVal);
-					me.queryById("envName-" + me.envCount).setReadOnly(true);
-					me.queryById("envValue-" + me.envCount).setReadOnly(true);
-					me.up('window').envCount = me.envCount+1;
-				}
-			}
-		},{
-			xtype: "button",
-			id: "envVarDelButton-" + me.envCount,
-			icon: "images/delete.png",
-			iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-			flex: 0,
-			width: 24,
-			hidden: !defVal,
-			disabled: defVal,
-			listeners: {
-				scope: me,
-				click: function(button, e , eOpts) {
-					delete me.up('window').envVars[me.envCount];
-					Ext.getCmp("dockerEnvVars").remove("envVarRow-" + me.envCount);
-				}
-			}
-		},{
-			xtype: "hiddenfield",
-			name: "envVarDefault-" + me.envCount,
-			id: "envVarDefault-" + me.envCount,
-			value: me.defaultVal
-		}];
-		Ext.apply(me, {
-		});
-		me.callParent(arguments);
-	},
+        me.items = [{
+            xtype: "textfield",
+            name: "envName-" + me.envCount,
+            id: "envName-" + me.envCount,
+            value: me.nameVal,
+            flex: 1,
+            readOnly: defVal
+        },{
+            xtype: "textfield",
+            name: "envValue-" + me.envCount,
+            id: "envValue-" + me.envCount,
+            value: me.valueVal,
+            flex: 2,
+            readOnly: defVal
+        },{
+            xtype: "button",
+            id: "envVarAddButton-" + me.envCount,
+            icon: "images/add.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            flex: 0,
+            width: 24,
+            hidden: defVal,
+            listeners: {
+                scope: this,
+                click: function(button, e , eOpts) {
+                    var errorMsg = me.validateData();
+                    if(errorMsg === "") {
+                        me.up('window').envVars[me.envCount] = {
+                            name: me.queryById("envName-" + me.envCount).getValue(),
+                            value: me.queryById("envValue-" + me.envCount).getValue()
+                        };
+                        var nextCount = parseInt(me.envCount)+1;
+                        button.setHidden(true);
+                        me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+                        var newRow = Ext.create("OMV.module.admin.service.docker.EnvVarRow", {
+                            envCount: nextCount,
+                            id: "envVarRow-" + nextCount
+                        });
+                        Ext.getCmp("dockerEnvVars").add(newRow);
+                        me.queryById("envName-" + me.envCount).setReadOnly(true);
+                        me.queryById("envValue-" + me.envCount).setReadOnly(true);
+                    } else {
+                        Ext.Msg.alert(_("Bad input"), errorMsg);
+                    }
+                },
+                setNewRow: function() {
+                    var me = this;
+                    if(me.defVal) {
+                        me.up('window').envVars[me.envCount] = {
+                            name: me.nameVal,
+                            value: me.valueVal
+                        };
+                    }
+                    me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+                    me.queryById("envVarDelButton-" + me.envCount).setDisabled(defVal);
+                    me.queryById("envName-" + me.envCount).setReadOnly(true);
+                    me.queryById("envValue-" + me.envCount).setReadOnly(true);
+                    me.up('window').envCount = me.envCount+1;
+                }
+            }
+        },{
+            xtype: "button",
+            id: "envVarDelButton-" + me.envCount,
+            icon: "images/delete.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            flex: 0,
+            width: 24,
+            hidden: !defVal,
+            disabled: defVal,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    delete me.up('window').envVars[me.envCount];
+                    Ext.getCmp("dockerEnvVars").remove("envVarRow-" + me.envCount);
+                }
+            }
+        },{
+            xtype: "hiddenfield",
+            name: "envVarDefault-" + me.envCount,
+            id: "envVarDefault-" + me.envCount,
+            value: me.defaultVal
+        }];
+        Ext.apply(me, {
+        });
+        me.callParent(arguments);
+    },
 
-	validateData: function() {
-		var me = this;
-		var name = me.queryById("envName-" + me.envCount).getValue();
-		var errorMsg = "";
-		if (!(/^[a-zA-Z_]+[a-zA-Z0-9_]*$/.test(name))) {
-			errorMsg = errorMsg + "Invalid name supplied";
-		}
-		return errorMsg;
-	}
+    validateData: function() {
+        var me = this;
+        var name = me.queryById("envName-" + me.envCount).getValue();
+        var errorMsg = "";
+        if (!(/^[a-zA-Z_]+[a-zA-Z0-9_]*$/.test(name))) {
+            errorMsg = errorMsg + "Invalid name supplied";
+        }
+        return errorMsg;
+    }
 });
