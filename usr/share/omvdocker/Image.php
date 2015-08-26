@@ -22,14 +22,8 @@
 
 require_once("Exception.php");
 
-/**
- * XXX detailed description
- *
- * @author    XXX
- * @version   XXX
- * @copyright XXX
- */
-class OMVModuleDockerImage {
+class OMVModuleDockerImage
+{
     // Attributes
 
     /**
@@ -92,25 +86,29 @@ class OMVModuleDockerImage {
     // Operations
 
     /**
-     * Constructor. The image will be updated with all associated properties from commandline.
+     * Constructor. The image will be updated with all associated properties
+     * from commandline.
      *
      * @param string $id Id of the new container
      * @return void
      * @access public
      */
-    public function __construct($id, $data, $apiPort) {
+    public function __construct($id, $data, $apiPort)
+    {
         $now = date("c");
         $this->id = $id;
         $item = $data[substr($id, 0, 12)];
 
-        if(is_array($item->RepoTags) && (count($item->RepoTags) > 0)) {
+        if (is_array($item->RepoTags) && (count($item->RepoTags) > 0)) {
             $this->repository = preg_split('/\:/',$item->RepoTags[0])[0];
             $this->tag = preg_split('/\:/',$item->RepoTags[0])[1];
         } else {
             $this->repository = "none";
             $this->tag = "none";
         }
-        $this->created = OMVModuleDockerUtil::getWhen($now, date("c", $item->Created)) . " ago";
+        $this->created = OMVModuleDockerUtil::getWhen(
+            $now,
+            date("c", $item->Created)) . " ago";
         $this->size = OMVModuleDockerUtil::bytesToSize($item->VirtualSize);
 
         $url = "http://localhost:" . $apiPort . "/images/$id/json";
@@ -118,12 +116,13 @@ class OMVModuleDockerImage {
 
         $imageData = json_decode($response);
         $this->ports = array();
-        foreach($imageData->Config->ExposedPorts as $exposedport => $hostports) {
-            array_push($this->ports, array("name" => $exposedport));
-        }
+        foreach ($imageData->Config->ExposedPorts as
+            $exposedport => $hostports) {
+                array_push($this->ports, array("name" => $exposedport));
+            }
         $this->envVars = array();
-        if(is_array($imageData->Config->Env)) {
-            foreach($imageData->Config->Env as $eVar) {
+        if (is_array($imageData->Config->Env)) {
+            foreach ($imageData->Config->Env as $eVar) {
                 $eVarAry = explode("=", $eVar);
                 $this->envVars[$eVarAry[0]] = $eVarAry[1];
             }
@@ -136,7 +135,8 @@ class OMVModuleDockerImage {
      * @return string $id
      * @access public
      */
-    public function getId() {
+    public function getId()
+    {
         return (substr($this->id, 0, 12));
     }
 
@@ -146,7 +146,8 @@ class OMVModuleDockerImage {
      * @return string $repository
      * @access public
      */
-    public function getRepository() {
+    public function getRepository()
+    {
         return $this->repository;
     }
 
@@ -156,7 +157,8 @@ class OMVModuleDockerImage {
      * @return string $tag
      * @access public
      */
-    public function getTag() {
+    public function getTag()
+    {
         return $this->tag;
     }
 
@@ -166,7 +168,8 @@ class OMVModuleDockerImage {
      * @return string $created
      * @access public
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -176,7 +179,8 @@ class OMVModuleDockerImage {
      * @return string $size
      * @access public
      */
-    public function getSize() {
+    public function getSize()
+    {
         return $this->size;
     }
 
@@ -186,7 +190,8 @@ class OMVModuleDockerImage {
      * @return array $ports
      * @access public
      */
-    public function getPorts() {
+    public function getPorts()
+    {
         return $this->ports;
     }
 
@@ -196,7 +201,8 @@ class OMVModuleDockerImage {
      * @return array $envVars
      * @access public
      */
-    public function getEnvVars() {
+    public function getEnvVars()
+    {
         return $this->envVars;
     }
 }
