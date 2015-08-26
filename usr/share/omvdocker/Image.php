@@ -200,5 +200,3 @@ class OMVModuleDockerImage {
         return $this->envVars;
     }
 }
-
-?>

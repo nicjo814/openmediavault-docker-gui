@@ -379,5 +379,3 @@ class OMVModuleDockerContainer {
     }
 
 }
-
-?>
