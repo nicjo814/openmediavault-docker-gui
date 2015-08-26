@@ -676,8 +676,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract {
             $context,
             array( "role" => OMV_ROLE_ADMINISTRATOR ));
         $logoPath = "/var/www/openmediavault/images/dockerrepo/";
-        $baseUrl = "https://cdn.rawgit.com/OpenMediaVault-Plugin-Developers/" .
-            "openmediavault-docker-repo/master/";
+        $baseUrl = "http://openmediavault-plugin-developers.github.io/" . 
+            "openmediavault-docker-repo/";
         $imgBase = $baseUrl . "logos/";
         $repoUrl = $baseUrl . "dockerlist.xml";
 
