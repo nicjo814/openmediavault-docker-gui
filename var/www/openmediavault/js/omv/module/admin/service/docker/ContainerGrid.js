@@ -19,6 +19,7 @@
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
+// require("js/omv/module/admin/service/docker/CreateContainer.js")
 // require("js/omv/module/admin/service/docker/ExecuteCmd.js")
 // require("js/omv/workspace/grid/Panel.js")
 // require("js/omv/data/Store.js")
@@ -123,6 +124,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
     getTopToolbarItems: function(c) {
         var me = this;
         return [{
+            id: me.getId() + "-create",
+            xtype: "button",
+            text: _("Create"),
+            icon: "images/add.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            disabled: true,
+            handler: Ext.Function.bind(me.onCreateButton, me, [ me ]),
+            scope: me
+        },{
             id: me.getId() + "-start",
             xtype: "button",
             text: _("Start"),
@@ -201,8 +211,9 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         var me = this;
         if(me.hideTopToolbar)
             return;
-        var tbarBtnName = [ "start", "stop", "restart", "copy", "details", "execute", "delete", "refresh" ];
+        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "details", "execute", "delete", "refresh" ];
         var tbarBtnDisabled = {
+            "create": false,
             "start": false,
             "stop": false,
             "restart": false,
@@ -214,6 +225,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         };
         // Enable/disable buttons depending on the number of selected rows.
         if(records.length <= 0) {
+            tbarBtnDisabled["create"] = true;
             tbarBtnDisabled["start"] = true;
             tbarBtnDisabled["stop"] = true;
             tbarBtnDisabled["restart"] = true;
@@ -237,6 +249,18 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     return false;
                 }
             });
+            
+            // Disable buttons if selected node is a data container
+            Ext.Array.each(records, function(record) {
+                if(record.get("status") === "Created") {
+                    tbarBtnDisabled["start"] = true;
+                    tbarBtnDisabled["stop"] = true;
+                    tbarBtnDisabled["restart"] = true;
+                    tbarBtnDisabled["execute"] = true;
+                    tbarBtnDisabled["copy"] = true;
+                    return false;
+                }
+            });
         } else {
             tbarBtnDisabled["copy"] = true;
             tbarBtnDisabled["details"] = true;
@@ -244,6 +268,18 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             Ext.Array.each(records, function(record) {
                 if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
                     tbarBtnDisabled["delete"] = true;
+                    return false;
+                }
+            });
+            
+            // Disable buttons if selected node is a data container
+            Ext.Array.each(records, function(record) {
+                if(record.get("status") === "Created") {
+                    tbarBtnDisabled["start"] = true;
+                    tbarBtnDisabled["stop"] = true;
+                    tbarBtnDisabled["restart"] = true;
+                    tbarBtnDisabled["execute"] = true;
+                    tbarBtnDisabled["copy"] = true;
                     return false;
                 }
             });
@@ -260,6 +296,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 }
             }
         });
+    },
+
+    onCreateButton: function() {
+        var me = this;
+        var imageStore = me.up('tabpanel').down('dockerImageGrid').getStore();
+        Ext.create("OMV.module.admin.service.docker.CreateContainer", {
+            title: _("Create data container"),
+            imageStore: imageStore
+        }).show();
     },
 
     onStartButton: function() {

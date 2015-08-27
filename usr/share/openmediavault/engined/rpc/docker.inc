@@ -552,8 +552,28 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $context,
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
-        //TODO: Implement commmand
         $cmd = "docker create ";
+
+        //Check for volumes
+        foreach ($params['volumes'] as $volume) {
+            if (strcmp($volume['to'], "/") === 0) {
+                throw new OMVModuleDockerException(
+                    "Container path must not be set to \"/\""
+                );
+            }
+            if (!(strcmp($volume['from'], "") === 0)) {
+                $cmd .= "-v " . $volume['from'] . ":" .
+                    $volume['to'] . " ";
+            }
+        }
+
+        //Check if a custom container name has been supplied
+        if (!(strcmp($params['containerName'], "") === 0)) {
+            $cmd .= "--name=" . $params['containerName'] . " ";
+        }
+
+        $cmd .= $params['imageRepo'] . " /bin/true";
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
     }
 
     /**
