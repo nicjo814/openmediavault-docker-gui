@@ -2,6 +2,12 @@
 /**
  * Copyright (c) 2015 OpenMediaVault Plugin Developers
  *
+ * @category OMVModuleDockerUtil
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,38 +22,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once("Exception.php");
-require_once("openmediavault/util.inc");
-require_once("Image.php");
-require_once("Container.php");
+require_once "Exception.php";
+require_once "openmediavault/util.inc";
+require_once "Image.php";
+require_once "Container.php";
 
 
 /**
  * Helper class for Docker module
+ *
+ * @category Class
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  */
 class OMVModuleDockerUtil
 {
-
     /**
      * Returns the result of a call to the Docker API
      *
      * @param string $url The URL to use in the API call
-     * @return array $objects An array with Image objects
      *
+     * @return string $response The response from the API call
      */
     public static function doApiCall($url)
     {
         $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_CONNECTTIMEOUT => 5
-        ));
+        curl_setopt_array(
+            $curl, array(
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_CONNECTTIMEOUT => 5
+            )
+        );
         curl_setopt($curl, CURLOPT_URL, $url);
-        if (!($response = curl_exec($curl))){
+        if (!($response = curl_exec($curl))) {
             throw new OMVModuleDockerException(
                 'Error: "' . curl_error($curl) . '" - Code: ' .
-                curl_errno($curl));
+                curl_errno($curl)
+            );
         }
         curl_close($curl);
         return $response;
@@ -56,6 +71,7 @@ class OMVModuleDockerUtil
     /**
      * Stops the Docker service
      *
+     * @return void
      */
     public static function stopDockerService()
     {
@@ -80,6 +96,7 @@ class OMVModuleDockerUtil
     /**
      * Starts the Docker service
      *
+     * @return void
      */
     public static function startDockerService()
     {
@@ -107,6 +124,9 @@ class OMVModuleDockerUtil
 
     /**
      * Returns an array with Image objects on the system
+     *
+     * @param int  $apiPort     Network port to use in API call
+     * @param bool $incDangling Flag to filter dangling images (not used)
      *
      * @return array $objects An array with Image objects
      *
@@ -145,6 +165,9 @@ class OMVModuleDockerUtil
     /**
      * Returns a single image from it's ID
      *
+     * @param string $id      The ID of the image to retrieve
+     * @param int    $apiPort Network port to use in API call
+     *
      * @return OMVModuleDockerImage $image A single Docker image
      *
      */
@@ -164,6 +187,8 @@ class OMVModuleDockerUtil
     /**
      * Returns an array with Container objects on the system
      *
+     * @param int $apiPort Network port to use in API call
+     *
      * @return array $objects An array with Container objects
      *
      */
@@ -180,7 +205,8 @@ class OMVModuleDockerUtil
             $container = new OMVModuleDockerContainer(
                 $item->Id,
                 $data,
-                $apiPort);
+                $apiPort
+            );
             $ports = "";
             foreach ($container->getPorts() as $exposedport => $hostports) {
                 if ($hostports) {
@@ -195,7 +221,8 @@ class OMVModuleDockerUtil
             }
             $image = OMVModuleDockerUtil::getImage(
                 substr($container->getImageId(), 0, 12),
-                $apiPort);
+                $apiPort
+            );
             $exposedPorts = $image->getPorts();
             $envvars = $image->getEnvVars();
             $ports = rtrim($ports, ", ");
@@ -224,6 +251,9 @@ class OMVModuleDockerUtil
     /**
      * Returns a single container from it's ID
      *
+     * @param string $id      The ID of the container to retrieve
+     * @param int    $apiPort Network port to use in API call
+     *
      * @return OMVModuleDockerContainer $container A single container object
      *
      */
@@ -242,13 +272,16 @@ class OMVModuleDockerUtil
     /**
      * Returns a string representing a time sometime in the past
      *
+     * @param string $now       Current timestamp
+     * @param string $eventTime Timestamp to compare with
+     *
      * @return string $when A string representaion of a past time
      *
      */
     public static function getWhen($now, $eventTime)
     {
         $when = "";
-        $diff = date_diff(new DateTime($now),new DateTime($eventTime));
+        $diff = date_diff(new DateTime($now), new DateTime($eventTime));
         if ($diff->y > 0) {
             $when = "$diff->y years";
         } elseif ($diff->m > 0) {
@@ -270,10 +303,12 @@ class OMVModuleDockerUtil
     /**
      * Convert bytes to human readable format
      *
-     * @param integer bytes Size in bytes to convert
+     * @param int $bytes     Size in bytes to convert
+     * @param int $precision Number of decimals to use
+     *
      * @return string
      */
-    function bytesToSize($bytes, $precision =1)
+    public function bytesToSize($bytes, $precision =1)
     {
         /*
         $kilobyte = 1024;
@@ -305,9 +340,13 @@ class OMVModuleDockerUtil
     /**
      * Change the Docker daemon settings
      *
-     * @param string apiPort The new API port to use
+     * @param string $apiPort The new API port to use
+     * @param string $absPath Absolute path where Docker files should be moved
+     *
+     * @return void
+     *
      */
-    function changeDockerSettings($apiPort, $absPath)
+    public function changeDockerSettings($apiPort, $absPath)
     {
         OMVModuleDockerUtil::stopDockerService();
         $fileName = "/etc/default/docker";
@@ -316,28 +355,23 @@ class OMVModuleDockerUtil
         $result = "";
         $socketSet = false;
         foreach ($lines as $line) {
-            if (strcmp($line, "### Do not change these lines. " .
-                "They are added and updated by the OMV Docker GUI " .
-                "plugin.") === 0) {
-                    break;
-                } else {
-                    if (preg_match(
-                        '/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/',
-                        $line)) {
-                            $socketSet = true;
-                        } elseif (
-                            (preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/',
-                            $line,
-                            $matches)) && (strcmp($absPath, "") !== 0)) {
-                                OMVModuleDockerUtil::startDockerService();
-                                throw new OMVModuleDockerException("Docker " .
-                                    "base path relocation detected in " .
-                                    "configuration file\n" .
-                                    "Please remove it manually " .
-                                    "($matches[1])\n");
-                            }
-                    $result .= $line . "\n";
+            if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
+                break;
+            } else {
+                if (preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
+                    $socketSet = true;
+                } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
+                    OMVModuleDockerUtil::startDockerService();
+                    throw new OMVModuleDockerException(
+                        "Docker " .
+                        "base path relocation detected in " .
+                        "configuration file\n" .
+                        "Please remove it manually " .
+                        "($matches[1])\n"
+                    );
                 }
+                $result .= $line . "\n";
+            }
         }
         $result = rtrim($result);
         $result .= "\n\n" . '### Do not change these lines. They are added ' .
@@ -348,7 +382,6 @@ class OMVModuleDockerUtil
         } else {
             $result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock ' .
                 '-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
-
         }
         if (strcmp($absPath, "") !==0) {
             $result .= 'OMVDOCKER_IMAGE_PATH="-g ' . $absPath . '"' . "\n";
@@ -367,12 +400,12 @@ class OMVModuleDockerUtil
      * Helper function to execute a command and throw an exception on error
      * (requires stderr redirected to stdout for proper exception message).
      *
-     * @param string $cmd Command to execute
-     * @param array &$out If provided will contain output in an array
-     * @param int &$res If provided will contain Exit status of the command
+     * @param string $cmd  Command to execute
+     * @param array  &$out If provided will contain output in an array
+     * @param int    &$res If provided will contain Exit status of the command
+     *
      * @return string Last line of output when executing the command
      * @throws OMVModuleDockerException
-     * @access public
      */
     public static function exec($cmd, &$out = null, &$res = null)
     {
@@ -382,5 +415,4 @@ class OMVModuleDockerUtil
         }
         return $tmp;
     }
-
 }

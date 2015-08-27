@@ -2,6 +2,12 @@
 /**
  * Copyright (c) 2015 OpenMediaVault Plugin Developers
  *
+ * @category OMVModuleDockerImage
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,111 +22,117 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once("Exception.php");
+require_once "Exception.php";
 
+/**
+ * OMVModuleDockerImage class
+ *
+ * @category Class
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
+ */
 class OMVModuleDockerImage
 {
-    // Attributes
-
     /**
      * Name of image repository
      *
-     * @var    string $repository
+     * @var    string $_repository
      * @access private
      */
-    private $repository;
+    private $_repository;
 
     /**
      * Tag of the image
      *
-     * @var    string $tag
+     * @var    string $_tag
      * @access private
      */
-    private $tag;
+    private $_tag;
 
     /**
      * Id of the image
      *
-     * @var    string $id
+     * @var    string $_id
      * @access private
      */
-    private $id;
+    private $_id;
 
     /**
      * Time when image was created
      *
-     * @var 	string $created
+     * @var 	string $_created
      * @access private
      */
-    private $created;
+    private $_created;
 
     /**
      * Virtual size of the image
      *
-     * @var 	string $size
+     * @var 	string $_size
      * @access private
      */
-    private $size;
+    private $_size;
 
     /**
      * Exposed ports of the image
      *
-     * @var 	array $ports
+     * @var 	array $_ports
      * @access private
      */
-    private $ports;
+    private $_ports;
 
     /**
      * Environment variables defined in the image
      *
-     * @var 	array $envVars
+     * @var 	array $_envVars
      * @access private
      */
-    private $envVars;
-
-    // Associations
-    // Operations
+    private $_envVars;
 
     /**
      * Constructor. The image will be updated with all associated properties
      * from commandline.
      *
-     * @param string $id Id of the new container
-     * @return void
-     * @access public
+     * @param string $id      Id of the new container
+     * @param array  $data    Associative array with Image data
+     * @param int    $apiPort Network port used by API calls
      */
     public function __construct($id, $data, $apiPort)
     {
         $now = date("c");
-        $this->id = $id;
+        $this->_id = $id;
         $item = $data[substr($id, 0, 12)];
 
         if (is_array($item->RepoTags) && (count($item->RepoTags) > 0)) {
-            $this->repository = preg_split('/\:/',$item->RepoTags[0])[0];
-            $this->tag = preg_split('/\:/',$item->RepoTags[0])[1];
+            $this->_repository = preg_split('/\:/', $item->RepoTags[0])[0];
+            $this->_tag = preg_split('/\:/', $item->RepoTags[0])[1];
         } else {
-            $this->repository = "none";
-            $this->tag = "none";
+            $this->_repository = "none";
+            $this->_tag = "none";
         }
-        $this->created = OMVModuleDockerUtil::getWhen(
+        $this->_created = OMVModuleDockerUtil::getWhen(
             $now,
-            date("c", $item->Created)) . " ago";
-        $this->size = OMVModuleDockerUtil::bytesToSize($item->VirtualSize);
+            date("c", $item->Created)
+        ) . " ago";
+        $this->_size = OMVModuleDockerUtil::bytesToSize($item->VirtualSize);
 
         $url = "http://localhost:" . $apiPort . "/images/$id/json";
         $response = OMVModuleDockerUtil::doApiCall($url);
 
         $imageData = json_decode($response);
-        $this->ports = array();
+        $this->_ports = array();
         foreach ($imageData->Config->ExposedPorts as
             $exposedport => $hostports) {
-                array_push($this->ports, array("name" => $exposedport));
-            }
-        $this->envVars = array();
+            array_push($this->_ports, array("name" => $exposedport));
+        }
+        $this->_envVars = array();
         if (is_array($imageData->Config->Env)) {
             foreach ($imageData->Config->Env as $eVar) {
                 $eVarAry = explode("=", $eVar);
-                $this->envVars[$eVarAry[0]] = $eVarAry[1];
+                $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
     }
@@ -133,7 +145,7 @@ class OMVModuleDockerImage
      */
     public function getId()
     {
-        return (substr($this->id, 0, 12));
+        return (substr($this->_id, 0, 12));
     }
 
     /**
@@ -144,7 +156,7 @@ class OMVModuleDockerImage
      */
     public function getRepository()
     {
-        return $this->repository;
+        return $this->_repository;
     }
 
     /**
@@ -155,7 +167,7 @@ class OMVModuleDockerImage
      */
     public function getTag()
     {
-        return $this->tag;
+        return $this->_tag;
     }
 
     /**
@@ -166,7 +178,7 @@ class OMVModuleDockerImage
      */
     public function getCreated()
     {
-        return $this->created;
+        return $this->_created;
     }
 
     /**
@@ -177,7 +189,7 @@ class OMVModuleDockerImage
      */
     public function getSize()
     {
-        return $this->size;
+        return $this->_size;
     }
 
     /**
@@ -188,7 +200,7 @@ class OMVModuleDockerImage
      */
     public function getPorts()
     {
-        return $this->ports;
+        return $this->_ports;
     }
 
     /**
@@ -199,6 +211,6 @@ class OMVModuleDockerImage
      */
     public function getEnvVars()
     {
-        return $this->envVars;
+        return $this->_envVars;
     }
 }

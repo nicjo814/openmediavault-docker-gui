@@ -2,6 +2,12 @@
 /**
  * Copyright (c) 2015 OpenMediaVault Plugin Developers
  *
+ * @category OMVModuleDockerContainer
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once("Exception.php");
+require_once "Exception.php";
+
+/**
+ * Class for managing Docker containers
+ *
+ * @category Class
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
+ */
 
 class OMVModuleDockerContainer
 {
@@ -25,122 +42,122 @@ class OMVModuleDockerContainer
     /**
      * Name of container image
      *
-     * @var    string $image
+     * @var    string $_image
      * @access private
      */
-    private $image;
+    private $_image;
 
     /**
      * Id of the conatiner
      *
-     * @var    string $id
+     * @var    string $_id
      * @access private
      */
-    private $id;
+    private $_id;
 
     /**
      * Time when container was created
      *
-     * @var 	string $created
+     * @var 	string $_created
      * @access private
      */
-    private $created;
+    private $_created;
 
     /**
      * Command that is started by the container
      *
-     * @var 	string $command
+     * @var 	string $_command
      * @access private
      */
-    private $command;
+    private $_command;
 
     /**
      * Status of the container
      *
-     * @var 	string $status
+     * @var 	string $_status
      * @access private
      */
-    private $status;
+    private $_status;
 
     /**
      * State of the container
      *
-     * @var 	string $state
+     * @var 	string $_state
      * @access private
      */
-    private $state;
+    private $_state;
 
     /**
      * Ports mapped to the container
      *
-     * @var 	array $ports
+     * @var 	array $_ports
      * @access private
      */
-    private $ports;
+    private $_ports;
 
     /**
      * Network mode of the container
      *
-     * @var 	string $networkMode
+     * @var 	string $_networkMode
      * @access private
      */
-    private $networkMode;
+    private $_networkMode;
 
     /**
      * Privileged mode of the container
      *
-     * @var 	bool $privileged
+     * @var 	bool $_privileged
      * @access private
      */
-    private $privileged;
+    private $_privileged;
 
     /**
      * Restart policy of the container
      *
-     * @var 	string $restartPolicy
+     * @var 	string $_restartPolicy
      * @access private
      */
-    private $restartPolicy;
+    private $_restartPolicy;
 
     /**
      * Environment variables defined in the container
      *
-     * @var 	array $envVars
+     * @var 	array $_envVars
      * @access private
      */
-    private $envVars;
+    private $_envVars;
 
     /**
      * ID of the image the container is created from
      *
-     * @var 	string $imageId
+     * @var 	string $_imageId
      * @access private
      */
-    private $imageId;
+    private $_imageId;
 
     /**
      * Port bindings in the container
      *
-     * @var 	array $portBindings
+     * @var 	array $_portBindings
      * @access private
      */
-    private $portBindings;
+    private $_portBindings;
 
     /**
      * Bind mounts in the container
      *
-     * @var 	array $bindMounts
+     * @var 	array $_bindMounts
      * @access private
      */
-    private $bindMounts;
+    private $_bindMounts;
 
     /**
      * Name of the container
      *
-     * @var 	string $names
+     * @var 	string $_names
      * @access private
      */
-    private $names;
+    private $_names;
 
     // Associations
     // Operations
@@ -149,82 +166,85 @@ class OMVModuleDockerContainer
      * Constructor. The container will be updated with all associated
      * properties from commandline.
      *
-     * @param string $id Id of the new image
+     * @param string $id      Id of the new image
+     * @param array  $data    An associative array with all containers
+     * @param imt    $apiPort An associative array with all containers
+     *
      * @return void
      * @access public
      */
     public function __construct($id, $data, $apiPort)
     {
-        $this->id = $id;
+        $this->_id = $id;
         $now = date("c");
-
-        $this->id = $id;
         $item = $data[substr($id, 0, 12)];
-        $this->image = $item->Image;
-        $this->status = $item->Status;
-        $this->command = $item->Command;
-        $this->created = OMVModuleDockerUtil::getWhen($now,
-            date("c", $item->Created)) . " ago";
+        $this->_image = $item->Image;
+        $this->_status = $item->Status;
+        $this->_command = $item->Command;
+        $this->_created = OMVModuleDockerUtil::getWhen(
+            $now,
+            date("c", $item->Created)
+        ) . " ago";
 
         $url = "http://localhost:" . $apiPort . "/containers/$id/json";
         $response = OMVModuleDockerUtil::doApiCall($url);
         $containerData = json_decode($response);
         if ($containerData->State->Running) {
-            $this->state = "running";
-        } elseif (($containerData->State->Dead) ||
-            ($containerData->State->ExitCode !== 0)) {
-                $this->state = "dead";
-            } elseif (($containerData->State->ExitCode === 0) &&
-                (strcmp($containerData->State->Error, "") === 0)) {
-                    $this->state = "stopped";
+            $this->_state = "running";
+        } elseif (($containerData->State->Dead) || ($containerData->State->ExitCode !== 0)) {
+            $this->_state = "dead";
+        } elseif (($containerData->State->ExitCode === 0) && (strcmp($containerData->State->Error, "") === 0)) {
+            $this->_state = "stopped";
+        }
+        $this->_ports = array();
+        foreach ($containerData->NetworkSettings->Ports as $exposedport => $hostports) {
+            if ($hostports) {
+                $this->_ports[$exposedport] = array();
+                foreach ($hostports as $hostport) {
+                    $tmparray = array(
+                        "HostIp" => $hostport->HostIp,
+                        "HostPort" => $hostport->HostPort);
+                    array_push($this->_ports[$exposedport], $tmparray);
                 }
-        $this->ports = array();
-        foreach ($containerData->NetworkSettings->Ports as
-            $exposedport => $hostports) {
-                if ($hostports) {
-                    $this->ports[$exposedport] = array();
-                    foreach ($hostports as $hostport) {
-                        $tmparray = array(
-                            "HostIp" => $hostport->HostIp,
-                            "HostPort" => $hostport->HostPort);
-                        array_push($this->ports[$exposedport], $tmparray);
-                    }
-                } else {
-                    $this->ports[$exposedport] = NULL;
-                }
+            } else {
+                $this->_ports[$exposedport] = null;
             }
-        $this->networkMode = $containerData->HostConfig->NetworkMode;
-        $this->privileged = $containerData->HostConfig->Privileged;
-        $this->restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
-        $this->envVars = array();
+        }
+        $this->_networkMode = $containerData->HostConfig->NetworkMode;
+        $this->_privileged = $containerData->HostConfig->Privileged;
+        $this->_restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
+        $this->_envVars = array();
         if (is_array($containerData->Config->Env)) {
             foreach ($containerData->Config->Env as $eVar) {
                 $eVarAry = explode("=", $eVar);
-                $this->envVars[$eVarAry[0]] = $eVarAry[1];
+                $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
-        $this->imageId = $containerData->Image;
-        $this->portBindings = array();
-        foreach ($containerData->HostConfig->PortBindings as
-            $containerPort => $mappings) {
-                foreach ($mappings as $mapping) {
-                    array_push($this->portBindings, array(
+        $this->_imageId = $containerData->Image;
+        $this->_portBindings = array();
+        foreach ($containerData->HostConfig->PortBindings as $containerPort => $mappings) {
+            foreach ($mappings as $mapping) {
+                array_push(
+                    $this->_portBindings,
+                    array(
                         "containerportstring" => $containerPort,
-                        "containerportnr" =>
-                        preg_split('/\//', $containerPort)[0],
-                            "hostip" => $mapping->HostIp,
-                            "hostport" => $mapping->HostPort
-                        ));
-                }
+                        "containerportnr" => preg_split('/\//', $containerPort)[0],
+                        "hostip" => $mapping->HostIp,
+                        "hostport" => $mapping->HostPort
+                    )
+                );
             }
-        $this->bindMounts = array();
+        }
+        $this->_bindMounts = array();
         foreach ($containerData->HostConfig->Binds as $bind) {
-            array_push($this->bindMounts, array("from" =>
-                preg_split('/\:/',$bind)[0],
-                    "to" => preg_split('/\:/', $bind)[1]));
+            array_push(
+                $this->_bindMounts,
+                array("from" => preg_split('/\:/', $bind)[0],
+                "to" => preg_split('/\:/', $bind)[1])
+            );
         }
 
-        $this->names = ltrim($item->Names[0], "/");
+        $this->_names = ltrim($item->Names[0], "/");
     }
 
     /**
@@ -235,7 +255,7 @@ class OMVModuleDockerContainer
      */
     public function getId()
     {
-        return substr($this->id, 0, 12);
+        return substr($this->_id, 0, 12);
     }
 
     /**
@@ -246,7 +266,7 @@ class OMVModuleDockerContainer
      */
     public function getImage()
     {
-        return $this->image;
+        return $this->_image;
     }
 
     /**
@@ -257,7 +277,7 @@ class OMVModuleDockerContainer
      */
     public function getStatus()
     {
-        return $this->status;
+        return $this->_status;
     }
 
     /**
@@ -268,7 +288,7 @@ class OMVModuleDockerContainer
      */
     public function getCreated()
     {
-        return $this->created;
+        return $this->_created;
     }
 
     /**
@@ -279,7 +299,7 @@ class OMVModuleDockerContainer
      */
     public function getCommand()
     {
-        return $this->command;
+        return $this->_command;
     }
 
     /**
@@ -290,7 +310,7 @@ class OMVModuleDockerContainer
      */
     public function getState()
     {
-        return $this->state;
+        return $this->_state;
     }
 
     /**
@@ -301,7 +321,7 @@ class OMVModuleDockerContainer
      */
     public function getPorts()
     {
-        return $this->ports;
+        return $this->_ports;
     }
 
     /**
@@ -312,7 +332,7 @@ class OMVModuleDockerContainer
      */
     public function getNetworkMode()
     {
-        return $this->networkMode;
+        return $this->_networkMode;
     }
 
     /**
@@ -323,7 +343,7 @@ class OMVModuleDockerContainer
      */
     public function getPrivileged()
     {
-        return $this->privileged;
+        return $this->_privileged;
     }
 
     /**
@@ -334,7 +354,7 @@ class OMVModuleDockerContainer
      */
     public function getRestartPolicy()
     {
-        return $this->restartPolicy;
+        return $this->_restartPolicy;
     }
 
     /**
@@ -345,7 +365,7 @@ class OMVModuleDockerContainer
      */
     public function getEnvironmentVariables()
     {
-        return $this->envVars;
+        return $this->_envVars;
     }
 
     /**
@@ -356,7 +376,7 @@ class OMVModuleDockerContainer
      */
     public function getImageId()
     {
-        return $this->imageId;
+        return $this->_imageId;
     }
 
     /**
@@ -367,7 +387,7 @@ class OMVModuleDockerContainer
      */
     public function getPortBindings()
     {
-        return $this->portBindings;
+        return $this->_portBindings;
     }
 
     /**
@@ -378,7 +398,7 @@ class OMVModuleDockerContainer
      */
     public function getBindMounts()
     {
-        return $this->bindMounts;
+        return $this->_bindMounts;
     }
 
     /**
@@ -389,7 +409,6 @@ class OMVModuleDockerContainer
      */
     public function getName()
     {
-        return $this->names;
+        return $this->_names;
     }
-
 }

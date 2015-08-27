@@ -2,6 +2,12 @@
 /**
  * Copyright (c) 2015 OpenMediaVault Plugin Developers
  *
+ * @category OMVModuleDockerException
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,13 +25,26 @@
 /**
  * OMVModuleDockerException class
  *
+ * @category Class
+ * @package  Openmediavault-docker-gui
+ * @author   OpenMediaVault Plugin Developers <plugins@omv-extras.org>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/OpenMediaVault-Plugin-Developers/openmediavault-docker-gui
+ *
  */
 class OMVModuleDockerException extends Exception
 {
+    /**
+     * Constructor
+     * 
+     * @param string    $message  The message of the exception
+     * @param int       $code     Exception code
+     * @param Exception $previous Previous exception
+     */
     public function __construct(
         $message = "",
         $code = 0,
-        Exception $previous = NULL)
+        Exception $previous = null) 
     {
         parent::__construct($message, $code, $previous);
     }
