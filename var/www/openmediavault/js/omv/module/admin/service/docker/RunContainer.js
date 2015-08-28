@@ -195,11 +195,19 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         //Add bind mounts fieldset
         items.push({
             xtype: "fieldset",
-            title: _("Bind mounts"),
+            title: _("Volumes and Bind mounts"),
             id: "dockerBindMounts",
             collapsible: true,
             padding: "0 10 10 10",
             items: [{
+                xtype: "container",
+                layout: "hbox",
+                shadow: false,
+                border: false,
+                defaultType: "container",
+                items: [{html: "Note that if the \"Container path\" field is left blank a new data volume will be created", flex: 1
+                }]
+            },{
                 xtype: "container",
                 layout: "hbox",
                 shadow: false,

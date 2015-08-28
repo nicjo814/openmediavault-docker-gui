@@ -80,6 +80,14 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
                 shadow: false,
                 border: false,
                 defaultType: "container",
+                items: [{html: "Note that if the \"Container path\" field is left blank a new data volume will be created", flex: 1
+                }]
+            },{
+                xtype: "container",
+                layout: "hbox",
+                shadow: false,
+                border: false,
+                defaultType: "container",
                 items: [{html: "<b>Host path</b>", flex: 1},
                     {html: "<b>Container path</b>", flex: 1},
                     {html: " ", flex: 0, width: 24
@@ -107,7 +115,7 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
         var params = {
             imageRepo: me.getForm().findField("image").getValue(),
             containerName: me.getForm().findField("containerName").getValue(),
-            volumes: me.bindMounts
+            bindMounts: me.bindMounts
         };
         if(me.mode === "remote") {
             var rpcOptions = {

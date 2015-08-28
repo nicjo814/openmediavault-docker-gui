@@ -365,7 +365,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
     {
         $this->validateMethodContext(
             $context,
-            array( "role" => OMV_ROLE_ADMINISTRATOR§)
+            array( "role" => OMV_ROLE_ADMINISTRATOR)
         );
         /*
         $this->validateMethodParams($params, '{
@@ -437,10 +437,22 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         }
 
         //Check for bind mounts
+        //Container path must not be set to "/"
+        //If Container path is empty a new volume is created instead
+        //of bindmount
         foreach ($params['bindMounts'] as $bindMount) {
+            if (strcmp($bindMount['to'], "/") === 0) {
+                throw new OMVModuleDockerException(
+                    "Container path must not be set to \"/\""
+                );
+            }
             if (!(strcmp($bindMount['from'], "") === 0)) {
-                $cmd .= "-v " . $bindMount['from'] . ":" .
-                    $bindMount['to'] . " ";
+                if (!(strcmp($bindMount['to'], "") === 0)) {
+                    $cmd .= "-v " . $bindMount['from'] . ":" .
+                        $bindMount['to'] . " ";
+                } else {
+                    $cmd .= "-v " . $bindMount['from'] . " ";
+                }
             }
         }
 
@@ -554,16 +566,23 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         );
         $cmd = "docker create ";
 
-        //Check for volumes
-        foreach ($params['volumes'] as $volume) {
-            if (strcmp($volume['to'], "/") === 0) {
+        //Check for bind mounts
+        //Container path must not be set to "/"
+        //If Container path is empty a new volume is created instead
+        //of bindmount
+        foreach ($params['bindMounts'] as $bindMount) {
+            if (strcmp($bindMount['to'], "/") === 0) {
                 throw new OMVModuleDockerException(
                     "Container path must not be set to \"/\""
                 );
             }
-            if (!(strcmp($volume['from'], "") === 0)) {
-                $cmd .= "-v " . $volume['from'] . ":" .
-                    $volume['to'] . " ";
+            if (!(strcmp($bindMount['from'], "") === 0)) {
+                if (!(strcmp($bindMount['to'], "") === 0)) {
+                    $cmd .= "-v " . $bindMount['from'] . ":" .
+                        $bindMount['to'] . " ";
+                } else {
+                    $cmd .= "-v " . $bindMount['from'] . " ";
+                }
             }
         }
 

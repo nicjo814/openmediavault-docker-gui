@@ -140,9 +140,6 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
         if (from === "") {
             errorMsg = errorMsg + "Host path must not be empty</br>";
         }
-        if (to === "") {
-            errorMsg = errorMsg + "Container path must not be empty</br>";
-        }
         return errorMsg;
     }
 });
