@@ -2,7 +2,8 @@ openmediavault-docker-gui (0.2.4) UNRELEASED; urgency=low
 
   * Made it possible to create data containers
   * More PHP code fixes to follow coding standards
-   
+  * Made it possible to create a data volume 
+
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 27 Aug 2015 10:51:09 +0200
 
 openmediavault-docker-gui (0.2.3) unstable; urgency=low
