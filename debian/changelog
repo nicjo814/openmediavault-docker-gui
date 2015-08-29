@@ -6,6 +6,7 @@ openmediavault-docker-gui (0.2.4) UNRELEASED; urgency=low
   * Made it possible to specify volumes-from in a container
   * Made it possible to copy data containers
   * Escape spaces from input forms
+  * Improved error handling for the Docker repo grid 
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 27 Aug 2015 10:51:09 +0200
 
