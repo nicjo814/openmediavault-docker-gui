@@ -50,7 +50,11 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         text: _("Logo"),
         dataIndex: 'logo',
         renderer: function(value){
-            return '<img src="images/dockerrepo/' + value + '" />';
+            if (value === "") {
+                return '<img src="images/docker_none.png" />';
+            } else {
+                return '<img src="images/dockerrepo/' + value + '" />';
+            }
         },
         sortable: false,
     },{

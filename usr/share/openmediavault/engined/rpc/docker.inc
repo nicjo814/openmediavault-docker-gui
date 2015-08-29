@@ -1001,14 +1001,24 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $xml = simplexml_load_string($data);
         $objects = array();
         foreach ($xml as $image) {
-            //TODO: Error handling if any parameter is missing from xml file
-            copy($imgBase . $image->imageurl, $logoPath . $image->imageurl);
-            $temp = array("name" => $image->name,
-                "category" => $image->category,
-                "logo" => $image->imageurl,
-                "desc" => $image->desc,
-                "repo" => $image->repo);
-            array_push($objects, $temp);
+            //Use blank logo if no imageurl is specified
+            if (strlen($image->imageurl) === 0) {
+                $logo = "";
+            } else {
+                $logo = $image->imageurl;
+                copy($imgBase . $image->imageurl, $logoPath . $image->imageurl);
+            }
+            //Silently skip any records that are missing data
+            if ((strlen($image->name) === 0) || (strlen($image->desc) === 0) || (strlen($image->category) === 0) || (strlen($image->repo) === 0)) {
+                continue;
+            } else {
+                $temp = array("name" => $image->name,
+                    "category" => $image->category,
+                    "logo" => $logo,
+                    "desc" => $image->desc,
+                    "repo" => $image->repo);
+                array_push($objects, $temp);
+            }
         }
         return $objects;
     }
