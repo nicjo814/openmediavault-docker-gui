@@ -257,7 +257,6 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     tbarBtnDisabled["stop"] = true;
                     tbarBtnDisabled["restart"] = true;
                     tbarBtnDisabled["execute"] = true;
-                    tbarBtnDisabled["copy"] = true;
                     return false;
                 }
             });
@@ -279,7 +278,6 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     tbarBtnDisabled["stop"] = true;
                     tbarBtnDisabled["restart"] = true;
                     tbarBtnDisabled["execute"] = true;
-                    tbarBtnDisabled["copy"] = true;
                     return false;
                 }
             });
@@ -487,19 +485,30 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         var sm = me.getSelectionModel();
         var records = sm.getSelection();
         var record = records[0];
-        Ext.create("OMV.module.admin.service.docker.RunContainer", {
-            title: _("Copy container"),
-            image: record.get("image"),
-            ports: record.get("exposedports"),
-            envvars: record.get("envvars"),
-            restartpolicy: record.get("restartpolicy"),
-            privileged: record.get("privileged"),
-            networkmode: record.get("networkmode"),
-            portbindings: record.get("portbindings"),
-            bindmounts: record.get("bindmounts"),
-            cenvvars: record.get("cenvvars"),
-            copyVolumes: record.get("volumesfrom")
-        }).show();
+        if (record.get("status") === "Created") {
+            var imageStore = me.up('tabpanel').down('dockerImageGrid').getStore();
+            Ext.create("OMV.module.admin.service.docker.CreateContainer", {
+                title: _("Copy data container"),
+                imageStore: imageStore,
+                image: record.get("image"),
+                bindmounts: record.get("bindmounts")
+            }).show();
+
+        } else {
+            Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                title: _("Copy container"),
+                image: record.get("image"),
+                ports: record.get("exposedports"),
+                envvars: record.get("envvars"),
+                restartpolicy: record.get("restartpolicy"),
+                privileged: record.get("privileged"),
+                networkmode: record.get("networkmode"),
+                portbindings: record.get("portbindings"),
+                bindmounts: record.get("bindmounts"),
+                cenvvars: record.get("cenvvars"),
+                copyVolumes: record.get("volumesfrom")
+            }).show();
+        }
     },
 
     doDeletion: function(record) {

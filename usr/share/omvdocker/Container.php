@@ -259,6 +259,15 @@ class OMVModuleDockerContainer
                 "to" => preg_split('/\:/', $bind)[1])
             );
         }
+        foreach ($containerData->Mounts as $mount) {
+            if (strcmp($mount->Driver, "local") === 0) {
+                array_push(
+                    $this->_bindMounts,
+                    array("from" => $mount->Destination,
+                    "to" => "")
+                );
+            }
+        }
         $this->_names = ltrim($item->Names[0], "/");
         $this->_hasMounts = false;
         if (is_array($containerData->Mounts) && (count($containerData->Mounts) > 0)) {

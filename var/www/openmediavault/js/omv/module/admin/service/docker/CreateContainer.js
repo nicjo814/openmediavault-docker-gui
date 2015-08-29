@@ -36,6 +36,7 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
     //Some variables that are used
     imageStore: [],
     bindmounts: [],
+    image: "",
 
     initComponent: function() {
         var me = this;
@@ -62,7 +63,8 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
                 displayField: "repository",
                 queryMode: "local",
                 fieldLabel: _("Docker image"),
-                allowBlank: false
+                allowBlank: false,
+                value: me.image
             },{
                 xtype: "textfield",
                 fieldLabel: _("Container name"),
@@ -101,13 +103,34 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
     beforeRender: function() {
         var me = this;
         me.callParent(arguments);
-        
+
+        console.log(me.bindmounts);        
+        //Add bind mounts and an empty row
+        var bindMountsFieldset = me.queryById("dockerBindMounts");
+        for (i = 0; i < me.bindmounts.length; i++) {
+            bindMountsFieldset.add({
+                xtype: "module.admin.service.docker.bindmountrow",
+                bindCount: me.bindCount,
+                id: "bindMountRow-" + me.bindCount,
+                from: me.bindmounts[i].from,
+                to: me.bindmounts[i].to
+            });
+            me.queryById("bindMountAddButton-" + me.bindCount).fireEvent("setNewRow");
+        }
+        bindMountsFieldset.add({
+            xtype: "module.admin.service.docker.bindmountrow",
+            bindCount: me.bindCount,
+            id: "bindMountRow-" + me.bindCount
+        });
+
+        /*
         var bindMountsFieldset = me.queryById("dockerBindMounts");
         bindMountsFieldset.add({
             xtype: "module.admin.service.docker.bindmountrow",
             bindCount: me.bindCount,
             id: "bindMountRow-" + me.bindCount
         });
+       */
     },
 
     doSubmit: function() {

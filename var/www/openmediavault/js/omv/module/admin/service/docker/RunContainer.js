@@ -385,12 +385,12 @@ method: "getVolumesFrom"
             id: "bindMountRow-" + me.bindCount
         });
 
+        //Add volumes from and empty row
         OMV.Rpc.request({
             scope: me,
             callback: function(id, success, response) {
                 me.volFromStore.loadData(response);
 
-                //Add volumes from and empty row
                 var volumesFromFieldset = me.queryById("dockerVolumesFrom");
                 for (i = 0; i < me.copyVolumes.length; i++) {
                     volumesFromFieldset.add({
