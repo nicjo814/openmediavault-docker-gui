@@ -189,8 +189,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 "outputfilename",
                 $bgOutputFilename
             );
-            $cmd = "docker pull " . $params['repository'] . ":" .
-                $params['tag'];
+            $cmd = "docker pull \"" . $params['repository'] . ":" .
+                $params['tag'] . "\"";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -428,7 +428,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         //Check for environment variables
         foreach ($params['envVars'] as $envVar) {
             if (!(strcmp($envVar['name'], "") === 0)) {
-                $cmd .= "-e " . $envVar['name'] . "=" . $envVar['value'] . " ";
+                $cmd .= "-e " . $envVar['name'] . "=\"" . $envVar['value'] . "\" ";
             }
         }
 
@@ -449,10 +449,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             }
             if (!(strcmp($bindMount['from'], "") === 0)) {
                 if (!(strcmp($bindMount['to'], "") === 0)) {
-                    $cmd .= "-v " . $bindMount['from'] . ":" .
-                        $bindMount['to'] . " ";
+                    $cmd .= "-v \"" . $bindMount['from'] . "\":\"" .
+                        $bindMount['to'] . "\" ";
                 } else {
-                    $cmd .= "-v " . $bindMount['from'] . " ";
+                    $cmd .= "-v \"" . $bindMount['from'] . "\" ";
                 }
             }
         }
@@ -460,17 +460,17 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         //Check for volumes from
         foreach ($params['volumes'] as $volume) {
             if (!(strcmp($volume['from'], "") === 0)) {
-                $cmd .= "--volumes-from " . $volume['from'] . " ";
+                $cmd .= "--volumes-from \"" . $volume['from'] . "\" ";
             }
         }
 
         //Check if a custom container name has been supplied
         if (!(strcmp($params['containerName'], "") === 0)) {
-            $cmd .= "--name=" . $params['containerName'] . " ";
+            $cmd .= "--name=\"" . $params['containerName'] . "\" ";
         }
 
         //Add image to command
-        $cmd .= $params['image'] . " 2>&1";
+        $cmd .= "\"" . $params['image'] . "\" 2>&1";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
 
     }
@@ -584,10 +584,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             }
             if (!(strcmp($bindMount['from'], "") === 0)) {
                 if (!(strcmp($bindMount['to'], "") === 0)) {
-                    $cmd .= "-v " . $bindMount['from'] . ":" .
-                        $bindMount['to'] . " ";
+                    $cmd .= "-v \"" . $bindMount['from'] . "\":\"" .
+                        $bindMount['to'] . "\" ";
                 } else {
-                    $cmd .= "-v " . $bindMount['from'] . " ";
+                    $cmd .= "-v \"" . $bindMount['from'] . "\" ";
                 }
             }
         }
@@ -597,7 +597,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $cmd .= "--name=" . $params['containerName'] . " ";
         }
 
-        $cmd .= $params['imageRepo'] . " /bin/true";
+        $cmd .= "\"" . $params['imageRepo'] . "\" /bin/true";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
     }
 
