@@ -106,7 +106,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                         { name: "envvars", type: "array" },
                         { name: "cenvvars", type: "array" },
                         { name: "portbindings", type: "array" },
-                        { name: "name", type: "string" }
+                        { name: "name", type: "string" },
+                        { name: "volumesfrom", type: "array" }
                     ]
                 }),
                 proxy: {
@@ -225,7 +226,6 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         };
         // Enable/disable buttons depending on the number of selected rows.
         if(records.length <= 0) {
-            tbarBtnDisabled["create"] = true;
             tbarBtnDisabled["start"] = true;
             tbarBtnDisabled["stop"] = true;
             tbarBtnDisabled["restart"] = true;
@@ -497,7 +497,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             networkmode: record.get("networkmode"),
             portbindings: record.get("portbindings"),
             bindmounts: record.get("bindmounts"),
-            cenvvars: record.get("cenvvars")
+            cenvvars: record.get("cenvvars"),
+            copyVolumes: record.get("volumesfrom")
         }).show();
     },
 

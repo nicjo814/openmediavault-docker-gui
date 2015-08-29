@@ -95,6 +95,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("restartContainer");
         $this->registerMethod("deleteContainer");
         $this->registerMethod("createContainer");
+        $this->registerMethod("getVolumesFrom");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -455,16 +456,21 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 }
             }
         }
+        
+        //Check for volumes from
+        foreach ($params['volumes'] as $volume) {
+            if (!(strcmp($volume['from'], "") === 0)) {
+                $cmd .= "--volumes-from " . $volume['from'] . " ";
+            }
+        }
 
         //Check if a custom container name has been supplied
         if (!(strcmp($params['containerName'], "") === 0)) {
             $cmd .= "--name=" . $params['containerName'] . " ";
         }
 
-
         //Add image to command
         $cmd .= $params['image'] . " 2>&1";
-
         OMVModuleDockerUtil::exec($cmd, $out, $res);
 
     }
@@ -593,6 +599,43 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
 
         $cmd .= $params['imageRepo'] . " /bin/true";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
+    }
+
+    /**
+     * Get all containers with volumes mounted
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $objects An array with all containers
+     */
+    public function getVolumesFrom($params, $context)
+    {
+        global $xmlConfig;
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $objects = array();
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+
+        if ($settings['enabled']) {
+            $containers = OMVModuleDockerUtil::getContainers(
+                $settings['apiPort']
+            );
+            foreach ($containers as $container) {
+                if ($container['hasmounts']) {
+                    array_push($objects, array("name" => $container['name']));
+                }
+            }
+        }
+        return $objects;
     }
 
     /**

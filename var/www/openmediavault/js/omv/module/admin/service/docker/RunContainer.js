@@ -20,6 +20,7 @@
 // require("js/omv/module/admin/service/docker/PortRow.js")
 // require("js/omv/module/admin/service/docker/EnvVarRow.js")
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
+// require("js/omv/module/admin/service/docker/VolumesFromRow.js")
 
 Ext.define("OMV.module.admin.service.docker.RunContainer", {
     extend: "OMV.workspace.window.Form",
@@ -50,6 +51,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     portbindings: [],
     cenvvars: [],
     bindmounts: [],
+    volumes: [],
+    copyVolumes: [],
 
 
     initComponent: function() {
@@ -59,11 +62,35 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         me.portCount = 1;
         me.envCount = 1;
         me.bindCount = 1;
+        me.volCount = 1;
 
         me.portForwards = [];
         me.envVars = [];
         me.bindMounts = [];
+        me.volumes = [];
 
+
+        me.volFromStore = Ext.create("Ext.data.Store", {
+            fields: [
+                { name: "name", type: "string" }
+            ],
+        });
+
+        /*
+         * me.volFromStore = Ext.create("OMV.data.Store", {
+autoLoad: true,
+fields: [
+{ name: "name", type: "string" }
+],
+proxy: {
+type: "rpc",
+rpcData: {
+service: "Docker",
+method: "getVolumesFrom"
+}
+}
+});
+*/
         me.callParent(arguments);
     },
 
@@ -220,6 +247,25 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             }]
         });
 
+        //Add volumes from fieldset
+        items.push({
+            xtype: "fieldset",
+            title: _("Volumes from"),
+            id: "dockerVolumesFrom",
+            collapsible: true,
+            padding: "0 10 10 10",
+            items: [{
+                xtype: "container",
+                layout: "hbox",
+                shadow: false,
+                border: false,
+                defaultType: "container",
+                items: [{html: "<b>From container</b>", flex: 1},
+                    {html: " ", flex: 0, width: 24
+                    }]
+            }]
+        });
+
         //Add hidden field that changes before rendering to allow sending of form
         //even if no (regular) form field is dirty.
         items.push({
@@ -236,6 +282,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     beforeRender: function() {
         var me = this;
         me.callParent(arguments);
+
         if(me.restartpolicy === "always") {
             me.getForm().findField("restart").setValue(true);
         }
@@ -338,6 +385,38 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             id: "bindMountRow-" + me.bindCount
         });
 
+        OMV.Rpc.request({
+            scope: me,
+            callback: function(id, success, response) {
+                me.volFromStore.loadData(response);
+
+                //Add volumes from and empty row
+                var volumesFromFieldset = me.queryById("dockerVolumesFrom");
+                for (i = 0; i < me.copyVolumes.length; i++) {
+                    volumesFromFieldset.add({
+                        xtype: "module.admin.service.docker.volumesfromrow",
+                        volCount: me.volCount,
+                        id: "volumesFromRow-" + me.volCount,
+                        from: me.copyVolumes[i].from,
+                        volFromStore: me.volFromStore
+                    });
+                    me.queryById("volumesFromAddButton-" + me.volCount).fireEvent("setNewRow");
+                }
+                volumesFromFieldset.add({
+                    xtype: "module.admin.service.docker.volumesfromrow",
+                    volCount: me.volCount,
+                    id: "volumesFromRow-" + me.volCount,
+                    volFromStore: me.volFromStore
+                });
+
+            },
+            relayErrors: false,
+            rpcData: {
+                service: "Docker",
+                method: "getVolumesFrom",
+            }
+        });
+
         //Change the value of the hidden field to force sending
         //of data even though no form field has changed value
         Ext.getCmp("dockerMakeDirty").setValue("true");
@@ -353,7 +432,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             portForwards: me.portForwards,
             envVars: me.envVars,
             bindMounts: me.bindMounts,
-            containerName: me.getForm().findField("containerName").getValue()
+            containerName: me.getForm().findField("containerName").getValue(),
+            volumes: me.volumes
         };
         if(me.mode === "remote") {
             var rpcOptions = {
@@ -417,5 +497,6 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             }
         }
     }
+
 });
 

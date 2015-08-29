@@ -159,6 +159,22 @@ class OMVModuleDockerContainer
      */
     private $_names;
 
+    /**
+     * Does the container have any mountpoints
+     *
+     * @var 	bool $_hasMounts
+     * @access private
+     */
+    private $_hasMounts;
+
+    /**
+     * Array with containers used for volumes from
+     *
+     * @var array $_volumesFrom
+     * @access private
+     */
+    private $_volumesFrom;
+
     // Associations
     // Operations
 
@@ -243,14 +259,21 @@ class OMVModuleDockerContainer
                 "to" => preg_split('/\:/', $bind)[1])
             );
         }
-
         $this->_names = ltrim($item->Names[0], "/");
+        $this->_hasMounts = false;
+        if (is_array($containerData->Mounts) && (count($containerData->Mounts) > 0)) {
+            $this->_hasMounts = true;
+        }
+        $this->_volumesFrom = array();
+        foreach ($containerData->HostConfig->VolumesFrom as $volume) {
+            array_push($this->_volumesFrom, array("from" => $volume));
+        }
     }
 
     /**
      * Return id of the container
      *
-     * @return string $id
+     * @return string $_id
      * @access public
      */
     public function getId()
@@ -261,7 +284,7 @@ class OMVModuleDockerContainer
     /**
      * Get the image the conatiner is mapped to
      *
-     * @return string $image
+     * @return string $_image
      * @access public
      */
     public function getImage()
@@ -272,7 +295,7 @@ class OMVModuleDockerContainer
     /**
      * Get the status of the container
      *
-     * @return string $status
+     * @return string $_status
      * @access public
      */
     public function getStatus()
@@ -283,7 +306,7 @@ class OMVModuleDockerContainer
     /**
      * Get the creation time of the conatiner
      *
-     * @return string $created
+     * @return string $_created
      * @access public
      */
     public function getCreated()
@@ -294,7 +317,7 @@ class OMVModuleDockerContainer
     /**
      * Get the init command of the container
      *
-     * @return string $command
+     * @return string $_command
      * @access public
      */
     public function getCommand()
@@ -305,7 +328,7 @@ class OMVModuleDockerContainer
     /**
      * Get the state of the container
      *
-     * @return string $state
+     * @return string $_state
      * @access public
      */
     public function getState()
@@ -316,7 +339,7 @@ class OMVModuleDockerContainer
     /**
      * Get the port mappings of the container
      *
-     * @return array $ports
+     * @return array $_ports
      * @access public
      */
     public function getPorts()
@@ -327,7 +350,7 @@ class OMVModuleDockerContainer
     /**
      * Get the network mode of the contanier
      *
-     * @return string $networkMode
+     * @return string $_networkMode
      * @access public
      */
     public function getNetworkMode()
@@ -338,7 +361,7 @@ class OMVModuleDockerContainer
     /**
      * Get the privileged mode of the container
      *
-     * @return bool $privileged
+     * @return bool $_privileged
      * @access public
      */
     public function getPrivileged()
@@ -349,7 +372,7 @@ class OMVModuleDockerContainer
     /**
      * Get the restart policy of the container
      *
-     * @return string $restartPolicy
+     * @return string $_restartPolicy
      * @access public
      */
     public function getRestartPolicy()
@@ -360,7 +383,7 @@ class OMVModuleDockerContainer
     /**
      * Get the environment variables defined in the container
      *
-     * @return array $envVars
+     * @return array $_envVars
      * @access public
      */
     public function getEnvironmentVariables()
@@ -371,7 +394,7 @@ class OMVModuleDockerContainer
     /**
      * Get the image id of the image used to create the container
      *
-     * @return string $imageId
+     * @return string $_imageId
      * @access public
      */
     public function getImageId()
@@ -382,7 +405,7 @@ class OMVModuleDockerContainer
     /**
      * Get the port bindings of the container
      *
-     * @return array $portBindings
+     * @return array $_portBindings
      * @access public
      */
     public function getPortBindings()
@@ -393,7 +416,7 @@ class OMVModuleDockerContainer
     /**
      * Get the bind mounts in the container
      *
-     * @return array $bindMounts
+     * @return array $_bindMounts
      * @access public
      */
     public function getBindMounts()
@@ -404,11 +427,34 @@ class OMVModuleDockerContainer
     /**
      * Get the name of the container
      *
-     * @return string $names
+     * @return string $_names
      * @access public
      */
     public function getName()
     {
         return $this->_names;
     }
+    
+    /**
+     * Return true if the container has mountpoints
+     *
+     * @return bool $_hasMounts
+     * @access public
+     */
+    public function hasMounts()
+    {
+        return $this->_hasMounts;
+    }
+    
+    /**
+     * Get the volumes from in the container
+     *
+     * @return array $_volumesFrom
+     * @access public
+     */
+    public function getVolumesFrom()
+    {
+        return $this->_volumesFrom;
+    }
+    
 }

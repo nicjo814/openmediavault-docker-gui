@@ -242,7 +242,9 @@ class OMVModuleDockerUtil
                 "exposedports" => $exposedPorts,
                 "portbindings" => $container->getPortBindings(),
                 "bindmounts" => $container->getBindMounts(),
-                "ports" => $ports);
+                "ports" => $ports,
+                "hasmounts" => $container->hasMounts(),
+                "volumesfrom" => $container->getVolumesFrom());
             array_push($objects, $obj);
         }
         return $objects;
