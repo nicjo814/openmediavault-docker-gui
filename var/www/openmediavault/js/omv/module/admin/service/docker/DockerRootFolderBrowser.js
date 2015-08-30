@@ -17,7 +17,7 @@
 * along with OpenMediaVault. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// require("js/omv/module/admin/service/docker/RootFolder.js")
+// require("js/omv/module/admin/service/docker/DockerRootFolder.js")
 // require("js/omv/window/Window.js")
 // require("js/omv/window/MessageBox.js")
 // require("js/omv/workspace/window/plugin/ConfigObject.js")
@@ -26,10 +26,10 @@
 * @class OMV.window.RootFolderBrowser
 * @derived OMV.window.Window
 */
-Ext.define("OMV.window.RootFolderBrowser", {
+Ext.define("OMV.module.admin.service.docker.DockerRootFolderBrowser", {
     extend: "OMV.window.Window",
     uses: [
-        "OMV.tree.RootFolder",
+        "OMV.module.admin.service.docker.DockerRootFolder",
         "OMV.window.MessageBox"
     ],
 
@@ -68,7 +68,7 @@ Ext.define("OMV.window.RootFolderBrowser", {
                 handler: me.close,
                 scope: me
             }],
-            items: [ me.tp = Ext.create("OMV.tree.RootFolder", {
+            items: [ me.tp = Ext.create("OMV.module.admin.service.docker.DockerRootFolder", {
                 uuid: me.uuid,
                 border: false,
                 listeners: {

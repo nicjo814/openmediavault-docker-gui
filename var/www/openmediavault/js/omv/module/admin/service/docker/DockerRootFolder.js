@@ -29,7 +29,7 @@
 *   the default configuration. Note, this is different to the Ext.tree.Panel
 *   behaviour.
 */
-Ext.define("OMV.tree.RootFolder", {
+Ext.define("OMV.module.admin.service.docker.DockerRootFolder", {
     extend: "OMV.tree.Panel",
     requires: [
         "OMV.data.Model",

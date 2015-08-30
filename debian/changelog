@@ -1,4 +1,10 @@
-openmediavault-docker-gui (0.2.4) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.5) UNRELEASED; urgency=low
+
+  * 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 30 Aug 2015 07:09:30 +0200
+
+openmediavault-docker-gui (0.2.4) unstable; urgency=low
 
   * Made it possible to create data containers
   * More PHP code fixes to follow coding standards
@@ -8,7 +14,7 @@ openmediavault-docker-gui (0.2.4) UNRELEASED; urgency=low
   * Escape spaces from input forms
   * Improved error handling for the Docker repo grid 
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 27 Aug 2015 10:51:09 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 30 Aug 2015 07:09:25 +0200
 
 openmediavault-docker-gui (0.2.3) unstable; urgency=low
 

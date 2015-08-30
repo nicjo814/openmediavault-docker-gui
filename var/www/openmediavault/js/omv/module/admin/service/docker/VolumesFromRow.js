@@ -16,7 +16,6 @@
  */
 
 // require("js/omv/workspace/window/plugin/ConfigObject.js")
-// require("js/omv/module/admin/service/docker/RootFolderBrowser.js")
 Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
     extend: "Ext.container.Container",
     alias: "widget.module.admin.service.docker.volumesfromrow",
