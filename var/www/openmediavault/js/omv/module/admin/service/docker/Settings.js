@@ -20,7 +20,7 @@
 // require("js/omv/module/admin/service/docker/ImageGrid.js")
 // require("js/omv/workspace/window/plugin/ConfigObject.js")
 // require("js/omv/form/field/SharedFolderComboBox.js")
-// require("js/omv/module/admin/service/docker/DockerRootFolderBrowser.js")
+// require("js/omv/window/RootFolderBrowser.js")
 // require("js/omv/window/MessageBox.js")
 
 Ext.define("OMV.module.admin.service.docker.Settings", {
@@ -134,7 +134,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                         }
                     },
                     onTriggerClick : function() {
-                        Ext.create("OMV.module.admin.service.docker.DockerRootFolderBrowser", {
+                        Ext.create("OMV.window.RootFolderBrowser", {
                             listeners : {
                                 scope  : this,
                                 select : function(wnd, node, path) {
