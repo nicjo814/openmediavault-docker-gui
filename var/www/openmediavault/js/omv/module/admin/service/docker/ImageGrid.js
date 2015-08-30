@@ -20,7 +20,6 @@
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
-// require("js/omv/module/admin/service/docker/SearchBox.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
     extend: "OMV.workspace.grid.Panel",
@@ -53,6 +52,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
     defaults: {
         flex: 1
     },
+
+    searchStore: [],
 
     columns: [{
         text: _("REPOSITORY"),
@@ -129,6 +130,23 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
 
         searchFilterStore.loadData(filterStoreData, false);
 
+        me.searchStore = Ext.create('OMV.data.Store', {
+            fields: [
+                {name: "name", type: "string"},
+                {name: "description" , type: "string"},
+                {name: "stars", type: "integer"}
+            ],
+            proxy: {
+                type: "rpc",
+                rpcData: {
+                    service: "Docker",
+                    method: "searchImages",
+                    params: {
+                    }
+                }
+            }
+        });
+
         return [{
             id: me.getId() + "-pull",
             xtype: "button",
@@ -201,16 +219,27 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
             displayField: 'display',
             valueField: 'value',
             triggerAction: "all",
-            value: filterStoreData[0][0]
+            value: filterStoreData[0][0],
+            listeners: {
+                change: function(box, newValue, oldValue, eOpts) {
+                    me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.filter = me.queryById("imageSearchFilter").getValue();
+                }
+            }   
         },{
-            xtype: "module.admin.service.docker.searchbox",
+            xtype: "combo",
             name: "searchCombo",
+            id: "imageSearchCombo",
             width: 350,
             text: _("Search"),
             hidden: false,
             displayField: 'name',
             valueField: 'name',
             pageSize: 10,
+            store: me.searchStore,
+            typeAhead: false,
+            hideLabel: true,
+            hideTrigger:true,
+            anchor: '100%',
 
             listConfig: {
                 loadingText: _('Searching...'),
@@ -243,9 +272,19 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                             }
                         }).show();
                     }
+                },
+
+                change: function(box, newValue, oldValue, eOpts) {
+                    me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.name = me.queryById("imageSearchCombo").getValue();
                 }
             }
         }];
+    },
+
+    afterRender: function() {
+        var me = this;
+        me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.filter = me.queryById("imageSearchFilter").getValue();
+        me.callParent(arguments);
     },
 
     onSelectionChange: function(model, records) {
