@@ -1,8 +1,9 @@
-openmediavault-docker-gui (0.2.5) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.5) unstable; urgency=low
 
   * Fix conflicting class names
+  * Use RootFolderBrowser provided by omv-extras
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 30 Aug 2015 07:09:30 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 30 Aug 2015 18:54:54 +0200
 
 openmediavault-docker-gui (0.2.4) unstable; urgency=low
 
