@@ -240,6 +240,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
             hideLabel: true,
             hideTrigger:true,
             anchor: '100%',
+            enableKeyEvents: true,
 
             listConfig: {
                 loadingText: _('Searching...'),
@@ -273,8 +274,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                         }).show();
                     }
                 },
-
-                change: function(box, newValue, oldValue, eOpts) {
+                
+                keypress: function(box, e, eOpts) {
                     me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.name = me.queryById("imageSearchCombo").getValue();
                 }
             }
