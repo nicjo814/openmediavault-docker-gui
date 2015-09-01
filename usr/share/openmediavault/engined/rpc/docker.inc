@@ -741,6 +741,32 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] .
                     "']";
                 $mntent = $xmlConfig->get($xpath);
+                //Remove noexec option from fstab entry
+                if (preg_match('/^(.*),noexec(.*)$/', $mntent['opts'], $matches)) {
+                    $opts = $matches[1] . $matches[2];
+                    $mntent['opts'] = $opts;
+                    $xmlConfig->replace($xpath, $mntent);
+                }
+
+                //Reset the noexec option if previous base path was a shared folder
+                if (!(strcmp($oldSettings['sharedfolderref'], "") === 0)) {
+                    $xpath = "//system/shares/sharedfolder[uuid='" .
+                        $oldSettings['sharedfolderref'] . "']";
+                    $share = $xmlConfig->get($xpath);
+                    $xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] .
+                        "']";
+                    $oldMntent = $xmlConfig->get($xpath);
+                    if (!(preg_match('/^.*noexec.*$/', $oldMntent['opts']))) {
+                        if (strcmp($oldMntent['opts'], "") === 0) {
+                            $opts = "noexec";
+                        } else {
+                            $opts = $oldMntent['opts'] . ",noexec";
+                        }
+                        $oldMntent['opts'] = $opts;
+                        $xmlConfig->replace($xpath, $oldMntent);
+                    }
+                }
+
                 $absPath = rtrim(
                     rtrim(
                         $mntent['dir'],
@@ -748,6 +774,35 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     )
                     . "/" . $share['reldirpath'], "/"
                 );
+                $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
+                if (0 !== $this->exec($cmd, $output)) {
+                    throw new OMVException(
+                        OMVErrorMsg::E_EXEC_FAILED,
+                        $cmd,
+                        implode("\n", $output)
+                    );
+                }
+                $me = new OMVMntEnt($mntent['fsname'], $mntent['dir']);
+                if ($me->isMounted()) {
+                    if (false === $me->umount()) {
+                        throw new OMVException(
+                            OMVErrorMsg::E_MISC_FAILURE,
+                            sprintf(
+                                "Failed to unmount '%s': %s", $objectv['fsname'],
+                                $me->getLastError()
+                            )
+                        );
+                    }
+                    if (false === $me->mount()) {
+                        throw new OMVException(
+                            OMVErrorMsg::E_MISC_FAILURE,
+                            sprintf(
+                                "Failed to mount '%s': %s", $objectv['fsname'],
+                                $me->getLastError()
+                            )
+                        );
+                    }
+                }
             } else {
                 $sharedFolder = "";
             }
