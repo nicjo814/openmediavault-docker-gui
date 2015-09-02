@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.9) unstable; urgency=low
+
+  * Use bind mounts to relocate base path 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 02 Sep 2015 16:56:37 +0200
+
 openmediavault-docker-gui (0.2.8) unstable; urgency=low
 
   * Remove noexec option from fstab when relocating base path 

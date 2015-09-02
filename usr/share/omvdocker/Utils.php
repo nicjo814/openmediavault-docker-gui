@@ -24,6 +24,7 @@
 
 require_once "Exception.php";
 require_once "openmediavault/util.inc";
+require_once "openmediavault/system.inc";
 require_once "Image.php";
 require_once "Container.php";
 
@@ -350,7 +351,95 @@ class OMVModuleDockerUtil
      */
     public function changeDockerSettings($apiPort, $absPath)
     {
+        global $xmlConfig;
         OMVModuleDockerUtil::stopDockerService();
+        //Get the old settings object
+        $oldSettings = $xmlConfig->get("/config/services/docker");
+        if (is_null($oldSettings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                "/config/services/docker"
+            );
+        }
+
+        //Generate a new mntent entry if a shared folder is specified
+        if (!(strcmp($absPath, "") === 0)) {
+            $newMntent = array(
+                "uuid" => OMVUtil::uuid(),
+                "fsname" => $absPath,
+                "dir" => "/var/lib/docker/openmediavault",
+                "type" => "none",
+                "opts" => "bind,defaults",
+                "freq" => "0",
+                "passno" => "0",
+                "hidden" => "0"
+            );
+            $xmlConfig->set("//system/fstab", array("mntent" => $newMntent));
+        }
+
+        //Remove the old mntent entry if it was set
+        if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
+            $xpath = "//system/fstab/mntent[uuid='" . $oldSettings['dockermntent'] .
+                "']";
+            $oldMntent = $xmlConfig->get($xpath);
+            $me = new OMVMntEnt($oldMntent['fsname'], $oldMntent['dir']);
+            $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
+            unset($out);
+            OMVUtil::exec($cmd, $out, $res);
+            while ($out[0] > 0) {
+                $me->umount();
+                $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
+                unset($out);
+                OMVUtil::exec($cmd, $out, $res);
+            }
+            $xmlConfig->delete($xpath);
+        }
+
+        //Re-generate fstab entries
+        $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
+        OMVUtil::exec($cmd, $out, $res);
+
+        //Mount the new bind-mount entry
+        if (!(strcmp($absPath, "") === 0)) {
+            $me = new OMVMntEnt($newMntent['fsname'], $newMntent['dir']);
+            if (false === $me->mount()) {
+                throw new OMVException(
+                    OMVErrorMsg::E_MISC_FAILURE,
+                    sprintf(
+                        "Failed to mount '%s': %s", $objectv['fsname'],
+                        $me->getLastError()
+                    )
+                );
+            }
+            //Remount the bind-mount with defaults options
+            $cmd = "export LANG=C; mount -o remount,bind,defaults " .
+                $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
+            OMVUtil::exec($cmd, $out, $res);
+        }
+
+
+        // Update the configuration object.
+        if (strcmp($absPath, "") === 0) {
+            $tmpMntent = "";
+        } else {
+            $tmpMntent = $newMntent['uuid'];
+        }
+
+
+        $object = array(
+            "dockermntent" => $tmpMntent,
+            "enabled" => $oldSettings['enabled'],
+            "apiPort" => $oldSettings['apiPort'],
+            "sharedfolderref" => $oldSettings['sharedfolderref']
+        );
+
+        if (false === $xmlConfig->replace("/config/services/docker", $object)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED,
+                "/config/services/docker"
+            );
+        }
+
         $fileName = "/etc/default/docker";
         $data = file_get_contents($fileName);
         $lines = explode("\n", $data);
@@ -386,7 +475,7 @@ class OMVModuleDockerUtil
                 '-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
         }
         if (strcmp($absPath, "") !==0) {
-            $result .= 'OMVDOCKER_IMAGE_PATH="-g ' . $absPath . '"' . "\n";
+            $result .= 'OMVDOCKER_IMAGE_PATH="-g /var/lib/docker/openmediavault"' . "\n";
         } else {
             $result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n";
         }
