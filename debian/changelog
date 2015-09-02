@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.10) unstable; urgency=low
+
+  * Create folder required for base path relocation 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 02 Sep 2015 18:40:19 +0200
+
 openmediavault-docker-gui (0.2.9) unstable; urgency=low
 
   * Use bind mounts to relocate base path 

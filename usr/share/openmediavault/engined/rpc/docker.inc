@@ -718,6 +718,12 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             '}}'
         );
 
+        //Create the folder used for bind mounting when relocating
+        //the base path
+        $cmd = "mkdir -p /var/lib/docker/openmediavault";
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
+        unset($out);
+
         //Get the old settings object
         $oldSettings = $xmlConfig->get($this->_getXpath());
         if (is_null($oldSettings)) {
