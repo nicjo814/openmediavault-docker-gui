@@ -40,6 +40,8 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
+            var imagePanel = overviewPanel.queryById("dockerImageGrid");
+            var containerPanel = overviewPanel.queryById("dockerContainerGrid");
             var checked = settingsPanel.findField("enabled").checked;
             var version = settingsPanel.findField("version").getValue();
 
@@ -54,6 +56,24 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
                     parent.setActiveTab(settingsPanel);
                 }
             }
+
+            imagePanel.queryById("dockerImageGrid-pull").setDisabled(false);
+            imagePanel.queryById("dockerImageGrid-run").setDisabled(true);
+            imagePanel.queryById("dockerImageGrid-details").setDisabled(true);
+            imagePanel.queryById("dockerImageGrid-info").setDisabled(true);
+            imagePanel.queryById("dockerImageGrid-delete").setDisabled(true);
+            imagePanel.queryById("dockerImageGrid-refresh").setDisabled(false);
+
+            containerPanel.queryById("dockerContainerGrid-create").setDisabled(false);
+            containerPanel.queryById("dockerContainerGrid-start").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-stop").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-restart").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-copy").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-details").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-execute").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-delete").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-refresh").setDisabled(false);
+
         }, this);
 
         this.callParent(arguments);
