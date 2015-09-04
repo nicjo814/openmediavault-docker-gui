@@ -353,6 +353,54 @@ class OMVModuleDockerUtil
     {
         global $xmlConfig;
         OMVModuleDockerUtil::stopDockerService();
+        
+        //First update /etc/default/docker with user provided data
+        $fileName = "/etc/default/docker";
+        $data = file_get_contents($fileName);
+        $lines = explode("\n", $data);
+        $result = "";
+        $socketSet = false;
+        foreach ($lines as $line) {
+            if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
+                break;
+            } else {
+                if (preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
+                    $socketSet = true;
+                } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
+                    OMVModuleDockerUtil::startDockerService();
+                    throw new OMVModuleDockerException(
+                        "Docker " .
+                        "base path relocation detected in " .
+                        "configuration file\n" .
+                        "Please remove it manually " .
+                        "($matches[1])\n"
+                    );
+                }
+                $result .= $line . "\n";
+            }
+        }
+        $result = rtrim($result);
+        $result .= "\n\n" . '### Do not change these lines. They are added ' .
+            'and updated by the OMV Docker GUI plugin.' . "\n";
+        if ($socketSet) {
+            $result .= 'OMVDOCKER_API="-H tcp://127.0.0.1:' . $apiPort .
+                '"' . "\n";
+        } else {
+            $result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock ' .
+                '-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
+        }
+        if (strcmp($absPath, "") !==0) {
+            $result .= 'OMVDOCKER_IMAGE_PATH="-g /var/lib/docker/openmediavault"' . "\n";
+        } else {
+            $result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n";
+        }
+        $result .= 'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API ' .
+            '$OMVDOCKER_IMAGE_PATH"' . "\n" .
+            '### Do not add any configuration below this line. It will be ' .
+            'removed when the plugin is removed';
+        file_put_contents("$fileName", $result);
+
+        //Next fix OMV config backend is the base path should be relocated
         //Get the old settings object
         $oldSettings = $xmlConfig->get("/config/services/docker");
         if (is_null($oldSettings)) {
@@ -417,73 +465,29 @@ class OMVModuleDockerUtil
             OMVUtil::exec($cmd, $out, $res);
         }
 
-
-        // Update the configuration object.
+        //Update configuration object
         if (strcmp($absPath, "") === 0) {
             $tmpMntent = "";
         } else {
             $tmpMntent = $newMntent['uuid'];
         }
-
-
         $object = array(
             "dockermntent" => $tmpMntent,
             "enabled" => $oldSettings['enabled'],
             "apiPort" => $oldSettings['apiPort'],
             "sharedfolderref" => $oldSettings['sharedfolderref']
         );
-
         if (false === $xmlConfig->replace("/config/services/docker", $object)) {
             throw new OMVException(
                 OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED,
                 "/config/services/docker"
             );
         }
+        
+        //TODO: Ensure that the bind-mount is remounted on each reboot
+        //perhaps via rc.local
 
-        $fileName = "/etc/default/docker";
-        $data = file_get_contents($fileName);
-        $lines = explode("\n", $data);
-        $result = "";
-        $socketSet = false;
-        foreach ($lines as $line) {
-            if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
-                break;
-            } else {
-                if (preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
-                    $socketSet = true;
-                } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
-                    OMVModuleDockerUtil::startDockerService();
-                    throw new OMVModuleDockerException(
-                        "Docker " .
-                        "base path relocation detected in " .
-                        "configuration file\n" .
-                        "Please remove it manually " .
-                        "($matches[1])\n"
-                    );
-                }
-                $result .= $line . "\n";
-            }
-        }
-        $result = rtrim($result);
-        $result .= "\n\n" . '### Do not change these lines. They are added ' .
-            'and updated by the OMV Docker GUI plugin.' . "\n";
-        if ($socketSet) {
-            $result .= 'OMVDOCKER_API="-H tcp://127.0.0.1:' . $apiPort .
-                '"' . "\n";
-        } else {
-            $result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock ' .
-                '-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
-        }
-        if (strcmp($absPath, "") !==0) {
-            $result .= 'OMVDOCKER_IMAGE_PATH="-g /var/lib/docker/openmediavault"' . "\n";
-        } else {
-            $result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n";
-        }
-        $result .= 'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API ' .
-            '$OMVDOCKER_IMAGE_PATH"' . "\n" .
-            '### Do not add any configuration below this line. It will be ' .
-            'removed when the plugin is removed';
-        file_put_contents("$fileName", $result);
+
         OMVModuleDockerUtil::startDockerService();
     }
 
