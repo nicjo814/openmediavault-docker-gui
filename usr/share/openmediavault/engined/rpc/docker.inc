@@ -739,27 +739,22 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         //the docker service.
         if ($params['enabled']) {
             $newApiPort = $params['apiPort'];
-            if ($params['sharedfolderref']) {
-                $sharedFolder = $params['sharedfolderref'];
-                $xpath = "//system/shares/sharedfolder[uuid='" .
-                    $params['sharedfolderref'] . "']";
-                $share = $xmlConfig->get($xpath);
-                $xpath = "//system/fstab/mntent[uuid='" . $share['mntentref'] .
-                    "']";
-                $mntent = $xmlConfig->get($xpath);
-                $absPath = rtrim(
-                    rtrim(
-                        $mntent['dir'],
-                        "/"
-                    )
-                    . "/" . $share['reldirpath'], "/"
+            $absPath = "";
+            $sharedFolder = "";
+            if (!(strcmp($params['sharedfolderref'], "") === 0)) {
+                $absPath = OMVRpc::exec(
+                    "ShareMgmt",
+                    "getPath",
+                    array(
+                        "uuid" => $params['sharedfolderref']
+                    ),
+                    $context
                 );
-            } else {
-                $sharedFolder = "";
+                $sharedFolder = $params['sharedfolderref'];
             }
             OMVModuleDockerUtil::changeDockerSettings($newApiPort, $absPath);
         }
-        
+
         //Get the possibly changed settings object
         $oldSettings = $xmlConfig->get($this->_getXpath());
         if (is_null($oldSettings)) {
