@@ -1,11 +1,11 @@
-openmediavault-docker-gui (0.2.12) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.12) unstable; urgency=low
 
   * Fix potential problem if base path is manually relocated
   * Simplify make process
   * Improved remove script
   * Make base path relocation survive reboots
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 04 Sep 2015 22:24:22 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sun, 06 Sep 2015 10:45:15 +0200
 
 openmediavault-docker-gui (0.2.11) unstable; urgency=low
 
