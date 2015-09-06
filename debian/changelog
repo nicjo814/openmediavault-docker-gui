@@ -3,6 +3,7 @@ openmediavault-docker-gui (0.2.12) UNRELEASED; urgency=low
   * Fix potential problem if base path is manually relocated
   * Simplify make process
   * Improved remove script
+  * Make base path relocation survive reboots
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 04 Sep 2015 22:24:22 +0200
 

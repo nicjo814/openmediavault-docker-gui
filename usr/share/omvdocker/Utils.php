@@ -76,22 +76,25 @@ class OMVModuleDockerUtil
      */
     public static function stopDockerService()
     {
+        $cmd = "docker ps -q | wc -l";
+        OMVUtil::exec($cmd, $out, $res);
+        while ($out[0] > 0) {
+            unset($out);
+            //Kill any running Docker containers
+            $cmd = "docker ps -q | xargs docker kill";
+            OMVUtil::exec($cmd, $out, $res);
+        }
+        unset($out);
+
         $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
         OMVUtil::exec($cmd, $out, $res);
-        if ($out[0] === "1") {
+        while ($out[0] > 0) {
             unset($out);
-            $cmd = "docker ps -q | wc -l";
-            OMVUtil::exec($cmd, $out, $res);
-            if ($out[0] > 0) {
-                unset($out);
-                //Kill any running Docker containers
-                $cmd = "docker ps -q | xargs docker kill";
-                OMVUtil::exec($cmd, $out, $res);
-            }
             //Stop the Docker daemon before making config changes
             $cmd = "service docker stop";
             OMVUtil::exec($cmd, $out, $res);
         }
+
     }
 
     /**
@@ -353,7 +356,7 @@ class OMVModuleDockerUtil
     {
         global $xmlConfig;
         OMVModuleDockerUtil::stopDockerService();
-        
+
         //First update /etc/default/docker with user provided data
         $fileName = "/etc/default/docker";
         $data = file_get_contents($fileName);
@@ -483,10 +486,49 @@ class OMVModuleDockerUtil
                 "/config/services/docker"
             );
         }
-        
-        //TODO: Ensure that the bind-mount is remounted on each reboot
-        //perhaps via rc.local
 
+        //Finally modify /etc/rc.local to make base path relocation work after
+        //reboot
+        $rcAry = array(
+            '### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin.',
+            'DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`',
+            'while [ $DOCKERSERVICE -gt 0 ]; do',
+            '   DOCKERCONTAINERS=`docker ps -q | wc -l`',
+            '   if [ $DOCKERCONTAINERS -gt 0 ]; then',
+            '       docker ps -q | xargs docker kill',
+            '   fi',
+            '   service docker stop',
+            '   DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`',
+            'done',
+            'mount -o remount,bind,defaults /var/lib/docker/openmediavault',
+            'service docker start',
+            '### End of OMV Docker GUI plugin changes.'
+        );
+        $rcStr = implode("\n", $rcAry);
+        $rcLastIdx = count($rcAry) - 1;
+        $fileName = "/etc/rc.local";
+        $data = rtrim(file_get_contents($fileName));
+        $lines = explode("\n", $data);
+        $result = "";
+        for ($i = 0; $i < count($lines); $i++) {
+            if ($i === (count($lines) - 1)) {
+                //Insert text if required
+                if (!(strcmp($absPath, "") === 0) && !$replaced) {
+                    $result .= $rcStr . "\n" . $lines[$i] . "\n";
+                } else {
+                    $result .= $lines[$i] . "\n";
+                }
+            } elseif (strcmp($lines[$i], $rcAry[0]) === 0) {
+                //Strip away old config
+                while (!(strcmp($lines[$i], $rcAry[$rcLastIdx]) === 0)) {
+                    $i++;
+                }
+            } else {
+                $result .= $lines[$i] . "\n";
+            }
+        }
+        $result = rtrim($result);
+        file_put_contents("$fileName", $result);
 
         OMVModuleDockerUtil::startDockerService();
     }
