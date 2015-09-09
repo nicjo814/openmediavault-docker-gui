@@ -357,6 +357,60 @@ class OMVModuleDockerUtil
         global $xmlConfig;
         OMVModuleDockerUtil::stopDockerService();
 
+        //Do some sanity checks before making changes to running config.
+        
+        //First check that there is no manual base path relocation in the file
+        // /etc/default/docker
+        $fileName = "/etc/default/docker";
+        $data = file_get_contents($fileName);
+        $lines = explode("\n", $data);
+        foreach ($lines as $line) {
+            if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
+                break;
+            } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
+                OMVModuleDockerUtil::startDockerService();
+                throw new OMVModuleDockerException(
+                    "Docker " .
+                    "base path relocation detected in " .
+                    "configuration file\n" .
+                    "Please remove it manually " .
+                    "($matches[1])\n"
+                );
+            }
+        }
+
+        // Next get the old settings object
+        $oldSettings = $xmlConfig->get("/config/services/docker");
+        if (is_null($oldSettings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                "/config/services/docker"
+            );
+        }
+
+        // Next umount old bind mount
+        if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
+            $oldMntentXpath = "//system/fstab/mntent[uuid='" .
+                $oldSettings['dockermntent'] . "']";
+            if (!$oldMntent = $xmlConfig->get($oldMntentXpath)) {
+                throw new OMVException(
+                    OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                    $xpath
+                );
+            } else {
+                $me = new OMVMntEnt($oldMntent['fsname'], $oldMntent['dir']);
+                $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
+                unset($out);
+                OMVUtil::exec($cmd, $out, $res);
+                while ($out[0] > 0) {
+                    $me->umount();
+                    $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
+                    unset($out);
+                    OMVUtil::exec($cmd, $out, $res);
+                }
+            }
+        }
+
         //First update /etc/default/docker with user provided data
         $fileName = "/etc/default/docker";
         $data = file_get_contents($fileName);
@@ -402,17 +456,8 @@ class OMVModuleDockerUtil
             '### Do not add any configuration below this line. It will be ' .
             'removed when the plugin is removed';
         file_put_contents("$fileName", $result);
-
-        //Next fix OMV config backend is the base path should be relocated
-        //Get the old settings object
-        $oldSettings = $xmlConfig->get("/config/services/docker");
-        if (is_null($oldSettings)) {
-            throw new OMVException(
-                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
-                "/config/services/docker"
-            );
-        }
-
+        
+        //Next fix OMV config backend if the base path should be relocated
         //Generate a new mntent entry if a shared folder is specified
         if (!(strcmp($absPath, "") === 0)) {
             $newMntent = array(
@@ -427,48 +472,8 @@ class OMVModuleDockerUtil
             );
             $xmlConfig->set("//system/fstab", array("mntent" => $newMntent));
         }
-
-        //Remove the old mntent entry if it was set
-        if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
-            $xpath = "//system/fstab/mntent[uuid='" . $oldSettings['dockermntent'] .
-                "']";
-            $oldMntent = $xmlConfig->get($xpath);
-            $me = new OMVMntEnt($oldMntent['fsname'], $oldMntent['dir']);
-            $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
-            unset($out);
-            OMVUtil::exec($cmd, $out, $res);
-            while ($out[0] > 0) {
-                $me->umount();
-                $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
-                unset($out);
-                OMVUtil::exec($cmd, $out, $res);
-            }
-            $xmlConfig->delete($xpath);
-        }
-
-        //Re-generate fstab entries
-        $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
-        OMVUtil::exec($cmd, $out, $res);
-
-        //Mount the new bind-mount entry
-        if (!(strcmp($absPath, "") === 0)) {
-            $me = new OMVMntEnt($newMntent['fsname'], $newMntent['dir']);
-            if (false === $me->mount()) {
-                throw new OMVException(
-                    OMVErrorMsg::E_MISC_FAILURE,
-                    sprintf(
-                        "Failed to mount '%s': %s", $objectv['fsname'],
-                        $me->getLastError()
-                    )
-                );
-            }
-            //Remount the bind-mount with defaults options
-            $cmd = "export LANG=C; mount -o remount,bind,defaults " .
-                $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
-            OMVUtil::exec($cmd, $out, $res);
-        }
-
-        //Update configuration object
+        
+        //Update settings object
         if (strcmp($absPath, "") === 0) {
             $tmpMntent = "";
         } else {
@@ -487,7 +492,16 @@ class OMVModuleDockerUtil
             );
         }
 
-        //Finally modify /etc/rc.local to make base path relocation work after
+        //Remove the old mntent entry if it was set
+        if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
+            $xmlConfig->delete($oldMntentXpath);
+        }
+
+        //Re-generate fstab entries
+        $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
+        OMVUtil::exec($cmd, $out, $res);
+        
+        // Modify /etc/rc.local to make base path relocation work after
         //reboot
         $rcAry = array(
             '### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin.',
@@ -529,6 +543,25 @@ class OMVModuleDockerUtil
         }
         $result = rtrim($result);
         file_put_contents("$fileName", $result);
+
+        // Finally mount the new bind-mount entry
+        if (!(strcmp($absPath, "") === 0)) {
+            $me = new OMVMntEnt($newMntent['fsname'], $newMntent['dir']);
+            if (false === $me->mount()) {
+                throw new OMVException(
+                    OMVErrorMsg::E_MISC_FAILURE,
+                    sprintf(
+                        "Failed to mount '%s': %s", $objectv['fsname'],
+                        $me->getLastError()
+                    )
+                );
+            }
+            //Remount the bind-mount with defaults options
+            $cmd = "export LANG=C; mount -o remount,bind,defaults " .
+                $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
+            OMVUtil::exec($cmd, $out, $res);
+        }
+
 
         OMVModuleDockerUtil::startDockerService();
     }
