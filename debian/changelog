@@ -1,3 +1,10 @@
+openmediavault-docker-gui (0.2.14) unstable; urgency=low
+
+  * Fix missing requirements for Repo tab
+  * Minor layout change on Repo tab
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 09 Sep 2015 21:16:38 +0200
+
 openmediavault-docker-gui (0.2.13) unstable; urgency=low
 
   * More error handling when it comes to base path relocation

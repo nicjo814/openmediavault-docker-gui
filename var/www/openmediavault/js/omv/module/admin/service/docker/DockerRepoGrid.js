@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// require("js/omv/data/Store.js")
+// require("js/omv/workspace/grid/Panel.js")
+// require("js/omv/WorkspaceManager.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
 
 Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
@@ -47,7 +50,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'category',
     },{
-        text: _("Logo"),
+        align: "center",
         dataIndex: 'logo',
         renderer: function(value){
             if (value === "") {
@@ -73,8 +76,8 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'repo'
     },{
-        text: _("Pull"),
         xtype:'actioncolumn',
+        align: "center",
         items: [{
             icon: 'images/download.png',
             tooltip: _("Pull image"),

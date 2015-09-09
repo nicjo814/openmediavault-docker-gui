@@ -20,6 +20,8 @@
 // require("js/omv/module/admin/service/docker/BindMountRow.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
 // require("js/omv/module/admin/service/docker/RunContainer.js")
+// require("js/omv/workspace/grid/Panel.js")
+// require("js/omv/data/Store.js")
 
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
     extend: "OMV.workspace.grid.Panel",
