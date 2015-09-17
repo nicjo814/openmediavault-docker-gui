@@ -76,25 +76,18 @@ class OMVModuleDockerUtil
      */
     public static function stopDockerService()
     {
-        $cmd = "docker ps -q | wc -l";
-        OMVUtil::exec($cmd, $out, $res);
-        while ($out[0] > 0) {
-            unset($out);
-            //Kill any running Docker containers
-            $cmd = "docker ps -q | xargs docker kill";
-            OMVUtil::exec($cmd, $out, $res);
-        }
-        unset($out);
-
         $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
         OMVUtil::exec($cmd, $out, $res);
+
         while ($out[0] > 0) {
-            unset($out);
-            //Stop the Docker daemon before making config changes
+            //Wait for the docker service to stop before making config changes
             $cmd = "service docker stop";
             OMVUtil::exec($cmd, $out, $res);
+            unset($out);
+            sleep(1);
+            $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
+            OMVUtil::exec($cmd, $out, $res);
         }
-
     }
 
     /**
@@ -107,23 +100,6 @@ class OMVModuleDockerUtil
         //Start the daemon again after changes have been made
         $cmd = "service docker start";
         OMVUtil::exec($cmd, $out, $res);
-        unset($out);
-        $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-        OMVUtil::exec($cmd, $out, $res);
-        if ($out[0] === "0") {
-            for ($i = 0; $i < 5; $i++) {
-                unset($out);
-                $cmd = "service docker start";
-                OMVUtil::exec($cmd, $out, $res);
-                unset($out);
-                $cmd = 'ps aux | grep "/usr/bin/docker daemon" | ' .
-                    'grep -v grep | wc -l';
-                OMVUtil::exec($cmd, $out, $res);
-                if ($out[0] === "1") {
-                    break;
-                }
-            }
-        }
     }
 
     /**
@@ -358,7 +334,7 @@ class OMVModuleDockerUtil
         OMVModuleDockerUtil::stopDockerService();
 
         //Do some sanity checks before making changes to running config.
-        
+
         //First check that there is no manual base path relocation in the file
         // /etc/default/docker
         $fileName = "/etc/default/docker";
@@ -456,9 +432,13 @@ class OMVModuleDockerUtil
             '### Do not add any configuration below this line. It will be ' .
             'removed when the plugin is removed';
         file_put_contents("$fileName", $result);
-        
+
         //Next fix OMV config backend if the base path should be relocated
-        //Generate a new mntent entry if a shared folder is specified
+        //Start by removing any old mntent entries
+        $tmpXpath = "//system/fstab/mntent[dir='/var/lib/docker/openmediavault']";
+        $xmlConfig->delete($tmpXpath);
+
+        //Next generate a new mntent entry if a shared folder is specified
         if (!(strcmp($absPath, "") === 0)) {
             $newMntent = array(
                 "uuid" => OMVUtil::uuid(),
@@ -472,7 +452,7 @@ class OMVModuleDockerUtil
             );
             $xmlConfig->set("//system/fstab", array("mntent" => $newMntent));
         }
-        
+
         //Update settings object
         if (strcmp($absPath, "") === 0) {
             $tmpMntent = "";
@@ -492,35 +472,20 @@ class OMVModuleDockerUtil
             );
         }
 
-        //Remove the old mntent entry if it was set
-        if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
-            $xmlConfig->delete($oldMntentXpath);
-        }
-
         //Re-generate fstab entries
         $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
         OMVUtil::exec($cmd, $out, $res);
-        
-        // Modify /etc/rc.local to make base path relocation work after
+
+        // Modify /etc/crontab to make base path relocation work after
         //reboot
         $rcAry = array(
             '### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin.',
-            'DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`',
-            'while [ $DOCKERSERVICE -gt 0 ]; do',
-            '   DOCKERCONTAINERS=`docker ps -q | wc -l`',
-            '   if [ $DOCKERCONTAINERS -gt 0 ]; then',
-            '       docker ps -q | xargs docker kill',
-            '   fi',
-            '   service docker stop',
-            '   DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`',
-            'done',
-            'mount -o remount,bind,defaults /var/lib/docker/openmediavault',
-            'service docker start',
+            '@reboot root /usr/share/omvdocker/dockerremount.sh',
             '### End of OMV Docker GUI plugin changes.'
         );
-        $rcStr = implode("\n", $rcAry);
         $rcLastIdx = count($rcAry) - 1;
-        $fileName = "/etc/rc.local";
+        $rcStr = implode("\n", $rcAry);
+        $fileName = "/etc/crontab";
         $data = rtrim(file_get_contents($fileName));
         $lines = explode("\n", $data);
         $result = "";

@@ -12,18 +12,18 @@ case "$1" in
         ;;
 
     purge)
-        if [ -f /etc/default/docker ]; then
+        logger -t DOCKER-OMV Stopping Docker service
+        DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
+
+        while [ $DOCKERSERVICE -gt 0 ]; do
+            logger -t DOCKER-OMV Waiting for Docker service to stop
+            service docker stop
+            sleep 1
             DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
-            if [ $DOCKERSERVICE -eq 1 ]; then
-                DOCKERCONTAINERS=`docker ps -q | wc -l`
-                if [ $DOCKERCONTAINERS -gt 0 ]; then
-                    docker ps -q | xargs docker kill
-                fi
-                service docker stop
-            fi
-            sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/default/docker
-            service docker start
-        fi
+        done
+        logger -t DOCKER-OMV Docker service stopped
+        sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/crontab
+        service docker start
 
         if omv_config_exists $CONFIG; then
             echo "Deleting Configuration"

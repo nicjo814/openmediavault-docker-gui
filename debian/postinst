@@ -13,20 +13,34 @@ case "$1" in
       echo "Initialize configuration"
 	  object="<apiPort>42005</apiPort>"
 	  object="${object}<sharedfolderref></sharedfolderref>"
-	  object="${object}<enabled>0</enabled>"
-	  object="${object}<dockermntent></dockermntent>"
+      object="${object}<enabled>0</enabled>"
+      object="${object}<dockermntent></dockermntent>"
       omv_config_add_element "/config/services" "docker" "${object}" true
     fi
 
     dpkg-trigger update-fixperms
     dpkg-trigger update-locale
+    
+    logger -t DOCKER-OMV Stopping Docker service
+    DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
+
+    while [ $DOCKERSERVICE -gt 0 ]; do
+        logger -t DOCKER-OMV Waiting for Docker service to stop
+        service docker stop
+        sleep 1
+        DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
+    done
+    logger -t DOCKER-OMV Docker service stopped
+    service docker start
+    
+    sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/rc.local
 
     ;;
 
-  abort-upgrade|abort-remove|abort-deconfigure)
+abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 
-  *)
+*)
     echo "postinst called with unknown argument \`$1'" >&2
     exit 1
     ;;
