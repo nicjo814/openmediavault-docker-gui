@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.16) testing; urgency=low
+
+  * Add extra parameters field
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Tue, 29 Sep 2015 19:04:34 +0200
+
 openmediavault-docker-gui (0.2.15) stable; urgency=low
 
   * Fix problem with base path relocation not surviving reboots

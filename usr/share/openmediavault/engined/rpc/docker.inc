@@ -468,6 +468,12 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         if (!(strcmp($params['containerName'], "") === 0)) {
             $cmd .= "--name=\"" . $params['containerName'] . "\" ";
         }
+        
+        //Check if extra arguments are supplied
+        $extraArgs = trim($params['extraArgs']);
+        if (!(strcmp($extraArgs, "") === 0)) {
+            $cmd .= $extraArgs . " ";
+        }
 
         //Add image to command
         $cmd .= "\"" . $params['image'] . "\" 2>&1";

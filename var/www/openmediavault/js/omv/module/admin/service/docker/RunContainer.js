@@ -76,21 +76,6 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             ],
         });
 
-        /*
-         * me.volFromStore = Ext.create("OMV.data.Store", {
-autoLoad: true,
-fields: [
-{ name: "name", type: "string" }
-],
-proxy: {
-type: "rpc",
-rpcData: {
-service: "Docker",
-method: "getVolumesFrom"
-}
-}
-});
-*/
         me.callParent(arguments);
     },
 
@@ -265,6 +250,21 @@ method: "getVolumesFrom"
                     }]
             }]
         });
+        
+        //Add extra arguments fieldset
+        items.push({
+            xtype: "fieldset",
+            title: _("Extra arguments"),
+            id: "dockerExtraArguments",
+            collapsible: true,
+            items: [{
+                xtype: "textfield",
+                fieldLabel: _("Extra args"),
+                readOnly: false,
+                name: "extraArgs",
+                id: "dockerExtraArgs"
+            }]
+        });
 
         //Add hidden field that changes before rendering to allow sending of form
         //even if no (regular) form field is dirty.
@@ -433,7 +433,8 @@ method: "getVolumesFrom"
             envVars: me.envVars,
             bindMounts: me.bindMounts,
             containerName: me.getForm().findField("containerName").getValue(),
-            volumes: me.volumes
+            volumes: me.volumes,
+            extraArgs: me.getForm().findField("extraArgs").getValue()
         };
         if(me.mode === "remote") {
             var rpcOptions = {
