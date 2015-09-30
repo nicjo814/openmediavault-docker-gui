@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.17) testing; urgency=low
+
+  * Add tooltips to the Run Container dialogue
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 30 Sep 2015 21:45:59 +0200
+
 openmediavault-docker-gui (0.2.16) testing; urgency=low
 
   * Add extra parameters field

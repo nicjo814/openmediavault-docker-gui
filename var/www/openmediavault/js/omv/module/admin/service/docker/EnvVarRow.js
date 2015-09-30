@@ -42,14 +42,24 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             id: "envName-" + me.envCount,
             value: me.nameVal,
             flex: 1,
-            readOnly: defVal
+            readOnly: defVal,
+            listeners : {
+                afterrender: function(field, eOpts) {
+                    field.getEl().down('input').set({'data-qtip': field.getValue()});
+                }
+            }
         },{
             xtype: "textfield",
             name: "envValue-" + me.envCount,
             id: "envValue-" + me.envCount,
             value: me.valueVal,
             flex: 2,
-            readOnly: defVal
+            readOnly: defVal,
+            listeners : {
+                afterrender: function(field, eOpts) {
+                    field.getEl().down('input').set({'data-qtip': field.getValue()});
+                }
+            }
         },{
             xtype: "button",
             id: "envVarAddButton-" + me.envCount,
@@ -75,7 +85,9 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
                             id: "envVarRow-" + nextCount
                         });
                         Ext.getCmp("dockerEnvVars").add(newRow);
+                        me.queryById("envName-" + me.envCount).getEl().down('input').set({'data-qtip': me.queryById("envName-" + me.envCount).getValue()});
                         me.queryById("envName-" + me.envCount).setReadOnly(true);
+                        me.queryById("envValue-" + me.envCount).getEl().down('input').set({'data-qtip': me.queryById("envValue-" + me.envCount).getValue()});
                         me.queryById("envValue-" + me.envCount).setReadOnly(true);
                     } else {
                         Ext.Msg.alert(_("Bad input"), errorMsg);

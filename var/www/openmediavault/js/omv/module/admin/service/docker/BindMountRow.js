@@ -61,13 +61,23 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                         }
                     }
                 }).show();
+            },
+            listeners : {
+                afterrender: function(field, eOpts) {
+                    field.getEl().down('input').set({'data-qtip': field.getValue()});
+                }
             }
         },{
             xtype: "textfield",
             name: "bindMountTo-" + me.bindCount,
             id: "bindMountTo-" + me.bindCount,
             flex: 1,
-            value: me.to
+            value: me.to,
+            listeners : {
+                afterrender: function(field, eOpts) {
+                    field.getEl().down('input').set({'data-qtip': field.getValue()});
+                }
+            }
         },{
             xtype: "button",
             id: "bindMountAddButton-" + me.bindCount,
@@ -92,7 +102,9 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                             id: "bindMountRow-" + nextCount
                         });
                         Ext.getCmp("dockerBindMounts").add(newRow);
+                        me.queryById("bindMountFrom-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountFrom-" + me.bindCount).getValue()});
                         me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
+                        me.queryById("bindMountTo-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountTo-" + me.bindCount).getValue()});
                         me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
                     } else {
                         Ext.Msg.alert(_("Bad input"), errorMsg);
