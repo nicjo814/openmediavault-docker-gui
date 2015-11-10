@@ -69,7 +69,8 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         text: _("Description"),
         dataIndex: 'desc',
         sortable: true,
-        stateId: 'desc'
+        stateId: 'desc',
+        cellWrap: true
     },{
         text: _("Repository"),
         dataIndex: 'repo',
