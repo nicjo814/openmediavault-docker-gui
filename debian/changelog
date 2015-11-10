@@ -1,3 +1,9 @@
+openmediavault-docker-gui (0.2.18) UNRELEASED; urgency=low
+
+  * Add support for host name to the run container dialog
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Tue, 10 Nov 2015 20:29:18 +0100
+
 openmediavault-docker-gui (0.2.17) stable; urgency=low
 
   * Add tooltips to the Run Container dialogue

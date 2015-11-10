@@ -425,6 +425,11 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             break;
         }
 
+        //Check if host name is specified
+        if (!(strcmp($params['hostName'], "") === 0)) {
+            $cmd .= "-h \"" . $params['hostName'] . "\" ";
+        }
+
         //Check for environment variables
         foreach ($params['envVars'] as $envVar) {
             if (!(strcmp($envVar['name'], "") === 0)) {

@@ -175,6 +175,14 @@ class OMVModuleDockerContainer
      */
     private $_volumesFrom;
 
+    /**
+     * Host name of the container
+     *
+     * @var string $_hostName
+     * @access private
+     */
+    private $_hostName;
+
     // Associations
     // Operations
 
@@ -276,6 +284,13 @@ class OMVModuleDockerContainer
         $this->_volumesFrom = array();
         foreach ($containerData->HostConfig->VolumesFrom as $volume) {
             array_push($this->_volumesFrom, array("from" => $volume));
+        }
+        $this->_hostName = "";
+        if (!(strcmp($containerData->Config->Hostname, "") === 0)) {
+            $this->_hostName .= $containerData->Config->Hostname;
+            if (!(strcmp($containerData->Config->Domainname, "") === 0)) {
+                $this->_hostName .= "." . $containerData->Config->Domainname;
+            }
         }
     }
 
@@ -464,6 +479,17 @@ class OMVModuleDockerContainer
     public function getVolumesFrom()
     {
         return $this->_volumesFrom;
+    }
+    
+    /**
+     * Get the host name of the container
+     *
+     * @return string $_hostName
+     * @access public
+     */
+    public function getHostName()
+    {
+        return $this->_hostName;
     }
     
 }

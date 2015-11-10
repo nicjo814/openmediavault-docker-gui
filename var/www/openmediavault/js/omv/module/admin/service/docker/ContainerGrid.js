@@ -107,7 +107,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                         { name: "cenvvars", type: "array" },
                         { name: "portbindings", type: "array" },
                         { name: "name", type: "string" },
-                        { name: "volumesfrom", type: "array" }
+                        { name: "volumesfrom", type: "array" },
+                        { name: "hostname", type: "string" }
                     ]
                 }),
                 proxy: {
@@ -506,7 +507,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 portbindings: record.get("portbindings"),
                 bindmounts: record.get("bindmounts"),
                 cenvvars: record.get("cenvvars"),
-                copyVolumes: record.get("volumesfrom")
+                copyVolumes: record.get("volumesfrom"),
+                hostname: record.get("hostname")
             }).show();
         }
     },

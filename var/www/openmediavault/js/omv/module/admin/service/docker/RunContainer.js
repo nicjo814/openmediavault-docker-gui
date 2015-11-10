@@ -53,7 +53,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     bindmounts: [],
     volumes: [],
     copyVolumes: [],
-
+    hostname: "",
 
     initComponent: function() {
         var me = this;
@@ -154,6 +154,11 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                         }
                     }
                 }
+            },{
+                xtype: "textfield",
+                fieldLabel: _("Host name"),
+                readOnly: false,
+                name: "hostName"
             },{
                 xtype: "fieldset",
                 title: _("Port forwarding"),
@@ -288,6 +293,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         }
         me.getForm().findField("privileged").setValue(me.privileged);
         me.getForm().findField("networkMode").setValue(me.networkmode);
+        me.getForm().findField("hostName").setValue(me.hostname);
 
         //Add any ports mapped in container
         var portFieldset = me.queryById("dockerPortForward");
@@ -434,7 +440,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             bindMounts: me.bindMounts,
             containerName: me.getForm().findField("containerName").getValue(),
             volumes: me.volumes,
-            extraArgs: me.getForm().findField("extraArgs").getValue()
+            extraArgs: me.getForm().findField("extraArgs").getValue(),
+            hostName: me.getForm().findField("hostName").getValue()
         };
         if(me.mode === "remote") {
             var rpcOptions = {
