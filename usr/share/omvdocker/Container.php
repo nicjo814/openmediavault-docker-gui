@@ -213,6 +213,7 @@ class OMVModuleDockerContainer
         $url = "http://localhost:" . $apiPort . "/containers/$id/json";
         $response = OMVModuleDockerUtil::doApiCall($url);
         $containerData = json_decode($response);
+        $this->_state = "running";
         if ($containerData->State->Running) {
             $this->_state = "running";
         } elseif (($containerData->State->Dead) || ($containerData->State->ExitCode !== 0)) {

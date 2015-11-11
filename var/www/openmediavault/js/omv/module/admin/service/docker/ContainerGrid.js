@@ -86,6 +86,12 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         dataIndex: 'name',
         sortable: true,
         stateId: 'name'
+    },{
+        text: _("STATE"),
+        dataIndex: 'state',
+        sortable: true,
+        stateId: 'state',
+        filter: 'list' 
     }],
 
     initComponent: function() {
@@ -100,6 +106,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                         { name: "command", type: "string" },
                         { name: "created", type: "string" },
                         { name: "status", type: "string" },
+                        { name: "state", type: "string" },
                         { name: "ports", type: "string" },
                         { name: "networkmode", type: "string" },
                         { name: "restartpolicy", type: "string" },
@@ -252,7 +259,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     return false;
                 }
             });
-            
+
             // Disable buttons if selected node is a data container
             Ext.Array.each(records, function(record) {
                 if(record.get("status") === "Created") {
@@ -273,7 +280,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     return false;
                 }
             });
-            
+
             // Disable buttons if selected node is a data container
             Ext.Array.each(records, function(record) {
                 if(record.get("status") === "Created") {
