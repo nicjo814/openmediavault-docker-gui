@@ -1,4 +1,4 @@
-openmediavault-docker-gui (0.2.18) UNRELEASED; urgency=low
+openmediavault-docker-gui (0.2.18) testing; urgency=low
 
   * Add support for host name to the run container dialog
   * Auto wrap description text on repo tab
@@ -8,7 +8,7 @@ openmediavault-docker-gui (0.2.18) UNRELEASED; urgency=low
   * Add checkbox to allow container time synchronization with host
   * Add autocomplete to container-side bind mounts
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Tue, 10 Nov 2015 20:29:18 +0100
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 11 Nov 2015 21:19:48 +0100
 
 openmediavault-docker-gui (0.2.17) stable; urgency=low
 
