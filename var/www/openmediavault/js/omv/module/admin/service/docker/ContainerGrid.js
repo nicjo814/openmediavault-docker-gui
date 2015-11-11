@@ -29,6 +29,7 @@
 Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
     extend: "OMV.workspace.grid.Panel",
     alias: "widget.dockerContainerGrid",
+    plugins: "gridfilters",
 
     id: "dockerContainerGrid",
     disableDeleteButton: true,
@@ -59,6 +60,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         dataIndex: 'image',
         sortable: true,
         stateId: 'image',
+        filter: 'string' 
     },{
         text: _("COMMAND"),
         dataIndex: 'command',

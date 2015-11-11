@@ -26,6 +26,7 @@
 Ext.define("OMV.module.admin.service.docker.ImageGrid", {
     extend: "OMV.workspace.grid.Panel",
     alias: "widget.dockerImageGrid",
+    plugins: "gridfilters",
 
     id: "dockerImageGrid",
     disableDeleteButton: true,
@@ -62,6 +63,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
         dataIndex: 'repository',
         sortable: true,
         stateId: 'repository',
+        filter: 'string'
     },{
         text: _("TAG"),
         dataIndex: 'tag',
