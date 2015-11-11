@@ -118,7 +118,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                         { name: "name", type: "string" },
                         { name: "volumesfrom", type: "array" },
                         { name: "hostname", type: "string" },
-                        { name: "timesync", type: "boolean" }
+                        { name: "timesync", type: "boolean" },
+                        { name: "imagevolumes", type: "array" }
                     ]
                 }),
                 proxy: {
@@ -555,7 +556,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 cenvvars: record.get("cenvvars"),
                 copyVolumes: record.get("volumesfrom"),
                 hostname: record.get("hostname"),
-                timesync: record.get("timesync")
+                timesync: record.get("timesync"),
+                imagevolumes: record.get("imagevolumes")
             }).show();
         }
     },

@@ -100,7 +100,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                         { name: "created", type: "string" },
                         { name: "size", type: "string" },
                         { name: "ports", type: "array" },
-                        { name: "envvars", type: "array" }
+                        { name: "envvars", type: "array" },
+                        { name: "imagevolumes", type: "array" }
                     ]
                 }),
                 proxy: {
@@ -374,7 +375,8 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
             title: _("Run image"),
             image: record.get("repository") + ":" + record.get("tag"),
             ports: record.get("ports"),
-            envvars: record.get("envvars")
+            envvars: record.get("envvars"),
+            imagevolumes: record.get("imagevolumes")
         }).show();
     },
 

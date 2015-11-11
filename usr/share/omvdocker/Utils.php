@@ -136,7 +136,8 @@ class OMVModuleDockerUtil
                 "created"=>$image->getCreated(),
                 "size"=>$image->getSize(),
                 "ports"=>$image->getPorts(),
-                "envvars"=>$image->getEnvVars());
+                "envvars"=>$image->getEnvVars(),
+                "imagevolumes" => $image->getVolumes());
             array_push($objects, $tmp);
         }
         return $objects;
@@ -203,8 +204,6 @@ class OMVModuleDockerUtil
                 substr($container->getImageId(), 0, 12),
                 $apiPort
             );
-            $exposedPorts = $image->getPorts();
-            $envvars = $image->getEnvVars();
             $ports = rtrim($ports, ", ");
             $obj = array(
                 "id" => $container->getId(),
@@ -217,16 +216,17 @@ class OMVModuleDockerUtil
                 "privileged" => $container->getPrivileged(),
                 "restartpolicy" => $container->getRestartPolicy(),
                 "networkmode" => ucfirst($container->getNetworkMode()),
-                "envvars" => $envvars,
+                "envvars" => $image->getEnvVars(),
                 "cenvvars" => $container->getEnvironmentVariables(),
-                "exposedports" => $exposedPorts,
+                "exposedports" => $image->getPorts(),
                 "portbindings" => $container->getPortBindings(),
                 "bindmounts" => $container->getBindMounts(),
                 "ports" => $ports,
                 "hasmounts" => $container->hasMounts(),
                 "volumesfrom" => $container->getVolumesFrom(),
                 "hostname" => $container->getHostName(),
-                "timesync" => $container->syncsTime());
+                "timesync" => $container->syncsTime(),
+                "imagevolumes" => $image->getVolumes());
             array_push($objects, $obj);
         }
         return $objects;

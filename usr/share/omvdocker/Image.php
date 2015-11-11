@@ -93,6 +93,14 @@ class OMVModuleDockerImage
     private $_envVars;
 
     /**
+     * Volumes defined in the image
+     *
+     * @var 	array $_volumes
+     * @access private
+     */
+    private $_volumes;
+
+    /**
      * Constructor. The image will be updated with all associated properties
      * from commandline.
      *
@@ -135,6 +143,11 @@ class OMVModuleDockerImage
                 $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
+        $this->_volumes = array();
+        foreach ($imageData->Config->Volumes as $key => $val) {
+            array_push($this->_volumes, array($key));
+        }
+
     }
 
     /**
@@ -151,7 +164,7 @@ class OMVModuleDockerImage
     /**
      * Get the repository of the image
      *
-     * @return string $repository
+     * @return string $_repository
      * @access public
      */
     public function getRepository()
@@ -162,7 +175,7 @@ class OMVModuleDockerImage
     /**
      * Get the tag of the image
      *
-     * @return string $tag
+     * @return string $_tag
      * @access public
      */
     public function getTag()
@@ -173,7 +186,7 @@ class OMVModuleDockerImage
     /**
      * Get the creation time of the image
      *
-     * @return string $created
+     * @return string $_created
      * @access public
      */
     public function getCreated()
@@ -184,7 +197,7 @@ class OMVModuleDockerImage
     /**
      * Get the virtual size of the image
      *
-     * @return string $size
+     * @return string $_size
      * @access public
      */
     public function getSize()
@@ -195,7 +208,7 @@ class OMVModuleDockerImage
     /**
      * Get the ports exposed by the image
      *
-     * @return array $ports
+     * @return array $_ports
      * @access public
      */
     public function getPorts()
@@ -206,11 +219,23 @@ class OMVModuleDockerImage
     /**
      * Get the environment variables exposed by the image
      *
-     * @return array $envVars
+     * @return array $_envVars
      * @access public
      */
     public function getEnvVars()
     {
         return $this->_envVars;
     }
+    
+    /**
+     * Get the volumes exposed by the image
+     *
+     * @return array $_volumes
+     * @access public
+     */
+    public function getVolumes()
+    {
+        return $this->_volumes;
+    }
+
 }

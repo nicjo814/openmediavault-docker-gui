@@ -31,6 +31,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
 
     from: "",
     to: "",
+    imagevolumes: [],
     plugins: [{
         ptype : "configobject"
     }],
@@ -39,6 +40,13 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
     initComponent: function() {
         var me = this;
         me.uuid = OMV.UUID_UNDEFINED;
+        var volumeStore = new Ext.data.ArrayStore({
+            fields: [
+                {name: "value", type: "string"}
+            ]
+        });
+        volumeStore.loadData(me.imagevolumes, false);
+
         me.items = [{
             xtype: "textfield",
             name: "bindMountFrom-" + me.bindCount,
@@ -68,6 +76,25 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                 }
             }
         },{
+            xtype: "combo",
+            name: "bindMountTo-" + me.bindCount,
+            id: "bindMountTo-" + me.bindCount,
+            flex: 1,
+            minChars: 0,
+            typeAhead: true,
+            hideTrigger: true,
+            store: volumeStore,
+            queryMode: 'local',
+            displayField: 'value',
+            valueField: 'value',
+            value: me.to,
+            listeners : {
+                afterrender: function(field, eOpts) {
+                    field.getEl().down('input').set({'data-qtip': field.getValue()});
+                }
+            }
+
+            /*
             xtype: "textfield",
             name: "bindMountTo-" + me.bindCount,
             id: "bindMountTo-" + me.bindCount,
@@ -78,6 +105,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     field.getEl().down('input').set({'data-qtip': field.getValue()});
                 }
             }
+            */
         },{
             xtype: "button",
             id: "bindMountAddButton-" + me.bindCount,
@@ -99,7 +127,8 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                         me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
                         var newRow = Ext.create("OMV.module.admin.service.docker.BindMountRow", {
                             bindCount: nextCount,
-                            id: "bindMountRow-" + nextCount
+                            id: "bindMountRow-" + nextCount,
+                            imagevolumes: me.imagevolumes
                         });
                         Ext.getCmp("dockerBindMounts").add(newRow);
                         me.queryById("bindMountFrom-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountFrom-" + me.bindCount).getValue()});

@@ -55,6 +55,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     copyVolumes: [],
     hostname: "",
     timesync: false,
+    imagevolumes: [],
 
     initComponent: function() {
         var me = this;
@@ -387,14 +388,16 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 bindCount: me.bindCount,
                 id: "bindMountRow-" + me.bindCount,
                 from: me.bindmounts[i].from,
-                to: me.bindmounts[i].to
+                to: me.bindmounts[i].to,
+                imagevolumes: me.imagevolumes
             });
             me.queryById("bindMountAddButton-" + me.bindCount).fireEvent("setNewRow");
         }
         bindMountsFieldset.add({
             xtype: "module.admin.service.docker.bindmountrow",
             bindCount: me.bindCount,
-            id: "bindMountRow-" + me.bindCount
+            id: "bindMountRow-" + me.bindCount,
+            imagevolumes: me.imagevolumes
         });
 
         //Add volumes from and empty row
