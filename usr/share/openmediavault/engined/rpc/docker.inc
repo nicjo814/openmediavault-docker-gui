@@ -399,6 +399,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $cmd .= "--restart=always ";
         }
 
+        //Check if privileged checkbox is enabled
+        if ($params['privileged']) {
+            $cmd .= "--privileged ";
+        }
+
+        //Check if time sync checkbox is enabled
+        if ($params['timeSync']) {
+            $cmd .= "-v /etc/localtime:/etc/localtime:ro ";
+        }
+
         //Check which networking mode is selected
         switch ($params['networkMode']) {
         case "Bridge":
@@ -436,11 +446,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             if (!(strcmp($envVar['name'], "") === 0)) {
                 $cmd .= "-e " . $envVar['name'] . "=\"" . $envVar['value'] . "\" ";
             }
-        }
-
-        //Check if privileged checkbox is enabled
-        if ($params['privileged']) {
-            $cmd .= "--privileged ";
         }
 
         //Check for bind mounts

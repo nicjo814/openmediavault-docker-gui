@@ -183,8 +183,13 @@ class OMVModuleDockerContainer
      */
     private $_hostName;
 
-    // Associations
-    // Operations
+    /**
+     * Is the container syncing it's time with the host
+     *
+     * @var 	bool $_timeSync
+     * @access private
+     */
+    private $_timeSync;
 
     /**
      * Constructor. The container will be updated with all associated
@@ -261,7 +266,12 @@ class OMVModuleDockerContainer
             }
         }
         $this->_bindMounts = array();
+        $this->_timeSync = false;
         foreach ($containerData->HostConfig->Binds as $bind) {
+            if (strcmp($bind, "/etc/localtime:/etc/localtime:ro") === 0) {
+                $this->_timeSync = true;
+                continue;
+            }
             array_push(
                 $this->_bindMounts,
                 array("from" => preg_split('/\:/', $bind)[0],
@@ -491,6 +501,17 @@ class OMVModuleDockerContainer
     public function getHostName()
     {
         return $this->_hostName;
+    }
+    
+    /**
+     * Return true if the container is syncing time with the host
+     *
+     * @return bool $_syncTime
+     * @access public
+     */
+    public function syncsTime()
+    {
+        return $this->_timeSync;
     }
     
 }

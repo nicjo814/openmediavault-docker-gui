@@ -54,6 +54,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     volumes: [],
     copyVolumes: [],
     hostname: "",
+    timesync: false,
 
     initComponent: function() {
         var me = this;
@@ -106,6 +107,10 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 xtype: "checkbox",
                 name: "privileged",
                 boxLabel: _("Run container in privileged mode")
+            },{
+                xtype: "checkbox",
+                name: "timeSync",
+                boxLabel: _("Sync time with host")
             }]
         });
 
@@ -292,6 +297,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             me.getForm().findField("restart").setValue(true);
         }
         me.getForm().findField("privileged").setValue(me.privileged);
+        me.getForm().findField("timeSync").setValue(me.timesync);
         me.getForm().findField("networkMode").setValue(me.networkmode);
         me.getForm().findField("hostName").setValue(me.hostname);
 
@@ -441,7 +447,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             containerName: me.getForm().findField("containerName").getValue(),
             volumes: me.volumes,
             extraArgs: me.getForm().findField("extraArgs").getValue(),
-            hostName: me.getForm().findField("hostName").getValue()
+            hostName: me.getForm().findField("hostName").getValue(),
+            timeSync: me.getForm().findField("timeSync").getValue()
         };
         if(me.mode === "remote") {
             var rpcOptions = {

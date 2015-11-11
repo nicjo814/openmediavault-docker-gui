@@ -225,7 +225,8 @@ class OMVModuleDockerUtil
                 "ports" => $ports,
                 "hasmounts" => $container->hasMounts(),
                 "volumesfrom" => $container->getVolumesFrom(),
-                "hostname" => $container->getHostName());
+                "hostname" => $container->getHostName(),
+                "timesync" => $container->syncsTime());
             array_push($objects, $obj);
         }
         return $objects;
