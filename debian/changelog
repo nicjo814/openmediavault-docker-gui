@@ -4,6 +4,7 @@ openmediavault-docker-gui (0.2.18) UNRELEASED; urgency=low
   * Auto wrap description text on repo tab
   * Add filtering on repo/image names in grids
   * Add state column with filtering to container grid
+  * Make it possible to commit a container
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Tue, 10 Nov 2015 20:29:18 +0100
 

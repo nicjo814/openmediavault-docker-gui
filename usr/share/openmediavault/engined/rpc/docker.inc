@@ -96,6 +96,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("deleteContainer");
         $this->registerMethod("createContainer");
         $this->registerMethod("getVolumesFrom");
+        $this->registerMethod("commitContainer");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -647,6 +648,24 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             }
         }
         return $objects;
+    }
+
+    /**
+     * Commit a container to a new image
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function commitContainer($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker commit " . $params['name'] . " " . $params['newImage'] . " 2>&1";
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
     }
 
     /**

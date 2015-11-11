@@ -198,6 +198,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             handler: Ext.Function.bind(me.onExecuteButton, me, [ me ]),
             scope: me
         },{
+            id: me.getId() + "-commit",
+            xtype: "button",
+            text: _("Commit"),
+            icon: "images/save.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            disabled: true,
+            handler: Ext.Function.bind(me.onCommitButton, me, [ me ]),
+            scope: me
+        },{
             id: me.getId() + "-delete",
             xtype: "button",
             text: _("Delete"),
@@ -222,7 +231,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         var me = this;
         if(me.hideTopToolbar)
             return;
-        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "details", "execute", "delete", "refresh" ];
+        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "details", "execute", "commit", "delete", "refresh" ];
         var tbarBtnDisabled = {
             "create": false,
             "start": false,
@@ -231,6 +240,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             "copy": false,
             "details": false,
             "execute": false,
+            "commit": false,
             "delete": false,
             "refresh": false
         };
@@ -242,6 +252,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             tbarBtnDisabled["copy"] = true;
             tbarBtnDisabled["details"] = true;
             tbarBtnDisabled["execute"] = true;
+            tbarBtnDisabled["commit"] = true;
             tbarBtnDisabled["delete"] = true;
         } else if(records.length == 1) {
             // Disable 'Delete' button if selected node is not stopped
@@ -273,6 +284,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         } else {
             tbarBtnDisabled["copy"] = true;
             tbarBtnDisabled["details"] = true;
+            tbarBtnDisabled["commit"] = true;
             // Disable 'Delete' button if selected nodes are not stopped
             Ext.Array.each(records, function(record) {
                 if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
@@ -488,6 +500,30 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 }
             }
         }).show();
+    },
+
+    onCommitButton : function() {
+        var me = this;
+        var sm = me.getSelectionModel();
+        var records = sm.getSelection();
+        var record = records[0];
+        var newImage = "";
+        newImage = prompt("Enter name of the new image", "");
+        OMV.Rpc.request({
+            scope: me,
+            callback: function(id, success, response) {
+                Ext.getCmp("dockerImageGrid").doReload();
+            },
+            relayErrors: false,
+            rpcData: {
+                service: "Docker",
+                method: "commitContainer",
+                params: {
+                    name: record.get("name"),
+                    newImage: newImage
+                }
+            }
+        });
     },
 
     onCopyButton: function() {
