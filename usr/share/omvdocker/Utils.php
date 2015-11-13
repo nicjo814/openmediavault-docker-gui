@@ -478,39 +478,6 @@ class OMVModuleDockerUtil
         $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
         OMVUtil::exec($cmd, $out, $res);
 
-        // Modify /etc/crontab to make base path relocation work after
-        //reboot
-        $rcAry = array(
-            '### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin.',
-            '@reboot root /usr/share/omvdocker/dockerremount.sh',
-            '### End of OMV Docker GUI plugin changes.'
-        );
-        $rcLastIdx = count($rcAry) - 1;
-        $rcStr = implode("\n", $rcAry);
-        $fileName = "/etc/crontab";
-        $data = rtrim(file_get_contents($fileName));
-        $lines = explode("\n", $data);
-        $result = "";
-        for ($i = 0; $i < count($lines); $i++) {
-            if ($i === (count($lines) - 1)) {
-                //Insert text if required
-                if (!(strcmp($absPath, "") === 0) && !$replaced) {
-                    $result .= $rcStr . "\n" . $lines[$i] . "\n";
-                } else {
-                    $result .= $lines[$i] . "\n";
-                }
-            } elseif (strcmp($lines[$i], $rcAry[0]) === 0) {
-                //Strip away old config
-                while (!(strcmp($lines[$i], $rcAry[$rcLastIdx]) === 0)) {
-                    $i++;
-                }
-            } else {
-                $result .= $lines[$i] . "\n";
-            }
-        }
-        $result = rtrim($result);
-        file_put_contents("$fileName", $result);
-
         // Finally mount the new bind-mount entry
         if (!(strcmp($absPath, "") === 0)) {
             $me = new OMVMntEnt($newMntent['fsname'], $newMntent['dir']);
@@ -528,7 +495,6 @@ class OMVModuleDockerUtil
                 $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
             OMVUtil::exec($cmd, $out, $res);
         }
-
 
         OMVModuleDockerUtil::startDockerService();
     }

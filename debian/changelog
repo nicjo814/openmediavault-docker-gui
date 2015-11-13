@@ -1,3 +1,10 @@
+openmediavault-docker-gui (0.2.19) testing; urgency=low
+
+  * Improved solution for remounting Docker runtime directory
+    noexec at reboot
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 13 Nov 2015 20:19:11 +0100
+
 openmediavault-docker-gui (0.2.18) testing; urgency=low
 
   * Add support for host name to the run container dialog

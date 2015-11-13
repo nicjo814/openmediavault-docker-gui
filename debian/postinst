@@ -34,6 +34,7 @@ case "$1" in
     service docker start
     
     sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/rc.local
+    sed -i '/### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin./,/### End of OMV Docker GUI plugin changes./d' /etc/crontab
 
     ;;
 
