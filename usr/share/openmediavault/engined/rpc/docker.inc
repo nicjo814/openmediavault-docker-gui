@@ -851,6 +851,26 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
     }
 
     /**
+     * Get logs from a Docker container
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $object An associative array with all the new settings
+     */
+    public function getLogs($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker logs " . $params['id'] . " 2>&1";
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
+        //throw new OMVModuleDockerException($objects['details']);
+        return array("logs" => implode("\n\r", $out));
+    }
+
+    /**
      * Get folder structure for folder browser
      * 
      * @param array  $params  An associative array with all RPC call parameters

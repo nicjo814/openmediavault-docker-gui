@@ -191,6 +191,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             handler: Ext.Function.bind(me.onDetailsButton, me, [ me ]),
             scope: me
         },{
+            id: me.getId() + "-logs",
+            xtype: "button",
+            text: _("Logs"),
+            icon: "images/search.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            disabled: true,
+            handler: Ext.Function.bind(me.onLogsButton, me, [ me ]),
+            scope: me
+        },{
             id: me.getId() + "-execute",
             xtype: "button",
             text: _("Run cmd"),
@@ -241,6 +250,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             "restart": false,
             "copy": false,
             "details": false,
+			"logs": false,
             "execute": false,
             "commit": false,
             "delete": false,
@@ -253,6 +263,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             tbarBtnDisabled["restart"] = true;
             tbarBtnDisabled["copy"] = true;
             tbarBtnDisabled["details"] = true;
+            tbarBtnDisabled["logs"] = true;
             tbarBtnDisabled["execute"] = true;
             tbarBtnDisabled["commit"] = true;
             tbarBtnDisabled["delete"] = true;
@@ -265,10 +276,11 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 }
             });
 
-            // Disable 'Execute' button if selected node is not running
+            // Disable 'Execute' and 'Logs' buttons if selected node is not running
             Ext.Array.each(records, function(record) {
                 if(!(record.get("state") === "running")) {
                     tbarBtnDisabled["execute"] = true;
+                    tbarBtnDisabled["logs"] = true;
                     return false;
                 }
             });
@@ -280,6 +292,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     tbarBtnDisabled["stop"] = true;
                     tbarBtnDisabled["restart"] = true;
                     tbarBtnDisabled["execute"] = true;
+                    tbarBtnDisabled["logs"] = true;
                     return false;
                 }
             });
@@ -287,6 +300,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             tbarBtnDisabled["copy"] = true;
             tbarBtnDisabled["details"] = true;
             tbarBtnDisabled["commit"] = true;
+            tbarBtnDisabled["logs"] = true;
             // Disable 'Delete' button if selected nodes are not stopped
             Ext.Array.each(records, function(record) {
                 if(!(record.get("state") === "dead" || record.get("state") === "stopped")) {
@@ -472,6 +486,44 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 return [{
                     xtype: "textareafield",
                     name: "details",
+                    grow: false,
+                    height: 620,
+                    readOnly: true,
+                    fieldStyle: {
+                        fontFamily: "courier",
+                        fontSize: "12px"
+                    }
+                }];
+            }
+        }).show();
+    },
+
+    onLogsButton: function() {
+        var me = this;
+        var sm = me.getSelectionModel();
+        var records = sm.getSelection();
+        var record = records[0];
+
+        var detailsWindow = Ext.create("OMV.workspace.window.Form", {
+            title: _("Container logs"),
+            rpcService: "Docker",
+            rpcGetMethod: "getLogs",
+            rpcGetParams: {
+                id: record.get('id')
+            },
+            width: 800,
+            height: 700,
+            hideResetButton: true,
+            hideCancelButton: true,
+            okButtonText: _("Close"),
+            scrollable: false,
+
+            getFormItems: function() {
+                var me = this;
+
+                return [{
+                    xtype: "textareafield",
+                    name: "logs",
                     grow: false,
                     height: 620,
                     readOnly: true,
