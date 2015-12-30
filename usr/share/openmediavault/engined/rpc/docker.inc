@@ -101,6 +101,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
         $this->registerMethod("getDetails");
+        $this->registerMethod("getLogs");
         $this->registerMethod("getRootFolders");
         $this->registerMethod("copyDockerData");
         $this->registerMethod("executeCommand");

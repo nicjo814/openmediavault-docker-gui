@@ -194,7 +194,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             id: me.getId() + "-logs",
             xtype: "button",
             text: _("Logs"),
-            icon: "images/search.png",
+            icon: "images/logs.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
             disabled: true,
             handler: Ext.Function.bind(me.onLogsButton, me, [ me ]),
@@ -511,7 +511,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             rpcGetParams: {
                 id: record.get('id')
             },
-            width: 800,
+            width: 1100,
             height: 700,
             hideResetButton: true,
             hideCancelButton: true,
