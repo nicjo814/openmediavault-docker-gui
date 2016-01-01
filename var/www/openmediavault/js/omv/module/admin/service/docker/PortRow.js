@@ -24,16 +24,28 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
     border: false,
     defaultType: "container",
     defaults: {
-        flex: 2
+        flex: 3
     },
 
     hostip: "0.0.0.0",
     hostport: "",
     exposedport: "Select",
     customport: "",
+    proto: "Select",
 
     initComponent: function() {
         var me = this;
+        var protoStore = new Ext.data.ArrayStore({
+            fields: [
+                {name: "value", type: "string"}
+            ]
+        });
+        var protoStoreData = [
+            ["tcp"],
+            ["udp"]
+        ];
+        protoStore.loadData(protoStoreData, false);
+
         me.items = [{
             xtype: "textfield",
             name: "hostip-" + me.portCount,
@@ -59,6 +71,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                 scope: me,
                 change: function(combo, newValue, oldValue, eOpts) {
                     me.queryById("customPort-" + me.portCount).setValue("");
+                    me.queryById("proto-" + me.portCount).setValue("Select");
+                    me.queryById("proto-" + me.portCount).setDisabled(true);
                 }
             }
         },{
@@ -75,10 +89,23 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         me.queryById("exposedPort-" + me.portCount).setValue("Select");
                         me.queryById("exposedPort-" + me.portCount).setDisabled(true);
                         me.queryById("customPort-" + me.portCount).setValue(newValue);
+                        me.queryById("proto-" + me.portCount).setDisabled(false);
                     }
                 }
             }
-
+        },{
+            xtype: "combo",
+            flex: 2,
+            name: "proto-" + me.portCount,
+            id: "proto-" + me.portCount,
+            store: protoStore,
+            queryMode: 'local',
+            displayField: 'value',
+            valueField: 'value',
+            //emptyText: 'Select',
+            //TODO Set correct value
+            value: me.proto,
+            editable: false
         },{
             xtype: "button",
             id: "portForwardAddButton-" + me.portCount,
@@ -91,11 +118,19 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                 click: function(button, e , eOpts) {
                     var errorMsg = me.validateData();
                     if(errorMsg === "") {
+                        var proto;
+                        if (!(me.queryById("exposedPort-" + me.portCount).getValue() === "Select")) {
+                            var res = me.queryById("exposedPort-" + me.portCount).getValue().split("/");
+                            proto = res[1];
+                        } else {
+                            proto = me.queryById("proto-" + me.portCount).getValue();
+                        }
                         me.up('window').portForwards[me.portCount] = {
                             hostip: me.queryById("hostip-" + me.portCount).getValue(),
                             hostport: me.queryById("hostport-" + me.portCount).getValue(),
                             exposedPort: me.queryById("exposedPort-" + me.portCount).getValue(),
-                            customPort: me.queryById("customPort-" + me.portCount).getValue()
+                            customPort: me.queryById("customPort-" + me.portCount).getValue(),
+                            proto: proto
                         };
                         var nextCount = parseInt(me.portCount)+1;
                         me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
@@ -110,6 +145,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         me.queryById("hostport-" + me.portCount).setReadOnly(true);
                         me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
                         me.queryById("customPort-" + me.portCount).setReadOnly(true);
+                        me.queryById("proto-" + me.portCount).setReadOnly(true);
                     } else {
                         Ext.Msg.alert(_("Bad input"), errorMsg);
                     }
@@ -120,7 +156,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         hostip: me.hostip,
                         hostport: me.hostport,
                         exposedPort: me.exposedport,
-                        customPort: me.customport
+                        customPort: me.customport,
+                        proto: me.proto
                     };
                     me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
                     me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
@@ -128,6 +165,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                     me.queryById("hostport-" + me.portCount).setReadOnly(true);
                     me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
                     me.queryById("customPort-" + me.portCount).setReadOnly(true);
+                    me.queryById("proto-" + me.portCount).setReadOnly(true);
                     me.up('window').portCount = me.portCount+1;
                 }
             }
@@ -158,6 +196,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
         var hostport = me.queryById("hostport-" + me.portCount).getValue();
         var exposedport = me.queryById("exposedPort-" + me.portCount).getValue();
         var customport = me.queryById("customPort-" + me.portCount).getValue();
+        var proto = me.queryById("proto-" + me.portCount).getValue();
         var errorMsg = "";
         if (!(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(hostip))) {
             errorMsg = errorMsg + "Illegal host ip supplied</br>";
@@ -170,6 +209,9 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
         }
         if(customport !== "" && (isNaN(customport) || customport > 65535 || customport < 1)) {
             errorMsg = errorMsg + "Illegal custom port supplied</br>";
+        }
+        if(exposedport === "Select" && proto === "Select") {
+            errorMsg = errorMsg + "Network protocol must be specified</br>";
         }
         return errorMsg;
     }

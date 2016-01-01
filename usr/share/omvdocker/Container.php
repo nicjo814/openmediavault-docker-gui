@@ -260,7 +260,8 @@ class OMVModuleDockerContainer
                         "containerportstring" => $containerPort,
                         "containerportnr" => preg_split('/\//', $containerPort)[0],
                         "hostip" => $mapping->HostIp,
-                        "hostport" => $mapping->HostPort
+                        "hostport" => $mapping->HostPort,
+                        "proto" => preg_split('/\//', $containerPort)[1]
                     )
                 );
             }

@@ -416,12 +416,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $cmd .= "--net=bridge ";
             foreach ($params['portForwards'] as $portForward) {
                 if (!(strcmp($portForward['customPort'], "") === 0)) {
-                    $destport = $portForward['customPort'];
+                    $destport = $portForward['customPort'] . "/" . $portForward['proto'];
                 } else {
-                    $destport = preg_split(
-                        "'/\//'",
-                        $portForward['exposedPort']
-                    )[0];
+                    $destport = $portForward['exposedPort'];
                 }
                 if (!(strcmp($portForward['hostip'], "") === 0)) {
                     $cmd .= "-p " . $portForward['hostip'] . ":" .

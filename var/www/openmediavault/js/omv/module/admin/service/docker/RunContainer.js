@@ -177,12 +177,13 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     border: false,
                     defaultType: "container",
                     defaults: {
-                        flex: 2
+                        flex: 3
                     },
                     items: [{html: "<b>Host IP</b>"},
                         {html: "<b>Host Port</b>"},
                         {html: "<b>Exposed Port</b>"},
                         {html: "<b>Custom Port</b>"},
+                        {html: "<b>Proto</b>", flex: 2},
                         {html: " ", flex: 0, width: 24
                         }]
                 },{
@@ -261,7 +262,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     }]
             }]
         });
-        
+
         //Add extra arguments fieldset
         items.push({
             xtype: "fieldset",
@@ -323,7 +324,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     exposedPorts: exposedPorts,
                     hostip: me.portbindings[i].hostip,
                     hostport: me.portbindings[i].hostport,
-                    exposedport: me.portbindings[i].containerportstring
+                    exposedport: me.portbindings[i].containerportstring,
+                    proto: me.portbindings[i].proto
                 });
             } else {
                 portFieldset.add({
@@ -334,6 +336,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     hostip: me.portbindings[i].hostip,
                     hostport: me.portbindings[i].hostport,
                     customport: me.portbindings[i].containerportnr,
+                    proto: me.portbindings[i].proto
                 });
             }
             me.queryById("portForwardAddButton-" + me.portCount).fireEvent("setNewRow");
