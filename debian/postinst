@@ -26,12 +26,13 @@ case "$1" in
 
     while [ $DOCKERSERVICE -gt 0 ]; do
         logger -t DOCKER-OMV Waiting for Docker service to stop
-        service docker stop
+        systemctl stop docker
         sleep 1
         DOCKERSERVICE=`ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l`
     done
     logger -t DOCKER-OMV Docker service stopped
-    service docker start
+    systemctl daemon-reload
+    systemctl restart docker
     
     sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/rc.local
     sed -i '/### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin./,/### End of OMV Docker GUI plugin changes./d' /etc/crontab

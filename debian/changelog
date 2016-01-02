@@ -1,5 +1,6 @@
-openmediavault-docker-gui (0.2.22) UNRELEASED; urgency=low
+openmediavault-docker-gui (3.0.0) UNRELEASED; urgency=low
 
+  * Make plugin OMV 3.x compatible
   * Add support for network port types (tcp/udp)
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 30 Dec 2015 22:38:53 +0100

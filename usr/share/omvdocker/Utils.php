@@ -81,7 +81,7 @@ class OMVModuleDockerUtil
 
         while ($out[0] > 0) {
             //Wait for the docker service to stop before making config changes
-            $cmd = "service docker stop";
+            $cmd = "systemctl stop docker";
             OMVUtil::exec($cmd, $out, $res);
             unset($out);
             sleep(1);
@@ -98,7 +98,7 @@ class OMVModuleDockerUtil
     public static function startDockerService()
     {
         //Start the daemon again after changes have been made
-        $cmd = "service docker start";
+        $cmd = "systemctl start docker";
         OMVUtil::exec($cmd, $out, $res);
     }
 
@@ -394,44 +394,32 @@ class OMVModuleDockerUtil
         $data = file_get_contents($fileName);
         $lines = explode("\n", $data);
         $result = "";
-        $socketSet = false;
         foreach ($lines as $line) {
             if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
                 break;
-            } else {
-                if (preg_match('/^DOCKER_OPTS.*unix\:\/\/\/var\/run\/docker\.sock.*$/', $line)) {
-                    $socketSet = true;
-                } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
-                    OMVModuleDockerUtil::startDockerService();
-                    throw new OMVModuleDockerException(
-                        "Docker " .
-                        "base path relocation detected in " .
-                        "configuration file\n" .
-                        "Please remove it manually " .
-                        "($matches[1])\n"
-                    );
-                }
-                $result .= $line . "\n";
+            } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
+                OMVModuleDockerUtil::startDockerService();
+                throw new OMVModuleDockerException(
+                    "Docker " .
+                    "base path relocation detected in " .
+                    "configuration file\n" .
+                    "Please remove it manually " .
+                    "($matches[1])\n"
+                );
             }
+            $result .= $line . "\n";
         }
         $result = rtrim($result);
         $result .= "\n\n" . '### Do not change these lines. They are added ' .
             'and updated by the OMV Docker GUI plugin.' . "\n";
-        if ($socketSet) {
-            $result .= 'OMVDOCKER_API="-H tcp://127.0.0.1:' . $apiPort .
-                '"' . "\n";
-        } else {
-            $result .= 'OMVDOCKER_API="-H unix:///var/run/docker.sock ' .
-                '-H tcp://127.0.0.1:' . $apiPort . '"' . "\n";
-        }
+        $result .= 'OMVDOCKER_API="-H tcp://127.0.0.1:' . $apiPort .
+            '"' . "\n";
         if (strcmp($absPath, "") !==0) {
             $result .= 'OMVDOCKER_IMAGE_PATH="-g /var/lib/docker/openmediavault"' . "\n";
         } else {
             $result .= 'OMVDOCKER_IMAGE_PATH=""' . "\n";
         }
-        $result .= 'DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API ' .
-            '$OMVDOCKER_IMAGE_PATH"' . "\n" .
-            '### Do not add any configuration below this line. It will be ' .
+        $result .= '### Do not add any configuration below this line. It will be ' .
             'removed when the plugin is removed';
         file_put_contents("$fileName", $result);
 
