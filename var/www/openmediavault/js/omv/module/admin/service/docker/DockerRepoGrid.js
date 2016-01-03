@@ -132,7 +132,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
 OMV.WorkspaceManager.registerPanel({
     id: "dockerRepo",
     path: "/service/docker",
-    text: _("Docker repo"),
+    text: _("Docker images repo"),
     position: 15,
     className: "OMV.module.admin.service.docker.DockerRepoGrid"
 });
