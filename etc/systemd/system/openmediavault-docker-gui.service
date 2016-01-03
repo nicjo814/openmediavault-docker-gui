@@ -1,0 +1,11 @@
+[Unit]
+Description=OMV Docker basepath remount script
+Before=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/share/omvdocker/dockerremount.sh
+
+[Install]
+WantedBy=multi-user.target
