@@ -45,7 +45,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     //Some variables that are used
     ports: [],
     envvars: [],
-    restartpolicy: "no",
+    restartpolicy: "always",
     privileged: false,
     networkmode: "Bridge",
     portbindings: [],
@@ -54,7 +54,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     volumes: [],
     copyVolumes: [],
     hostname: "",
-    timesync: false,
+    timesync: true,
     imagevolumes: [],
 
     initComponent: function() {
@@ -102,16 +102,16 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 name: "containerName"
             },{
                 xtype: "checkbox",
+                name: "timeSync",
+                boxLabel: _("Sync time with host")
+            },{
+                xtype: "checkbox",
                 name: "restart",
                 boxLabel: _("Restart on system reboot")
             },{
                 xtype: "checkbox",
                 name: "privileged",
                 boxLabel: _("Run container in privileged mode")
-            },{
-                xtype: "checkbox",
-                name: "timeSync",
-                boxLabel: _("Sync time with host")
             }]
         });
 
