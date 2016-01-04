@@ -32,6 +32,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
     from: "",
     to: "",
     imagevolumes: [],
+    mode: "rw",
     plugins: [{
         ptype : "configobject"
     }],
@@ -47,11 +48,17 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
         });
         volumeStore.loadData(me.imagevolumes, false);
 
+        if (me.mode === "rw") {
+            me.romode = false
+        } else {
+            me.romode = true
+        }
+
         me.items = [{
             xtype: "textfield",
             name: "bindMountFrom-" + me.bindCount,
             id: "bindMountFrom-" + me.bindCount,
-            flex: 1,
+            flex: 6,
             value: me.from,
             triggers       : {
                 folder : {
@@ -79,7 +86,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
             xtype: "combo",
             name: "bindMountTo-" + me.bindCount,
             id: "bindMountTo-" + me.bindCount,
-            flex: 1,
+            flex: 6,
             minChars: 0,
             typeAhead: true,
             hideTrigger: true,
@@ -93,19 +100,12 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     field.getEl().down('input').set({'data-qtip': field.getValue()});
                 }
             }
-
-            /*
-            xtype: "textfield",
-            name: "bindMountTo-" + me.bindCount,
-            id: "bindMountTo-" + me.bindCount,
-            flex: 1,
-            value: me.to,
-            listeners : {
-                afterrender: function(field, eOpts) {
-                    field.getEl().down('input').set({'data-qtip': field.getValue()});
-                }
-            }
-            */
+        },{
+            xtype: "checkbox",
+            name: "roMode-" + me.bindCount,
+            id: "roMode-" + me.bindCount,
+            value: me.romode,
+            flex: 1
         },{
             xtype: "button",
             id: "bindMountAddButton-" + me.bindCount,
@@ -120,7 +120,8 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     if(errorMsg === "") {
                         me.up('window').bindMounts[me.bindCount] = {
                             from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
-                            to: me.queryById("bindMountTo-" + me.bindCount).getValue()
+                            to: me.queryById("bindMountTo-" + me.bindCount).getValue(),
+                            romode: me.queryById("roMode-" + me.bindCount).getValue()
                         };
                         var nextCount = parseInt(me.bindCount)+1;
                         me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
@@ -135,6 +136,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                         me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
                         me.queryById("bindMountTo-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountTo-" + me.bindCount).getValue()});
                         me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+                        me.queryById("roMode-" + me.bindCount).setReadOnly(true);
                     } else {
                         Ext.Msg.alert(_("Bad input"), errorMsg);
                     }
@@ -143,12 +145,14 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     var me = this;
                     me.up('window').bindMounts[me.bindCount] = {
                         from: me.from,
-                        to: me.to
+                        to: me.to,
+                        romode: me.romode
                     };
                     me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
                     me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
                     me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
                     me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+                    me.queryById("roMode-" + me.bindCount).setReadOnly(true);
                     me.up('window').bindCount = me.bindCount+1;
                 }
             }

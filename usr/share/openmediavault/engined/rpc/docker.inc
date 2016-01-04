@@ -459,13 +459,18 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             if (!(strcmp($bindMount['from'], "") === 0)) {
                 if (!(strcmp($bindMount['to'], "") === 0)) {
                     $cmd .= "-v \"" . $bindMount['from'] . "\":\"" .
-                        $bindMount['to'] . "\" ";
+                        $bindMount['to'] . "\"";
+                    if ($bindMount['romode']) {
+                        $cmd .= ":ro ";
+                    } else {
+                        $cmd .= ":rw ";
+                    }
                 } else {
                     $cmd .= "-v \"" . $bindMount['from'] . "\" ";
                 }
             }
         }
-        
+
         //Check for volumes from
         foreach ($params['volumes'] as $volume) {
             if (!(strcmp($volume['from'], "") === 0)) {
@@ -477,7 +482,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         if (!(strcmp($params['containerName'], "") === 0)) {
             $cmd .= "--name=\"" . $params['containerName'] . "\" ";
         }
-        
+
         //Check if extra arguments are supplied
         $extraArgs = trim($params['extraArgs']);
         if (!(strcmp($extraArgs, "") === 0)) {
@@ -765,7 +770,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $this->_getXpath()
             );
         }
-        
+
         $newApiPort = $oldSettings['apiPort'];
         $sharedFolder = $oldSettings['sharedfolderref'];
         //Make sure that the plugin is enabled to avoid unnecessary restarts of

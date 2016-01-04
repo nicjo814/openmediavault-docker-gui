@@ -237,8 +237,9 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 shadow: false,
                 border: false,
                 defaultType: "container",
-                items: [{html: "<b>Host path</b>", flex: 1},
-                    {html: "<b>Container path</b>", flex: 1},
+                items: [{html: "<b>Host path</b>", flex: 6},
+                    {html: "<b>Container path</b>", flex: 6},
+                    {html: "<b>R/O</b>", flex: 1},
                     {html: " ", flex: 0, width: 24
                     }]
             }]
@@ -392,7 +393,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 id: "bindMountRow-" + me.bindCount,
                 from: me.bindmounts[i].from,
                 to: me.bindmounts[i].to,
-                imagevolumes: me.imagevolumes
+                imagevolumes: me.imagevolumes,
+                mode: me.bindmounts[i].mode
             });
             me.queryById("bindMountAddButton-" + me.bindCount).fireEvent("setNewRow");
         }
