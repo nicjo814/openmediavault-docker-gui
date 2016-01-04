@@ -1,3 +1,10 @@
+openmediavault-docker-gui (3.0.1) stable; urgency=medium
+
+  * Fix postrm script to use systemd
+  * Add fixes to ensure proper upgrade from 0.2.x plugin branch
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Mon, 04 Jan 2016 12:40:21 +0100
+
 openmediavault-docker-gui (3.0.0) stable; urgency=low
 
   * Make plugin OMV 3.x compatible
