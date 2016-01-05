@@ -19,6 +19,7 @@
 // require("js/omv/workspace/grid/Panel.js")
 // require("js/omv/WorkspaceManager.js")
 // require("js/omv/module/admin/service/docker/PullImage.js")
+// require("js/omv/module/admin/service/docker/RunContainer.js")
 
 Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
     extend: "OMV.workspace.grid.Panel",
@@ -99,6 +100,37 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                 }).show();
             }
         }]
+    },{
+        xtype:'actioncolumn',
+        align: "center",
+        items: [{
+            icon: 'images/play.png',
+            tooltip: _("Run image"),
+            handler: function(grid, rowIndex, colIndex) {
+                var rec = grid.getStore().getAt(rowIndex);
+                Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                    title: _("Run image"),
+                    image: rec.get("repo"),
+                    timesync: rec.get("timesync"),
+                    restartpolicy: rec.get("restartpolicy"),
+                    privileged: rec.get("privileged"),
+                    cenvvars: rec.get("cenvvars"),
+                    envvars: rec.get("envvars"),
+                    ports: rec.get("ports"),
+                    networkmode: rec.get("networkmode"),
+                    portbindings: rec.get("portbindings")
+                }).show();
+            },
+            isDisabled: function(view, rowIdx, colIdx, item, record) {
+                var pulled = record.get("pulled");
+                if(pulled) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+        }]
     }],
 
     initComponent: function() {
@@ -113,7 +145,8 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                         { name: "category", type: "string" },
                         { name: "name", type: "string" },
                         { name: "desc", type: "string" },
-                        { name: "repo", type: "string" }
+                        { name: "repo", type: "string" },
+                        { name: "pulled", type: "boolean" }
                     ]
                 }),
                 proxy: {

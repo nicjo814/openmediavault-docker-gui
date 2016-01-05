@@ -849,7 +849,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         );
         $cmd = "docker inspect " . $params['id'] . " 2>&1";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
-        //throw new OMVModuleDockerException($objects['details']);
         return array("details" => implode("\n\r", $out));
     }
 
@@ -869,7 +868,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         );
         $cmd = "docker logs " . $params['id'] . " 2>&1";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
-        //throw new OMVModuleDockerException($objects['details']);
         return array("logs" => implode("\n\r", $out));
     }
 
@@ -1062,15 +1060,33 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $context,
             array( "role" => OMV_ROLE_ADMINISTRATOR )
         );
+        global $xmlConfig;
+
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+
+        $pulledImages = array();
+        $cmd = "docker images 2>&1";
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
+        for ($i = 1; $i < count($out); $i++) {
+            preg_match('/^([\S]+)\s+\S+\s+([\S]+).*$/', $out[$i], $matches);
+            $imgName = $matches[1];
+            $pulledImages[trim($imgName)] = $matches[2];
+        }        
         $logoPath = "/var/www/openmediavault/images/dockerrepo/";
+        $cmd = "mkdir -p $logoPath";
+        OMVUtil::exec($cmd, $out, $res);
+
+        //First populate with images from OMV repo
         $baseUrl = "http://openmediavault-plugin-developers.github.io/" . 
             "openmediavault-docker-repo/";
         $imgBase = $baseUrl . "logos/";
         $repoUrl = $baseUrl . "dockerlist.xml";
-
-        $cmd = "mkdir -p $logoPath";
-        OMVUtil::exec($cmd, $out, $res);
-
         $data = file_get_contents($repoUrl);
         $xml = simplexml_load_string($data);
         $objects = array();
@@ -1086,14 +1102,109 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             if ((strlen($image->name) === 0) || (strlen($image->desc) === 0) || (strlen($image->category) === 0) || (strlen($image->repo) === 0)) {
                 continue;
             } else {
+                $ports_ary = array();
+                $env_ary = array();
+                $pulled = false;
+                $imgRepo = trim((string)$image->repo);
+                if (isset($pulledImages[$imgRepo])) {
+                    $pulled = true;
+                    $image_obj = OMVModuleDockerUtil::getImage(
+                        $pulledImages[$imgRepo],
+                        $settings['apiPort']
+                    );
+                    $env_ary = $image_obj->getEnvVars();
+                    $ports_ary = $image_obj->getPorts();
+                }
                 $temp = array("name" => $image->name,
                     "category" => $image->category,
                     "logo" => $logo,
                     "desc" => $image->desc,
-                    "repo" => $image->repo);
+                    "repo" => $image->repo,
+                    "pulled" => $pulled,
+                    "timesync" => true,
+                    "restartpolicy" => "always",
+                    "privileged" => false,
+                    "cenvvars" => array(),
+                    "envvars" => $env_ary,
+                    "ports" => $ports_ary,
+                    "portbindings" => array()
+                );
                 array_push($objects, $temp);
             }
         }
+
+        //Next populate with linuxserver.io images
+        $url = "http://tools.linuxserver.io/docker-templates.json";
+        $json = file_get_contents($url);
+        $data = json_decode($json);
+        foreach ($data->applist as $image) {
+
+            $cenv_ary = array();
+            $ports_ary = array();
+            $pulled = false;
+            $imgRepo = trim((string)$image->Repository);
+            if (isset($pulledImages[$imgRepo])) {
+                $pulled = true;
+                $image_obj = OMVModuleDockerUtil::getImage(
+                    $pulledImages[$imgRepo],
+                    $settings['apiPort']
+                );
+                $cenv_ary = $image_obj->getEnvVars();
+                $ports_ary = $image_obj->getPorts();
+            }
+            $timesync = true;
+            if (strcmp(trim((string)$image->BindTime), "false") === 0) {
+                $timesync = false;
+            }
+            $privileged = false;
+            if (strcmp(trim((string)$image->Privileged), "true") === 0) {
+                $privileged = true;
+            }
+            $desc = str_replace("[", "<", trim((string)$image->Description));
+            $desc = str_replace("]", ">", $desc);
+            foreach ($image->Environment->Variable as $cenvvar) {
+                if ((strcmp(trim((string)$cenvvar->Name), "PUID") === 0) ||
+                    (strcmp(trim((string)$cenvvar->Name), "PGID") === 0)) {
+                    continue;
+                }
+                $cenv_ary[$cenvvar->Name] = $cenvvar->Value; 
+            }
+            $cenv_ary["PUID"] = 65534;
+            $cenv_ary["PGID"] = 65534;
+            $nw_mode = ucfirst(trim((string)$image->Networking->Mode));
+            $port_bindings = array();
+            if (strcmp($nw_mode, "Bridge") === 0) {
+                foreach ($image->Networking->Publish[0]->Port as $port) {
+                    array_push(
+                        $port_bindings,
+                        array(
+                            "containerportstring" => trim((string)$port->ContainerPort) . "/" . trim((string)$port->Protocol),
+                            "containerportnr" => trim((string)$port->ContainerPort),
+                            "hostip" => "0.0.0.0",
+                            "hostport" => trim((string)$port->HostPort),
+                            "proto" => trim((string)$port->Protocol)
+                            ));
+
+                }
+            }
+            $temp = array("name" => trim((string)$image->Name),
+                "category" => trim((string)$image->Category),
+                "logo" => "",
+                "desc" => $desc,
+                "repo" => trim((string)$image->Repository),
+                "pulled" => $pulled,
+                "timesync" => $timesync,
+                "restartpolicy" => "always",
+                "privileged" => $privileged,
+                "cenvvars" => $cenv_ary,
+                "envvars" => array(),
+                "ports" => $ports_ary,
+                "networkmode" => $nw_mode,
+                "portbindings" => $port_bindings
+            );
+            array_push($objects, $temp);
+        }
+
         return $objects;
     }
 

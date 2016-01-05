@@ -2,6 +2,8 @@ openmediavault-docker-gui (3.0.2) UNRELEASED; urgency=medium
 
   * Add r/o mode to bind mounts
   * Stability fixes to Docker service restart
+  * Add linuxserver.io images to the repo tab
+  * Usability improvements on the repo tab
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Mon, 04 Jan 2016 23:34:25 +0100
 

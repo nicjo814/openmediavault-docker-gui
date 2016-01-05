@@ -81,6 +81,9 @@ class OMVModuleDockerUtil
 
         while ($out[0] > 0) {
             //Wait for the docker service to stop before making config changes
+            $cmd = "systemctl stop docker.socket";
+            OMVUtil::exec($cmd, $out, $res);
+            unset($out);
             $cmd = "systemctl stop docker";
             OMVUtil::exec($cmd, $out, $res);
             unset($out);
