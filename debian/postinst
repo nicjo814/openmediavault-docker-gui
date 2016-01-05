@@ -27,6 +27,7 @@ case "$1" in
     sed -i '/DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"/d' /etc/default/docker
 
     #Update systemd daemon and start the Docker service
+    systemctl stop docker.socket
     systemctl stop docker
     systemctl daemon-reload
     systemctl start docker

@@ -12,6 +12,7 @@ case "$1" in
         ;;
 
     purge)
+        systemctl stop docker.socket
         systemctl stop docker
         systemctl daemon-reload
         sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/crontab
