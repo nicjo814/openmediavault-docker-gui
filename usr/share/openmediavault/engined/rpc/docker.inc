@@ -1103,7 +1103,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 continue;
             } else {
                 $ports_ary = array();
-                $env_ary = array();
                 $pulled = false;
                 $imgRepo = trim((string)$image->repo);
                 if (isset($pulledImages[$imgRepo])) {
@@ -1112,7 +1111,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                         $pulledImages[$imgRepo],
                         $settings['apiPort']
                     );
-                    $env_ary = $image_obj->getEnvVars();
                     $ports_ary = $image_obj->getPorts();
                 }
                 $temp = array("name" => $image->name,
@@ -1125,9 +1123,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     "restartpolicy" => "always",
                     "privileged" => false,
                     "cenvvars" => array(),
-                    "envvars" => $env_ary,
+                    "envvars" => array(),
                     "ports" => $ports_ary,
-                    "portbindings" => array()
+                    "portbindings" => array(),
+                    "extraargs" => ""
                 );
                 array_push($objects, $temp);
             }
@@ -1149,7 +1148,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     $pulledImages[$imgRepo],
                     $settings['apiPort']
                 );
-                $cenv_ary = $image_obj->getEnvVars();
                 $ports_ary = $image_obj->getPorts();
             }
             $timesync = true;
@@ -1160,8 +1158,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             if (strcmp(trim((string)$image->Privileged), "true") === 0) {
                 $privileged = true;
             }
-            $desc = str_replace("[", "<", trim((string)$image->Description));
-            $desc = str_replace("]", ">", $desc);
             foreach ($image->Environment->Variable as $cenvvar) {
                 if ((strcmp(trim((string)$cenvvar->Name), "PUID") === 0) ||
                     (strcmp(trim((string)$cenvvar->Name), "PGID") === 0)) {
@@ -1187,10 +1183,15 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
 
                 }
             }
+            $extraargs = "";
+            foreach ($image->ExtraParams as $param) {
+                $extraargs .= trim((string)$param) . " ";
+            }
+            $extraargs = trim($extraargs);
             $temp = array("name" => trim((string)$image->Name),
                 "category" => trim((string)$image->Category),
                 "logo" => "",
-                "desc" => $desc,
+                "desc" => trim((string)$image->Overview),
                 "repo" => trim((string)$image->Repository),
                 "pulled" => $pulled,
                 "timesync" => $timesync,
@@ -1200,7 +1201,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 "envvars" => array(),
                 "ports" => $ports_ary,
                 "networkmode" => $nw_mode,
-                "portbindings" => $port_bindings
+                "portbindings" => $port_bindings,
+                "extraargs" => $extraargs
             );
             array_push($objects, $temp);
         }

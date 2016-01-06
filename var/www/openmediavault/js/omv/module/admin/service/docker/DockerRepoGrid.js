@@ -118,7 +118,8 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                     envvars: rec.get("envvars"),
                     ports: rec.get("ports"),
                     networkmode: rec.get("networkmode"),
-                    portbindings: rec.get("portbindings")
+                    portbindings: rec.get("portbindings"),
+                    extraargs: rec.get("extraargs")
                 }).show();
             },
             isDisabled: function(view, rowIdx, colIdx, item, record) {

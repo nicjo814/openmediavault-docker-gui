@@ -56,6 +56,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     hostname: "",
     timesync: true,
     imagevolumes: [],
+    extraargs: "",
 
     initComponent: function() {
         var me = this;
@@ -275,7 +276,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 fieldLabel: _("Extra args"),
                 readOnly: false,
                 name: "extraArgs",
-                id: "dockerExtraArgs"
+                id: "dockerExtraArgs",
+                value: me.extraargs
             }]
         });
 
