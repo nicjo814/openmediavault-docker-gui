@@ -1188,8 +1188,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $extraargs .= trim((string)$param) . " ";
             }
             $extraargs = trim($extraargs);
+            $categories = explode(":", trim((string)$image->Category));
+            $categories = implode("<br>", $categories);
             $temp = array("name" => trim((string)$image->Name),
-                "category" => trim((string)$image->Category),
+                "category" => $categories,
                 "logo" => "",
                 "desc" => trim((string)$image->Overview),
                 "repo" => trim((string)$image->Repository),
