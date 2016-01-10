@@ -51,6 +51,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'category',
     },{
+        text: _("Logo"),
         align: "center",
         dataIndex: 'logo',
         renderer: function(value){
@@ -78,6 +79,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'repo'
     },{
+        text: _("Pull"),
         xtype:'actioncolumn',
         align: "center",
         items: [{
@@ -101,6 +103,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
             }
         }]
     },{
+        text: _("Run"),
         xtype:'actioncolumn',
         align: "center",
         items: [{
