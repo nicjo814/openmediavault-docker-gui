@@ -68,6 +68,10 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             flex: 0,
             width: 24,
             hidden: defVal,
+            tooltip: {
+                text: _("Add"),
+                anchor: "top"
+            },
             listeners: {
                 scope: this,
                 click: function(button, e , eOpts) {
@@ -121,6 +125,10 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             width: 24,
             flex: 0,
             hidden: true,
+            tooltip: {
+                text: _("Edit"),
+                anchor: "top"
+            },
             listeners: {
                 scope: me,
                 click: function(button, e , eOpts) {
@@ -142,6 +150,10 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             width: 24,
             flex: 0,
             hidden: true,
+            tooltip: {
+                text: _("Commit"),
+                anchor: "top"
+            },
             listeners: {
                 scope: me,
                 click: function(button, e , eOpts) {
@@ -174,6 +186,10 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             width: 24,
             flex: 0,
             hidden: true,
+            tooltip: {
+                text: _("Undo"),
+                anchor: "top"
+            },
             listeners: {
                 scope: me,
                 click: function(button, e , eOpts) {
@@ -199,6 +215,10 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
             width: 24,
             hidden: !defVal,
             disabled: defVal,
+            tooltip: {
+                text: _("Delete"),
+                anchor: "top"
+            },
             listeners: {
                 scope: me,
                 click: function(button, e , eOpts) {
