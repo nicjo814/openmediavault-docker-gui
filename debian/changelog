@@ -6,6 +6,7 @@ openmediavault-docker-gui (3.0.3) UNRELEASED; urgency=medium
   * Make it possible to edit port forwarding rows
   * Make it possible to edit environment variable rows
   * Make it possible to edit bind mount rows
+  * Make it possible to edit volumes from rows
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 06 Jan 2016 08:55:59 +0100
 

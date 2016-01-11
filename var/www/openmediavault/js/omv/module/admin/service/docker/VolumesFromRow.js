@@ -69,6 +69,8 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
                         var nextCount = parseInt(me.volCount)+1;
                         me.queryById("volumesFromAddButton-" + me.volCount).setHidden(true);
                         me.queryById("volumesFromDelButton-" + me.volCount).setHidden(false);
+                        me.queryById("volumesFromEditButton-" + me.volCount).setHidden(false);
+                        me.queryById("volumesFromBlankButton-" + me.volCount).setHidden(true);
                         var newRow = Ext.create("OMV.module.admin.service.docker.VolumesFromRow", {
                             volCount: nextCount,
                             id: "volumesFromRow-" + nextCount,
@@ -89,8 +91,84 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
                     };
                     me.queryById("volumesFromAddButton-" + me.volCount).setHidden(true);
                     me.queryById("volumesFromDelButton-" + me.volCount).setHidden(false);
+                    me.queryById("volumesFromEditButton-" + me.volCount).setHidden(false);
+                    me.queryById("volumesFromBlankButton-" + me.volCount).setHidden(true);
                     me.queryById("volumesFrom-" + me.volCount).setReadOnly(true);
                     me.up('window').volCount = me.volCount+1;
+                }
+            }
+        },{
+            xtype: "button",
+            id: "volumesFromEditButton-" + me.volCount,
+            icon: "images/edit.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("volumesFromAddButton-" + me.volCount).setHidden(true);
+                    me.queryById("volumesFromDelButton-" + me.volCount).setHidden(true);
+                    me.queryById("volumesFromEditButton-" + me.volCount).setHidden(true);
+                    me.queryById("volumesFromCommitButton-" + me.volCount).setHidden(false);
+                    me.queryById("volumesFromUndoButton-" + me.volCount).setHidden(false);
+
+                    me.queryById("volumesFrom-" + me.volCount).setReadOnly(false);
+                }
+            }
+        },{
+            xtype: "button",
+            id: "volumesFromCommitButton-" + me.volCount,
+            icon: "images/checkmark.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    var errorMsg = me.validateData();
+                    if(errorMsg === "") {
+                        var record = new me.volFromStore.model({name: me.up('window').volumes[me.volCount].from});
+                        me.volFromStore.add(record);
+                        me.up('window').volumes[me.volCount] = {
+                            from: me.queryById("volumesFrom-" + me.volCount).getValue()
+                        };
+                        record = me.volFromStore.findRecord("name", me.queryById("volumesFrom-" + me.volCount).getValue());
+                        me.volFromStore.remove(record);
+                        me.queryById("volumesFromAddButton-" + me.volCount).setHidden(true);
+                        me.queryById("volumesFromDelButton-" + me.volCount).setHidden(false);
+                        me.queryById("volumesFromEditButton-" + me.volCount).setHidden(false);
+                        me.queryById("volumesFromCommitButton-" + me.volCount).setHidden(true);
+                        me.queryById("volumesFromUndoButton-" + me.volCount).setHidden(true);
+
+                        me.queryById("volumesFrom-" + me.volCount).setReadOnly(true);
+                    } else {
+                        Ext.Msg.alert(_("Bad input"), errorMsg);
+                    }
+                }
+            }
+        },{
+            xtype: "button",
+            id: "volumesFromUndoButton-" + me.volCount,
+            icon: "images/undo.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("volumesFrom-" + me.volCount).setValue(me.up('window').volumes[me.volCount]["from"]);
+
+                    me.queryById("volumesFrom-" + me.volCount).setReadOnly(true);
+
+                    me.queryById("volumesFromAddButton-" + me.volCount).setHidden(true);
+                    me.queryById("volumesFromDelButton-" + me.volCount).setHidden(false);
+                    me.queryById("volumesFromEditButton-" + me.volCount).setHidden(false);
+                    me.queryById("volumesFromCommitButton-" + me.volCount).setHidden(true);
+                    me.queryById("volumesFromUndoButton-" + me.volCount).setHidden(true);
                 }
             }
         },{
@@ -109,6 +187,15 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
                     Ext.getCmp("dockerVolumesFrom").remove("volumesFromRow-" + me.volCount);
                 }
             }
+        },{
+            xtype: "button",
+            id: "volumesFromBlankButton-" + me.volCount,
+            icon: "images/docker_blank.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: false,
+            disabled: true
         }];
         Ext.apply(me, {
         });

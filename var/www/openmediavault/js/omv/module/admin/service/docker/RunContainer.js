@@ -260,7 +260,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 border: false,
                 defaultType: "container",
                 items: [{html: "<b>From container</b>", flex: 1},
-                    {html: " ", flex: 0, width: 24
+                    {html: " ", flex: 0, width: 48
                     }]
             }]
         });
