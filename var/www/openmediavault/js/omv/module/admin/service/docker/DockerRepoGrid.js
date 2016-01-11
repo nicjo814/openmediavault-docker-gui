@@ -51,6 +51,11 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'category',
     },{
+        text: _("Name"),
+        dataIndex: 'name',
+        sortable: true,
+        stateId: 'name',
+    },{
         text: _("Logo"),
         align: "center",
         dataIndex: 'logo',
@@ -62,11 +67,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
             }
         },
         sortable: false,
-    },{
-        text: _("Name"),
-        dataIndex: 'name',
-        sortable: true,
-        stateId: 'name',
+        stateId: 'logo'
     },{
         text: _("Description"),
         dataIndex: 'desc',
@@ -79,7 +80,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: true,
         stateId: 'repo'
     },{
-        text: _("Pull"),
+        text: _("Action"),
         xtype:'actioncolumn',
         align: "center",
         items: [{
@@ -101,12 +102,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                     }
                 }).show();
             }
-        }]
-    },{
-        text: _("Run"),
-        xtype:'actioncolumn',
-        align: "center",
-        items: [{
+        },{
             icon: 'images/play.png',
             tooltip: _("Run image"),
             handler: function(grid, rowIndex, colIndex) {
@@ -133,13 +129,7 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                     return true;
                 }
             }
-
-        }]
-    },{
-        text: _("Info"),
-        xtype:'actioncolumn',
-        align: "center",
-        items: [{
+        },{
             icon: 'images/about.png',
             tooltip: _("Information"),
             handler: function(grid, rowIndex, colIndex) {
