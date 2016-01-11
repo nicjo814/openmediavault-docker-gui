@@ -32,7 +32,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
 
     title: _("Run container"),
     layout: "fit",
-    width: 600,
+    width: 650,
     maxHeight: 700,
     closable: true,
     resizable: true,
@@ -184,8 +184,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                         {html: "<b>Host Port</b>"},
                         {html: "<b>Exposed Port</b>"},
                         {html: "<b>Custom Port</b>"},
-                        {html: "<b>Proto</b>", flex: 2},
-                        {html: " ", flex: 0, width: 24
+                        {html: "<b>Protocol</b>", flex: 2},
+                        {html: " ", flex: 0, width: 48
                         }]
                 },{
                     xtype: "module.admin.service.docker.portrow",

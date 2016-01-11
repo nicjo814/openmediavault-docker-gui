@@ -90,6 +90,7 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         me.queryById("exposedPort-" + me.portCount).setDisabled(true);
                         me.queryById("customPort-" + me.portCount).setValue(newValue);
                         me.queryById("proto-" + me.portCount).setDisabled(false);
+                        me.queryById("proto-" + me.portCount).setReadOnly(false);
                     }
                 }
             }
@@ -102,8 +103,6 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             queryMode: 'local',
             displayField: 'value',
             valueField: 'value',
-            //emptyText: 'Select',
-            //TODO Set correct value
             value: me.proto,
             editable: false
         },{
@@ -134,7 +133,9 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         };
                         var nextCount = parseInt(me.portCount)+1;
                         me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+                        me.queryById("portForwardEditButton-" + me.portCount).setHidden(false);
                         me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
+                        me.queryById("portForwardBlankButton-" + me.portCount).setHidden(true);
                         var newRow = Ext.create("OMV.module.admin.service.docker.PortRow", {
                             portCount: nextCount,
                             id: "dockerPortForward-" + nextCount,
@@ -160,13 +161,116 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         proto: me.proto
                     };
                     me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardEditButton-" + me.portCount).setHidden(false);
                     me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
+                    me.queryById("portForwardBlankButton-" + me.portCount).setHidden(true);
                     me.queryById("hostip-" + me.portCount).setReadOnly(true);
                     me.queryById("hostport-" + me.portCount).setReadOnly(true);
                     me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
                     me.queryById("customPort-" + me.portCount).setReadOnly(true);
                     me.queryById("proto-" + me.portCount).setReadOnly(true);
                     me.up('window').portCount = me.portCount+1;
+                }
+            }
+        },{
+            xtype: "button",
+            id: "portForwardEditButton-" + me.portCount,
+            icon: "images/edit.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardDelButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardEditButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardCommitButton-" + me.portCount).setHidden(false);
+                    me.queryById("portForwardUndoButton-" + me.portCount).setHidden(false);
+                    me.queryById("hostip-" + me.portCount).setReadOnly(false);
+                    me.queryById("hostport-" + me.portCount).setReadOnly(false);
+                    me.queryById("exposedPort-" + me.portCount).setReadOnly(false);
+                    me.queryById("customPort-" + me.portCount).setReadOnly(false);
+                    if (me.queryById("customPort-" + me.portCount).getValue() !== "") {
+                        me.queryById("proto-" + me.portCount).setReadOnly(false);
+                        me.queryById("proto-" + me.portCount).setDisabled(false);
+                    } else {
+                       me.queryById("proto-" + me.portCount).setReadOnly(true);
+                       me.queryById("proto-" + me.portCount).setDisabled(true);
+                    }
+                }
+            }
+        },{
+            xtype: "button",
+            id: "portForwardCommitButton-" + me.portCount,
+            icon: "images/checkmark.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    var errorMsg = me.validateData();
+                    if(errorMsg === "") {
+                        var proto;
+                        if (!(me.queryById("exposedPort-" + me.portCount).getValue() === "Select")) {
+                            var res = me.queryById("exposedPort-" + me.portCount).getValue().split("/");
+                            proto = res[1];
+                        } else {
+                            proto = me.queryById("proto-" + me.portCount).getValue();
+                        }
+                        me.up('window').portForwards[me.portCount] = {
+                            hostip: me.queryById("hostip-" + me.portCount).getValue(),
+                            hostport: me.queryById("hostport-" + me.portCount).getValue(),
+                            exposedPort: me.queryById("exposedPort-" + me.portCount).getValue(),
+                            customPort: me.queryById("customPort-" + me.portCount).getValue(),
+                            proto: proto
+                        };
+                        me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+                        me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
+                        me.queryById("portForwardEditButton-" + me.portCount).setHidden(false);
+                        me.queryById("portForwardCommitButton-" + me.portCount).setHidden(true);
+                        me.queryById("portForwardUndoButton-" + me.portCount).setHidden(true);
+                        me.queryById("hostip-" + me.portCount).setReadOnly(true);
+                        me.queryById("hostport-" + me.portCount).setReadOnly(true);
+                        me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
+                        me.queryById("customPort-" + me.portCount).setReadOnly(true);
+                        me.queryById("proto-" + me.portCount).setReadOnly(true);
+                    } else {
+                        Ext.Msg.alert(_("Bad input"), errorMsg);
+                    }
+                }
+            }
+        },{
+            xtype: "button",
+            id: "portForwardUndoButton-" + me.portCount,
+            icon: "images/undo.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("hostip-" + me.portCount).setValue(me.up('window').portForwards[me.portCount]["hostip"]);
+                    me.queryById("hostport-" + me.portCount).setValue(me.up('window').portForwards[me.portCount]["hostport"]);
+                    me.queryById("exposedPort-" + me.portCount).setValue(me.up('window').portForwards[me.portCount]["exposedPort"]);
+                    me.queryById("customPort-" + me.portCount).setValue(me.up('window').portForwards[me.portCount]["customPort"]);
+                    me.queryById("proto-" + me.portCount).setValue(me.up('window').portForwards[me.portCount]["proto"]);
+
+                    me.queryById("hostip-" + me.portCount).setReadOnly(true);
+                    me.queryById("hostport-" + me.portCount).setReadOnly(true);
+                    me.queryById("exposedPort-" + me.portCount).setReadOnly(true);
+                    me.queryById("customPort-" + me.portCount).setReadOnly(true);
+                    me.queryById("proto-" + me.portCount).setReadOnly(true);
+
+                    me.queryById("portForwardAddButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardDelButton-" + me.portCount).setHidden(false);
+                    me.queryById("portForwardEditButton-" + me.portCount).setHidden(false);
+                    me.queryById("portForwardCommitButton-" + me.portCount).setHidden(true);
+                    me.queryById("portForwardUndoButton-" + me.portCount).setHidden(true);
                 }
             }
         },{
@@ -184,6 +288,15 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                     Ext.getCmp("dockerPortForward").remove("dockerPortForward-" + me.portCount);
                 }
             }
+        },{
+            xtype: "button",
+            id: "portForwardBlankButton-" + me.portCount,
+            icon: "images/docker_blank.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: false,
+            disabled: true,
         }];
         Ext.apply(me, {
         });
