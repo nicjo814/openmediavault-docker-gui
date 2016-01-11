@@ -135,6 +135,18 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
             }
 
         }]
+    },{
+        text: _("Info"),
+        xtype:'actioncolumn',
+        align: "center",
+        items: [{
+            icon: 'images/about.png',
+            tooltip: _("Information"),
+            handler: function(grid, rowIndex, colIndex) {
+                var rec = grid.getStore().getAt(rowIndex);
+                window.open('https://hub.docker.com/r/' + rec.get("repo"));
+            }
+        }]
     }],
 
     initComponent: function() {
