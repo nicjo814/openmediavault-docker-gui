@@ -74,6 +74,16 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                     overviewPanel.tab.hide();
                     repoPanel.disable();
                     repoPanel.tab.hide();
+                    OMV.Rpc.request({
+                        scope: me,
+                        callback: function(id, success, response) {
+                        },
+                        relayErrors: false,
+                        rpcData: {
+                            service: "Docker",
+                            method: "syncDockerLogos",
+                        }
+                    });
                 }
                 if (dockerVersion === "0") {
                     settingsPanel.findField("enabled").setDisabled(true);
@@ -91,16 +101,6 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 
     getFormItems: function() {
         var me = this;
-        OMV.Rpc.request({
-            scope: me,
-            callback: function(id, success, response) {
-            },
-            relayErrors: false,
-            rpcData: {
-                service: "Docker",
-                method: "syncDockerLogos",
-            }
-        });
         return [{
             xtype: "fieldset",
             title: _("General"),
