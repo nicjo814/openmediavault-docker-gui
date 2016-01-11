@@ -47,6 +47,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
+            var repoPanel = parent.down("panel[title=" + _("Docker images repo") + "]");
             var dockerVersion = settingsPanel.findField("version").getValue();
             var checked = settingsPanel.findField("enabled").checked
             settingsPanel.findField("destpath").setValue(settingsPanel.findField("sharedfolderref").getValue());
@@ -63,10 +64,15 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                     overviewPanel.enable();
                     overviewPanel.down("dockerImageGrid").doReload();
                     overviewPanel.down("dockerContainerGrid").doReload();
+                    repoPanel.tab.show();
+                    repoPanel.enable();
+                    repoPanel.doReload();
                     parent.setActiveTab(overviewPanel);
                 } else {
                     overviewPanel.disable();
                     overviewPanel.tab.hide();
+                    repoPanel.disable();
+                    repoPanel.tab.hide();
                 }
                 if (dockerVersion === "0") {
                     settingsPanel.findField("enabled").setDisabled(true);
