@@ -5,6 +5,7 @@ openmediavault-docker-gui (3.0.3) UNRELEASED; urgency=medium
   * Add php5-imagick dependancy
   * Make it possible to edit port forwarding rows
   * Make it possible to edit environment variable rows
+  * Make it possible to edit bind mount rows
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 06 Jan 2016 08:55:59 +0100
 

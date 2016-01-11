@@ -126,6 +126,8 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                         var nextCount = parseInt(me.bindCount)+1;
                         me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
                         me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+                        me.queryById("bindMountEditButton-" + me.bindCount).setHidden(false);
+                        me.queryById("bindMountBlankButton-" + me.bindCount).setHidden(true);
                         var newRow = Ext.create("OMV.module.admin.service.docker.BindMountRow", {
                             bindCount: nextCount,
                             id: "bindMountRow-" + nextCount,
@@ -150,10 +152,94 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     };
                     me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
                     me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+                    me.queryById("bindMountEditButton-" + me.bindCount).setHidden(false);
+                    me.queryById("bindMountBlankButton-" + me.bindCount).setHidden(true);
                     me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
                     me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
                     me.queryById("roMode-" + me.bindCount).setReadOnly(true);
                     me.up('window').bindCount = me.bindCount+1;
+                }
+            }
+        },{
+            xtype: "button",
+            id: "bindMountEditButton-" + me.bindCount,
+            icon: "images/edit.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+                    me.queryById("bindMountDelButton-" + me.bindCount).setHidden(true);
+                    me.queryById("bindMountEditButton-" + me.bindCount).setHidden(true);
+                    me.queryById("bindMountCommitButton-" + me.bindCount).setHidden(false);
+                    me.queryById("bindMountUndoButton-" + me.bindCount).setHidden(false);
+
+                    me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(false);
+                    me.queryById("bindMountTo-" + me.bindCount).setReadOnly(false);
+                    me.queryById("roMode-" + me.bindCount).setReadOnly(false);
+                }
+            }
+        },{
+            xtype: "button",
+            id: "bindMountCommitButton-" + me.bindCount,
+            icon: "images/checkmark.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    var errorMsg = me.validateData();
+                    if(errorMsg === "") {
+                        me.up('window').bindMounts[me.bindCount] = {
+                            from: me.queryById("bindMountFrom-" + me.bindCount).getValue(),
+                            to: me.queryById("bindMountTo-" + me.bindCount).getValue(),
+                            romode: me.queryById("roMode-" + me.bindCount).getValue()
+                        };
+                        me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+                        me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+                        me.queryById("bindMountEditButton-" + me.bindCount).setHidden(false);
+                        me.queryById("bindMountCommitButton-" + me.bindCount).setHidden(true);
+                        me.queryById("bindMountUndoButton-" + me.bindCount).setHidden(true);
+
+                        me.queryById("bindMountFrom-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountFrom-" + me.bindCount).getValue()});
+                        me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
+                        me.queryById("bindMountTo-" + me.bindCount).getEl().down('input').set({'data-qtip': me.queryById("bindMountTo-" + me.bindCount).getValue()});
+                        me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+                        me.queryById("roMode-" + me.bindCount).setReadOnly(true);
+                    } else {
+                        Ext.Msg.alert(_("Bad input"), errorMsg);
+                    }
+                }
+            }
+        },{
+            xtype: "button",
+            id: "bindMountUndoButton-" + me.bindCount,
+            icon: "images/undo.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("bindMountFrom-" + me.bindCount).setValue(me.up('window').bindMounts[me.bindCount]["from"]);
+                    me.queryById("bindMountTo-" + me.bindCount).setValue(me.up('window').bindMounts[me.bindCount]["to"]);
+                    me.queryById("roMode-" + me.bindCount).setValue(me.up('window').bindMounts[me.bindCount]["romode"]);
+
+                    me.queryById("bindMountFrom-" + me.bindCount).setReadOnly(true);
+                    me.queryById("bindMountTo-" + me.bindCount).setReadOnly(true);
+                    me.queryById("roMode-" + me.bindCount).setReadOnly(true);
+
+                    me.queryById("bindMountAddButton-" + me.bindCount).setHidden(true);
+                    me.queryById("bindMountDelButton-" + me.bindCount).setHidden(false);
+                    me.queryById("bindMountEditButton-" + me.bindCount).setHidden(false);
+                    me.queryById("bindMountCommitButton-" + me.bindCount).setHidden(true);
+                    me.queryById("bindMountUndoButton-" + me.bindCount).setHidden(true);
                 }
             }
         },{
@@ -170,6 +256,15 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                     Ext.getCmp("dockerBindMounts").remove("bindMountRow-" + me.bindCount);
                 }
             }
+        },{
+            xtype: "button",
+            id: "bindMountBlankButton-" + me.bindCount,
+            icon: "images/docker_blank.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: false,
+            disabled: true
         }];
         Ext.apply(me, {
         });

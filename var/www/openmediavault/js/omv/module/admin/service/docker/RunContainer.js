@@ -241,7 +241,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 items: [{html: "<b>Host path</b>", flex: 6},
                     {html: "<b>Container path</b>", flex: 6},
                     {html: "<b>R/O</b>", flex: 1},
-                    {html: " ", flex: 0, width: 24
+                    {html: " ", flex: 0, width: 48
                     }]
             }]
         });
