@@ -22,6 +22,7 @@
 // require("js/omv/form/field/SharedFolderComboBox.js")
 // require("js/omv/window/RootFolderBrowser.js")
 // require("js/omv/window/MessageBox.js")
+// require("js/omv/Rpc.js")
 
 Ext.define("OMV.module.admin.service.docker.Settings", {
     extend: "OMV.workspace.form.Panel",
@@ -37,7 +38,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 
     initComponent : function() {
         this.on("load", function () {
-
+            var me = this;
             this.uuid = OMV.UUID_UNDEFINED;
             var parent = this.up("tabpanel");
 
@@ -82,6 +83,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                     settingsPanel.findField("apiPort").setDisabled(false);
                 }
             }
+
         }, this);
 
         this.callParent(arguments);
@@ -89,6 +91,16 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
 
     getFormItems: function() {
         var me = this;
+        OMV.Rpc.request({
+            scope: me,
+            callback: function(id, success, response) {
+            },
+            relayErrors: false,
+            rpcData: {
+                service: "Docker",
+                method: "syncDockerLogos",
+            }
+        });
         return [{
             xtype: "fieldset",
             title: _("General"),

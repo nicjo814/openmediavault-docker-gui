@@ -19,6 +19,7 @@
 // require("js/omv/workspace/panel/Panel.js")
 // require("js/omv/module/admin/service/docker/ImageGrid.js")
 // require("js/omv/module/admin/service/docker/ContainerGrid.js")
+// require("js/omv/Rpc.js")
 
 Ext.define("OMV.module.admin.service.docker.Overview", {
     extend: "OMV.workspace.panel.Panel",
@@ -32,6 +33,7 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
 
     initComponent : function() {
         this.on("afterrender", function () {
+            var me = this;
             var parent = this.up("tabpanel");
 
             if (!parent) {
@@ -73,6 +75,16 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
             containerPanel.queryById("dockerContainerGrid-execute").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-delete").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-refresh").setDisabled(false);
+            OMV.Rpc.request({
+                scope: me,
+                callback: function(id, success, response) {
+                },
+                relayErrors: false,
+                rpcData: {
+                    service: "Docker",
+                    method: "syncDockerLogos",
+                }
+            });
 
         }, this);
 

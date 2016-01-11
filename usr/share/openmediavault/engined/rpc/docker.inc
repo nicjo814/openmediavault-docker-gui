@@ -105,6 +105,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("getRootFolders");
         $this->registerMethod("copyDockerData");
         $this->registerMethod("executeCommand");
+        $this->registerMethod("syncDockerLogos");
         $this->registerMethod("getDockerRepo");
     }
 
@@ -1047,6 +1048,69 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
     }
 
     /**
+     * Retrieve Docker logos from various sources
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $objects An associative array with all repos
+     */
+    public function syncDockerLogos($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array( "role" => OMV_ROLE_ADMINISTRATOR )
+        );
+        $logoPath = "/var/www/openmediavault/images/dockerrepo/";
+        $cmd = "mkdir -p $logoPath";
+        OMVUtil::exec($cmd, $out, $res);
+
+        //First populate with logos from OMV repo
+        $baseUrl = "http://openmediavault-plugin-developers.github.io/" . 
+            "openmediavault-docker-repo/";
+        $imgBase = $baseUrl . "logos/";
+        $repoUrl = $baseUrl . "dockerlist.xml";
+        $data = file_get_contents($repoUrl);
+        $xml = simplexml_load_string($data);
+        foreach ($xml as $image) {
+            //Use blank logo if no imageurl is specified
+            if (strlen($image->imageurl) !== 0) {
+                copy($imgBase . $image->imageurl, $logoPath . $image->imageurl);
+            }
+        }
+
+        //Next populate with linuxserver.io logos
+        $url = "http://tools.linuxserver.io/docker-templates.json";
+        $local_logo_path = "/var/www/openmediavault/images/dockerrepo/";
+        $json = file_get_contents($url);
+        $data = json_decode($json);
+        foreach ($data->applist as $image) {
+            $imgRepo = trim((string)$image->Repository);
+            if (strlen($image->Icon) !== 0) {
+                $logo_url = trim((string)$image->Icon);
+                $repo_name = trim((string)$image->Repository);
+                preg_match('/^.*(\.[^\.]+)$/', $logo_url, $matches);
+                $logo_suffix = $matches[1];
+                $logo_name = str_replace("/", "_", $repo_name) . $logo_suffix;
+                $new_hash = md5_file($logo_url);
+                $local_md5_path = $local_logo_path . str_replace("/", "_", $repo_name) . ".md5";
+                $old_hash = "";
+                if (file_exists($local_md5_path)) {
+                    $old_hash = trim(file_get_contents($local_md5_path));
+                }
+                if (strcmp($new_hash, $old_hash) !== 0) {
+                    $imagick = new Imagick($logo_url);
+                    $imagick->scaleImage(40, 40, true);
+                    $imagick->modulateImage(100, 0, 100);
+                    $imagick->writeImage($local_logo_path . $logo_name);
+                    $imagick->clear();
+                    file_put_contents($local_md5_path, $new_hash);
+                }
+            }
+        }
+    }
+
+    /**
      * Retrieve list of Docker repos from Github source
      * 
      * @param array  $params  An associative array with all RPC call parameters
@@ -1090,13 +1154,11 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $data = file_get_contents($repoUrl);
         $xml = simplexml_load_string($data);
         $objects = array();
-        foreach ($xml as $image) {
-            //Use blank logo if no imageurl is specified
-            if (strlen($image->imageurl) === 0) {
-                $logo = "";
-            } else {
+        foreach ($xml as $image) {        
+            //Use blank logo if no logo is found
+            $logo = "";
+            if (file_exists($logoPath . $image->imageurl)) {
                 $logo = $image->imageurl;
-                copy($imgBase . $image->imageurl, $logoPath . $image->imageurl);
             }
             //Silently skip any records that are missing data
             if ((strlen($image->name) === 0) || (strlen($image->desc) === 0) || (strlen($image->category) === 0) || (strlen($image->repo) === 0)) {
@@ -1180,7 +1242,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                             "hostip" => "0.0.0.0",
                             "hostport" => trim((string)$port->HostPort),
                             "proto" => trim((string)$port->Protocol)
-                            ));
+                        ));
 
                 }
             }
@@ -1193,31 +1255,16 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $categories = implode("<br>", $categories);
 
             //Use blank logo if no Icon is specified
-            if (strlen($image->Icon) === 0) {
-                $logo = "";
-            } else {
+            $logo = "";
+            if (strcmp(trim((string)$image->Icon), "") !== 0) {
                 $logo_url = trim((string)$image->Icon);
                 $repo_name = trim((string)$image->Repository);
                 preg_match('/^.*(\.[^\.]+)$/', $logo_url, $matches);
                 $logo_suffix = $matches[1];
                 $logo_name = str_replace("/", "_", $repo_name) . $logo_suffix;
-                if (!(file_exists($local_logo_path . $logo_name))) {
-                    $new_hash = md5_file($logo_url);
-                    $local_md5_path = $local_logo_path . str_replace("/", "_", $repo_name) . ".md5";
-                    $old_hash = "";
-                    if (file_exists($local_md5_path)) {
-                        $old_hash = trim(file_get_contents($local_md5_path));
-                    }
-                    if (strcmp($new_hash, $old_hash) !== 0) {
-                        $imagick = new Imagick($logo_url);
-                        $imagick->scaleImage(40, 40, true);
-                        $imagick->modulateImage(100, 0, 100);
-                        $imagick->writeImage($local_logo_path . $logo_name);
-                        $imagick->clear();
-                        file_put_contents($local_md5_path, $new_hash);
-                    }
+                if (file_exists($local_logo_path . $logo_name)) {
+                    $logo = $logo_name;
                 }
-                $logo = $logo_name;
             }
             $temp = array("name" => trim((string)$image->Name),
                 "category" => $categories,
