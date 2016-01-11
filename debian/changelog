@@ -1,4 +1,4 @@
-openmediavault-docker-gui (3.0.3) UNRELEASED; urgency=medium
+openmediavault-docker-gui (3.0.3) stable; urgency=medium
 
   * Minor tweaks to the repo tab 
   * Add logos to the linuxserver.io docker images
