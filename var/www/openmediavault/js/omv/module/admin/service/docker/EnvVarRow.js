@@ -80,6 +80,8 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
                         var nextCount = parseInt(me.envCount)+1;
                         button.setHidden(true);
                         me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+                        me.queryById("envVarEditButton-" + me.envCount).setHidden(false);
+                        me.queryById("envVarBlankButton-" + me.envCount).setHidden(true);
                         var newRow = Ext.create("OMV.module.admin.service.docker.EnvVarRow", {
                             envCount: nextCount,
                             id: "envVarRow-" + nextCount
@@ -95,18 +97,97 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
                 },
                 setNewRow: function() {
                     var me = this;
-                    if(me.defVal) {
-                        me.up('window').envVars[me.envCount] = {
-                            name: me.nameVal,
-                            value: me.valueVal
-                        };
-                    }
+                    me.up('window').envVars[me.envCount] = {
+                        name: me.nameVal,
+                        value: me.valueVal
+                    };
                     me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
                     me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
                     me.queryById("envVarDelButton-" + me.envCount).setDisabled(defVal);
+                    me.queryById("envVarEditButton-" + me.envCount).setHidden(false);
+                    me.queryById("envVarCommitButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarUndoButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarBlankButton-" + me.envCount).setHidden(true);
                     me.queryById("envName-" + me.envCount).setReadOnly(true);
                     me.queryById("envValue-" + me.envCount).setReadOnly(true);
                     me.up('window').envCount = me.envCount+1;
+                }
+            }
+        },{
+            xtype: "button",
+            id: "envVarEditButton-" + me.envCount,
+            icon: "images/edit.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarDelButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarEditButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarCommitButton-" + me.envCount).setHidden(false);
+                    me.queryById("envVarUndoButton-" + me.envCount).setHidden(false);
+
+                    me.queryById("envName-" + me.envCount).setReadOnly(false);
+                    me.queryById("envValue-" + me.envCount).setReadOnly(false);
+                }
+            }
+        },{
+            xtype: "button",
+            id: "envVarCommitButton-" + me.envCount,
+            icon: "images/checkmark.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    var errorMsg = me.validateData();
+                    if(errorMsg === "") {
+                        me.up('window').envVars[me.envCount] = {
+                            name: me.queryById("envName-" + me.envCount).getValue(),
+                            value: me.queryById("envValue-" + me.envCount).getValue()
+                        };
+                        me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+                        me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+                        me.queryById("envVarEditButton-" + me.envCount).setHidden(false);
+                        me.queryById("envVarCommitButton-" + me.envCount).setHidden(true);
+                        me.queryById("envVarUndoButton-" + me.envCount).setHidden(true);
+
+                        me.queryById("envName-" + me.envCount).getEl().down('input').set({'data-qtip': me.queryById("envName-" + me.envCount).getValue()});
+                        me.queryById("envName-" + me.envCount).setReadOnly(true);
+                        me.queryById("envValue-" + me.envCount).getEl().down('input').set({'data-qtip': me.queryById("envValue-" + me.envCount).getValue()});
+                        me.queryById("envValue-" + me.envCount).setReadOnly(true);
+                    } else {
+                        Ext.Msg.alert(_("Bad input"), errorMsg);
+                    }
+                }
+            }
+        },{
+            xtype: "button",
+            id: "envVarUndoButton-" + me.envCount,
+            icon: "images/undo.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: true,
+            listeners: {
+                scope: me,
+                click: function(button, e , eOpts) {
+                    me.queryById("envName-" + me.envCount).setValue(me.up('window').envVars[me.envCount]["name"]);
+                    me.queryById("envValue-" + me.envCount).setValue(me.up('window').envVars[me.envCount]["value"]);
+
+                    me.queryById("envName-" + me.envCount).setReadOnly(true);
+                    me.queryById("envValue-" + me.envCount).setReadOnly(true);
+
+                    me.queryById("envVarAddButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarDelButton-" + me.envCount).setHidden(false);
+                    me.queryById("envVarEditButton-" + me.envCount).setHidden(false);
+                    me.queryById("envVarCommitButton-" + me.envCount).setHidden(true);
+                    me.queryById("envVarUndoButton-" + me.envCount).setHidden(true);
                 }
             }
         },{
@@ -125,6 +206,15 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
                     Ext.getCmp("dockerEnvVars").remove("envVarRow-" + me.envCount);
                 }
             }
+        },{
+            xtype: "button",
+            id: "envVarBlankButton-" + me.envCount,
+            icon: "images/docker_blank.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 24,
+            flex: 0,
+            hidden: false,
+            disabled: true
         },{
             xtype: "hiddenfield",
             name: "envVarDefault-" + me.envCount,

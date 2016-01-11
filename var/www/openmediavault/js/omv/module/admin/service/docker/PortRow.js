@@ -196,8 +196,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
                         me.queryById("proto-" + me.portCount).setReadOnly(false);
                         me.queryById("proto-" + me.portCount).setDisabled(false);
                     } else {
-                       me.queryById("proto-" + me.portCount).setReadOnly(true);
-                       me.queryById("proto-" + me.portCount).setDisabled(true);
+                        me.queryById("proto-" + me.portCount).setReadOnly(true);
+                        me.queryById("proto-" + me.portCount).setDisabled(true);
                     }
                 }
             }

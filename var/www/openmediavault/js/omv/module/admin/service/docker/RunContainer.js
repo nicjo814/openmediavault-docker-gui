@@ -212,7 +212,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 defaultType: "container",
                 items: [{html: "<b>Name</b>", flex: 1},
                     {html: "<b>Value</b>", flex: 2},
-                    {html: " ", flex: 0, width: 24
+                    {html: " ", flex: 0, width: 48
                     }]
             }]
         });
@@ -360,7 +360,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         var keys = Object.keys(me.cenvvars);
         for (i = 0; i < keys.length; i++) {
             tmpString = keys[i];
-            if(tmpString in me.envvars && me.cenvvars[tmpString] === me.envvars[tmpString]) {
+            if(tmpString in me.envvars) {
                 envVarsFieldset.add({
                     xtype: "module.admin.service.docker.envvarrow",
                     envCount: me.envCount,
