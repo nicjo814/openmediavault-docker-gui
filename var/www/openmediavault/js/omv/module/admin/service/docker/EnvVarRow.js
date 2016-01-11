@@ -227,14 +227,12 @@ Ext.define("OMV.module.admin.service.docker.EnvVarRow", {
                 }
             }
         },{
-            xtype: "button",
+            xtype: "image",
             id: "envVarBlankButton-" + me.envCount,
-            icon: "images/docker_blank.png",
-            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            src: "images/docker_blank.png",
             width: 24,
             flex: 0,
-            hidden: false,
-            disabled: true
+            hidden: false
         },{
             xtype: "hiddenfield",
             name: "envVarDefault-" + me.envCount,

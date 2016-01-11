@@ -208,14 +208,12 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
                 }
             }
         },{
-            xtype: "button",
+            xtype: "image",
             id: "volumesFromBlankButton-" + me.volCount,
-            icon: "images/docker_blank.png",
-            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            src: "images/docker_blank.png",
             width: 24,
             flex: 0,
-            hidden: false,
-            disabled: true
+            hidden: false
         }];
         Ext.apply(me, {
         });
