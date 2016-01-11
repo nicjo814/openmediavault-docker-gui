@@ -1092,11 +1092,11 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 preg_match('/^.*(\.[^\.]+)$/', $logo_url, $matches);
                 $logo_suffix = $matches[1];
                 $logo_name = str_replace("/", "_", $repo_name) . $logo_suffix;
-                $new_hash = md5_file($logo_url);
-                $local_md5_path = $local_logo_path . str_replace("/", "_", $repo_name) . ".md5";
+                $new_hash = trim((string)$image->Icon_SHA);
+                $local_hash_path = $local_logo_path . str_replace("/", "_", $repo_name) . ".sha";
                 $old_hash = "";
-                if (file_exists($local_md5_path)) {
-                    $old_hash = trim(file_get_contents($local_md5_path));
+                if (file_exists($local_hash_path)) {
+                    $old_hash = trim(file_get_contents($local_hash_path));
                 }
                 if (strcmp($new_hash, $old_hash) !== 0) {
                     $imagick = new Imagick($logo_url);
@@ -1104,7 +1104,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     $imagick->modulateImage(100, 0, 100);
                     $imagick->writeImage($local_logo_path . $logo_name);
                     $imagick->clear();
-                    file_put_contents($local_md5_path, $new_hash);
+                    file_put_contents($local_hash_path, $new_hash);
                 }
             }
         }
