@@ -344,6 +344,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         }
                         if (!this.cmdIsRunning) {
                             Ext.getCmp("dockerImageGrid").doReload();
+                            Ext.getCmp("dockerRepoGrid").doReload();
                         }
                     } else {
                         var ignore = false;

@@ -9,6 +9,7 @@ openmediavault-docker-gui (3.0.3) UNRELEASED; urgency=medium
   * Make it possible to edit volumes from rows
   * Add tooltips to buttons
   * Add info button to repo tab entries
+  * Reload repo tab when anew image is pulled
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 06 Jan 2016 08:55:59 +0100
 
