@@ -57,9 +57,15 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     timesync: true,
     imagevolumes: [],
     extraargs: "",
+    action: "",
+    cid: "",
+    name: "",
 
     initComponent: function() {
         var me = this;
+        if (me.action === "modify") {
+            me.rpcSetMethod = "modifyContainer";
+        }
 
         //Initiate counters used to create id's
         me.portCount = 1;
@@ -297,6 +303,10 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     beforeRender: function() {
         var me = this;
         me.callParent(arguments);
+        
+        if (me.action === "modify") {
+            me.getForm().findField("containerName").setValue(me.name);
+        }
 
         if(me.restartpolicy === "always") {
             me.getForm().findField("restart").setValue(true);
@@ -458,7 +468,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             volumes: me.volumes,
             extraArgs: me.getForm().findField("extraArgs").getValue(),
             hostName: me.getForm().findField("hostName").getValue(),
-            timeSync: me.getForm().findField("timeSync").getValue()
+            timeSync: me.getForm().findField("timeSync").getValue(),
+            cid: me.cid
         };
         if(me.mode === "remote") {
             var rpcOptions = {

@@ -69,6 +69,14 @@ class OMVModuleDockerImage
     private $_created;
 
     /**
+     * Timestamp when image was created
+     *
+     * @var 	string $_timestamp
+     * @access private
+     */
+    private $_timestamp;
+
+    /**
      * Virtual size of the image
      *
      * @var 	string $_size
@@ -131,6 +139,7 @@ class OMVModuleDockerImage
         $response = OMVModuleDockerUtil::doApiCall($url);
 
         $imageData = json_decode($response);
+        $this->_timestamp = date("U", $item->Created); 
         $this->_ports = array();
         foreach ($imageData->Config->ExposedPorts as
             $exposedport => $hostports) {
@@ -236,6 +245,17 @@ class OMVModuleDockerImage
     public function getVolumes()
     {
         return $this->_volumes;
+    }
+
+    /**
+     * Get the timestamp when the image was created
+     *
+     * @return array $_timestamp
+     * @access public
+     */
+    public function getTimestamp()
+    {
+        return $this->_timestamp;
     }
 
 }

@@ -283,7 +283,7 @@ class OMVModuleDockerContainer
             );
         }
         foreach ($containerData->Mounts as $mount) {
-            if (strcmp($mount->Driver, "local") === 0) {
+            if ((strcmp($mount->Mode, "") === 0) && (strcmp($mount->Driver, "local") === 0)) {
                 array_push(
                     $this->_bindMounts,
                     array(
@@ -476,7 +476,7 @@ class OMVModuleDockerContainer
     {
         return $this->_names;
     }
-    
+
     /**
      * Return true if the container has mountpoints
      *
@@ -487,7 +487,7 @@ class OMVModuleDockerContainer
     {
         return $this->_hasMounts;
     }
-    
+
     /**
      * Get the volumes from in the container
      *
@@ -498,7 +498,7 @@ class OMVModuleDockerContainer
     {
         return $this->_volumesFrom;
     }
-    
+
     /**
      * Get the host name of the container
      *
@@ -509,7 +509,7 @@ class OMVModuleDockerContainer
     {
         return $this->_hostName;
     }
-    
+
     /**
      * Return true if the container is syncing time with the host
      *
@@ -520,5 +520,5 @@ class OMVModuleDockerContainer
     {
         return $this->_timeSync;
     }
-    
+
 }

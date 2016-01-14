@@ -90,6 +90,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
 
         $this->registerMethod("getContainers");
         $this->registerMethod("runContainer");
+        $this->registerMethod("modifyContainer");
         $this->registerMethod("startContainer");
         $this->registerMethod("stopContainer");
         $this->registerMethod("restartContainer");
@@ -371,28 +372,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $context,
             array( "role" => OMV_ROLE_ADMINISTRATOR)
         );
-        /*
-        $this->validateMethodParams($params, '{
-        "type": "object",
-        "properties": {
-        "restart": { "type" : "boolean" },
-        "networkMode": { "type" : "string" },
-        "portForwards": { "type" : "object", "optional" : true, "properties": {
-        "hostip": { "type" : "string" },
-        "hostport" : { "type" : "string" },
-        "exposedPort" : { "type" : "string" },
-        "customPort" : { "type" : "string" }}},
-        "envVars": { "type" : "object", "optional" : true, "properties": {
-        "name": { "type" : "string" },
-        "value" : { "type" : "string" }}}
-        "privileged": { "type" : "boolean" },
-        "bindMounts": { "type" : "object", "optional" : true, "properties": {
-        "from": { "type" : "string" },
-        "to" : { "type" : "string" }}}
-        "image": { "type" : "string" }
-        }}
-        ');
-         */
 
         $cmd = "docker run -d ";
 
@@ -494,6 +473,112 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $cmd .= "\"" . $params['image'] . "\" 2>&1";
         OMVModuleDockerUtil::exec($cmd, $out, $res);
 
+    }
+
+    /**
+     * Modify a single Docker container
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function modifyContainer($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array( "role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        global $xmlConfig;
+        
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+
+        $container = OMVModuleDockerUtil::getContainer($params['cid'], $settings['apiPort']);
+        $image = OMVModuleDockerUtil::getImage(
+            substr($container->getImageId(), 0, 12),
+            $apiPort
+        );
+
+        $restart = false;
+        if (strcmp($container->getRestartPolicy(), "always") === 0) {
+            $restart = true;
+        }
+        $portForwards = array();
+        foreach ($container->getPortBindings() as $binding) {
+            $customPort = "";
+            $exposedPort = "";
+            foreach ($image->getPorts() as $port) {
+                if (strcmp($binding['containerportstring'], $port['name']) === 0) {
+                    $exposedPort = $port['name'];
+                    break;
+                }
+            }
+            if (strcmp($exposedPort, "") === 0) {
+                $customPort = $binding['containerportstring'];
+            }
+            array_push($portForwards,
+                array(
+                    "customPort" => $customPort,
+                    "exposedPort" => $exposedPort,
+                    "hostip" => $binding['hostip'],
+                    "hostport" => $binding['hostport'],
+                    "proto" => $binding['proto']
+                )
+            );
+
+        }
+        $envVars = array();
+        foreach ($container->getEnvironmentVariables() as $key => $value) {
+            array_push($envVars,
+                array(
+                    "name" => $key,
+                    "value" => $value
+                )
+            );
+        }
+        $bindMounts = array();
+        foreach($container->getBindMounts() as $mount) {
+            array_push($bindMounts, 
+                array(
+                    "from" => $mount['from'],
+                    "to" => $mount['to'],
+                    "romode" => $mount['mode']
+                )
+            );
+        }
+
+        $old_params = array(
+            "restart" => $restart,
+            "privileged" => $container->getPrivileged(),
+            "timeSync" => $container->syncsTime(),
+            "networkMode" => ucfirst($container->getNetworkMode()),
+            "portForwards" => $portForwards,
+            "hostName" => $container->getHostName(),
+            "envVars" => $envVars,
+            "bindMounts" => $bindMounts,
+            "volumes" => $container->getVolumesFrom(),
+            "containerName" => $container->getName(),
+            "image" => $container->getImage()
+        );
+
+        //Remove existing container
+        $cmd = "docker stop " . $params['cid'] . " && docker rm " . $params['cid'];
+        OMVModuleDockerUtil::exec($cmd, $out, $res);
+
+        //Try to start up a new container with the given parameters.
+        //Revert to old parameters upon failure
+        try {
+            $this->runContainer($params, $context);
+        } catch (OMVModuleDockerException $e) {
+            $this->runContainer($old_params, $context);
+        }
     }
 
     /**
@@ -1188,7 +1273,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     "envvars" => array(),
                     "ports" => $ports_ary,
                     "portbindings" => array(),
-                    "extraargs" => ""
+                    "extraargs" => "",
+                    "isupdated" => false
                 );
                 array_push($objects, $temp);
             }
@@ -1204,6 +1290,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $cenv_ary = array();
             $ports_ary = array();
             $pulled = false;
+            $updated = false;
             $imgRepo = trim((string)$image->Repository);
             if (isset($pulledImages[$imgRepo])) {
                 $pulled = true;
@@ -1212,6 +1299,11 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     $settings['apiPort']
                 );
                 $ports_ary = $image_obj->getPorts();
+                $local_time = (int)date("U", $image_obj->getTimestamp());
+                $repo_time = (int)date("U", trim((string)$image->Updated));
+                if ($local_time < $repo_time) {
+                    $updated = true;
+                }
             }
             $timesync = true;
             if (strcmp(trim((string)$image->BindTime), "false") === 0) {
@@ -1280,7 +1372,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 "ports" => $ports_ary,
                 "networkmode" => $nw_mode,
                 "portbindings" => $port_bindings,
-                "extraargs" => $extraargs
+                "extraargs" => $extraargs,
+                "isupdated" => $updated
             );
             array_push($objects, $temp);
         }

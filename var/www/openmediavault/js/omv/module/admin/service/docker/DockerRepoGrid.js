@@ -130,6 +130,34 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
                 }
             }
         },{
+            icon: 'images/page-refresh.png',
+            tooltip: _("Update available. Click to refresh image"),
+            handler: function(grid, rowIndex, colIndex) {
+                var rec = grid.getStore().getAt(rowIndex);
+                Ext.create("OMV.module.admin.service.docker.PullImage", {
+                    title: _("Refresh image"),
+                    rpcService: "Docker",
+                    rpcMethod: "pullImage",
+                    hideStopButton: true,
+                    repo: rec.get("repo"),
+                    action: "refresh",
+                    listeners: {
+                        scope: this,
+                        exception: function(wnd, error) {
+                            OMV.MessageBox.error(null, error);
+                        }
+                    }
+                }).show();
+            },
+            isDisabled: function(view, rowIdx, colIdx, item, record) {
+                var isupdated = record.get("isupdated");
+                if(isupdated) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        },{
             icon: 'images/about.png',
             tooltip: _("Information"),
             handler: function(grid, rowIndex, colIndex) {

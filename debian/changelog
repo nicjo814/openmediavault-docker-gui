@@ -1,3 +1,10 @@
+openmediavault-docker-gui (3.0.4) UNRELEASED; urgency=medium
+
+  * Add timestamp to image object
+  * Make it possible to modify running container 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Tue, 12 Jan 2016 13:29:22 +0100
+
 openmediavault-docker-gui (3.0.3) stable; urgency=medium
 
   * Minor tweaks to the repo tab 

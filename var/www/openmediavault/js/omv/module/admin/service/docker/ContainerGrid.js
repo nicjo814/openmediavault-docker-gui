@@ -182,6 +182,15 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             handler: Ext.Function.bind(me.onCopyButton, me, [ me ]),
             scope: me
         },{
+            id: me.getId() + "-modify",
+            xtype: "button",
+            text: _("Modify"),
+            icon: "images/edit.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            disabled: true,
+            handler: Ext.Function.bind(me.onModifyButton, me, [ me ]),
+            scope: me
+        },{
             id: me.getId() + "-details",
             xtype: "button",
             text: _("Details"),
@@ -242,13 +251,14 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         var me = this;
         if(me.hideTopToolbar)
             return;
-        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "details", "execute", "commit", "delete", "refresh" ];
+        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "modify", "details", "execute", "commit", "delete", "refresh" ];
         var tbarBtnDisabled = {
             "create": false,
             "start": false,
             "stop": false,
             "restart": false,
             "copy": false,
+            "modify": false,
             "details": false,
 			"logs": false,
             "execute": false,
@@ -262,6 +272,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             tbarBtnDisabled["stop"] = true;
             tbarBtnDisabled["restart"] = true;
             tbarBtnDisabled["copy"] = true;
+            tbarBtnDisabled["modify"] = true;
             tbarBtnDisabled["details"] = true;
             tbarBtnDisabled["logs"] = true;
             tbarBtnDisabled["execute"] = true;
@@ -298,6 +309,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             });
         } else {
             tbarBtnDisabled["copy"] = true;
+            tbarBtnDisabled["modify"] = true;
             tbarBtnDisabled["details"] = true;
             tbarBtnDisabled["commit"] = true;
             tbarBtnDisabled["logs"] = true;
@@ -610,6 +622,42 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                 hostname: record.get("hostname"),
                 timesync: record.get("timesync"),
                 imagevolumes: record.get("imagevolumes")
+            }).show();
+        }
+    },
+    
+    onModifyButton: function() {
+        var me = this;
+        var sm = me.getSelectionModel();
+        var records = sm.getSelection();
+        var record = records[0];
+        if (record.get("status") === "Created") {
+            OMV.MessageBox.show({
+                title: _("Modify container"),
+                msg: _("It is not possible to modify a data container."),
+                scope: me,
+                buttons: Ext.Msg.OK
+            });
+
+        } else {
+            Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                title: _("Modify container"),
+                image: record.get("image"),
+                ports: record.get("exposedports"),
+                envvars: record.get("envvars"),
+                restartpolicy: record.get("restartpolicy"),
+                privileged: record.get("privileged"),
+                networkmode: record.get("networkmode"),
+                portbindings: record.get("portbindings"),
+                bindmounts: record.get("bindmounts"),
+                cenvvars: record.get("cenvvars"),
+                copyVolumes: record.get("volumesfrom"),
+                hostname: record.get("hostname"),
+                timesync: record.get("timesync"),
+                imagevolumes: record.get("imagevolumes"),
+                name: record.get("name"),
+                cid: record.get("id"),
+                action: "modify"
             }).show();
         }
     },

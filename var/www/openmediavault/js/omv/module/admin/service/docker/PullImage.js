@@ -79,6 +79,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
     cmdIsRunning: false,
     getContentAllowed: false,
     repo: "",
+    action: "pull",
 
     constructor: function() {
         var me = this;
@@ -104,6 +105,11 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
 
     initComponent: function() {
         var me = this;
+        if (me.action === "refresh") {
+            me.welcomeText = "This will download the latest version of the docker image.\r\n\r\n" +
+                "It will also delete all containers using the image and recreate them based on the new image.\r\n\r\n" + 
+                "Please make sure that all data used by the containers are persistent since it will otherwise be deleted too.";
+        }
         me.fp = Ext.create("OMV.form.Panel", {
             items: [{
                 xtype: "fieldset",
@@ -141,7 +147,7 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         plugins: [{
                             ptype: "fieldinfo",
                             text: _("Tag")
-                        }],
+                        }]
                     },{
                         xtype: "button",
                         itemId: "dockerImageInfoButton",
@@ -203,6 +209,11 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
         });
         me.contentCtrl = me.fp.getForm().findField("content");
 
+        if (me.action === "refresh") {
+            me.fp.getForm().findField("repository").setReadOnly(true);
+            me.fp.getForm().findField("tag").setReadOnly(true);
+        }
+
         if(me.fp.getForm().findField("repository").getValue() === "") {
             me.fp.queryById("dockerImageInfoButton").setDisabled(true);
         } else {
@@ -210,7 +221,6 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
         }
         me.callParent(arguments);
         me.on("show", function() {
-            // Set focus to field 'Username'.
             var field = me.fp.findField("repository");
             if (!Ext.isEmpty(field))
                 field.focus(false, 500);
@@ -345,6 +355,15 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         if (!this.cmdIsRunning) {
                             Ext.getCmp("dockerImageGrid").doReload();
                             Ext.getCmp("dockerRepoGrid").doReload();
+                            if (me.action === "refresh") {
+                                OMV.MessageBox.show({
+                                    title: _("Refreshing containers"),
+                                    msg: _("All containers will now be updated to the latest version</br>" +
+                                           "Refresh overview tab to see when the containers are restarted"),
+                                    scope: me,
+                                    buttons: Ext.Msg.OK
+                                });
+                            }
                         }
                     } else {
                         var ignore = false;
