@@ -71,8 +71,11 @@ Ext.define("OMV.module.admin.service.docker.Overview", {
             containerPanel.queryById("dockerContainerGrid-stop").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-restart").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-copy").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-modify").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-details").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-logs").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-execute").setDisabled(true);
+            containerPanel.queryById("dockerContainerGrid-commit").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-delete").setDisabled(true);
             containerPanel.queryById("dockerContainerGrid-refresh").setDisabled(false);
             OMV.Rpc.request({

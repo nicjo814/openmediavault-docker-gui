@@ -251,7 +251,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         var me = this;
         if(me.hideTopToolbar)
             return;
-        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "modify", "details", "execute", "commit", "delete", "refresh" ];
+        var tbarBtnName = [ "create", "start", "stop", "restart", "copy", "modify", "details", "execute", "commit", "logs", "delete", "refresh" ];
         var tbarBtnDisabled = {
             "create": false,
             "start": false,
@@ -263,6 +263,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
 			"logs": false,
             "execute": false,
             "commit": false,
+            "logs": false,
             "delete": false,
             "refresh": false
         };
