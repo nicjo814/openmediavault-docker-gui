@@ -158,12 +158,17 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     scope: me,
                     change: function(combo, newValue, oldValue, eOpts) {
                         var portField = me.queryById("dockerPortForward");
+                        var hostNameField = me.getForm().findField("hostName");
                         if(newValue === "Host" || newValue === "None") {
                             portField.setHidden(true);
                             portField.setDisabled(true);
+                            hostNameField.setHidden(true);
+                            hostNameField.setDisabled(true);
                         } else {
                             portField.setHidden(false);
                             portField.setDisabled(false);
+                            hostNameField.setHidden(false);
+                            hostNameField.setDisabled(false);
                         }
                     }
                 }
@@ -526,6 +531,16 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 var values = me.getRpcSetParams();
                 me.fireEvent("submit", me, values, response);
                 me.close();
+                if(response) {
+                    OMV.MessageBox.show({
+                        title: _("Modify operation failed"),
+                        msg: _("Modify container failed with message: </br>" +
+                               response["response"] + "</br>" +
+                               "Reverted to old settings"),
+                        scope: me,
+                        buttons: Ext.Msg.OK
+                    });
+                }
                 Ext.getCmp("dockerContainerGrid").doReload();
             } else {
                 OMV.MessageBox.error(null, response);

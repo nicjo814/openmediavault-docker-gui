@@ -405,6 +405,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                         $portForward['hostport'] . ":" . $destport . " ";
                 }
             }
+            //Check if host name is specified
+            if (!(strcmp($params['hostName'], "") === 0)) {
+                $cmd .= "-h \"" . $params['hostName'] . "\" ";
+            }
             break;
         case "Host":
             $cmd .= "--net=host ";
@@ -412,11 +416,6 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         case "None":
             $cmd .= "--net=none ";
             break;
-        }
-
-        //Check if host name is specified
-        if (!(strcmp($params['hostName'], "") === 0)) {
-            $cmd .= "-h \"" . $params['hostName'] . "\" ";
         }
 
         //Check for environment variables
@@ -491,7 +490,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         );
 
         global $xmlConfig;
-        
+
         $settings = $xmlConfig->get($this->_getXpath());
         if (is_null($settings)) {
             throw new OMVException(
@@ -578,6 +577,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $this->runContainer($params, $context);
         } catch (OMVModuleDockerException $e) {
             $this->runContainer($old_params, $context);
+            $e_str = explode("'", (string)$e);
+            return (array("response" => $e_str[3]));
         }
     }
 
