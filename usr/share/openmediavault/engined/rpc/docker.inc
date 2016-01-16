@@ -98,6 +98,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("createContainer");
         $this->registerMethod("getVolumesFrom");
         $this->registerMethod("commitContainer");
+        $this->registerMethod("modifyWarningEnabled");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -764,6 +765,37 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
     }
 
     /**
+     * Check if a warning should be displayed when modifying a container
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function modifyWarningEnabled($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        global $xmlConfig;
+
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+        if ($settings["cwarn"]) {
+            return array("response" => "true");
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Retrieve all plugin settings
      * 
      * @param array  $params  An associative array with all RPC call parameters
@@ -808,6 +840,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $object["version"] = $dockerVersion;
         $object["versionInfo"] = $dockerVersionInfo;
         $object["sharedfolderref"] = $object["sharedfolderref"];
+        $object["cwarn"] = boolval($object["cwarn"]);
 
         return $object;
     }
@@ -839,7 +872,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             '"sharedfolderref": { "type": "string" },' .
             '"uuid": { "type": "string" },' .
             '"orgpath": { "type": "string" },' .
-            '"destpath": { "type": "string" }' .
+            '"destpath": { "type": "string" },' .
+            '"cwarn": { "type": "boolean"}' .
             '}}'
         );
 
@@ -900,7 +934,8 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             "dockermntent" => $tmpMntent,
             "enabled" => array_boolval($params, "enabled"),
             "apiPort" => $newApiPort,
-            "sharedfolderref" => $sharedFolder
+            "sharedfolderref" => $sharedFolder,
+            "cwarn" => array_boolval($params, "cwarn")
         );
 
         if (false === $xmlConfig->replace($this->_getXpath(), $object)) {

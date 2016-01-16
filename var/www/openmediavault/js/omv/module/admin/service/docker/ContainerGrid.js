@@ -641,6 +641,33 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             });
 
         } else {
+            //Display warning if setting is enabled
+            OMV.Rpc.request({
+                scope: me,
+                callback: function(id, success, response) {
+                    if (response) {
+                        OMV.MessageBox.show({
+                            title: _("Warning"),
+                            msg: _("Please be aware that <b>all</b> non-persistent data within the container</br>" +
+                                   "will be <b>deleted</b></br>" +
+                                   "Please see here for more information:</br>" +
+                                   "<a href='http://forums.openmediavault.org/index.php/Thread/10921-openmediavault-docker-gui-Testing/?postID=101996#post102450'" +
+                                   " target='_blank'>Link</a></br>" +
+                                   "This warning can be disabled on the Settings tab"),
+                            scope: me,
+                            buttons: Ext.Msg.OK
+                        });
+                    }
+                },
+                relayErrors: false,
+                rpcData: {
+                    service: "Docker",
+                    method: "modifyWarningEnabled",
+                    params: {
+                        cid: record.get("id")
+                    }
+                }
+            });
             Ext.create("OMV.module.admin.service.docker.RunContainer", {
                 title: _("Modify container"),
                 image: record.get("image"),

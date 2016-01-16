@@ -110,7 +110,11 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
             items: [{
                 xtype: "checkbox",
                 name: "enabled",
-                boxLabel: _("Enable the plugin"),
+                boxLabel: _("Enable the plugin")
+            },{
+                xtype: "checkbox",
+                name: "cwarn",
+                boxLabel: _("Warn when modifying container")
             },{
                 xtype: "numberfield",
                 anchor: '100%',
@@ -121,7 +125,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                 plugins: [{
                     ptype: "fieldinfo",
                     text: _("Network port that the Docker API listens on. The plugin must be enabled for a change to be committed")
-                }],
+                }]
             },{
                 xtype: "sharedfoldercombo",
                 name: "sharedfolderref",
