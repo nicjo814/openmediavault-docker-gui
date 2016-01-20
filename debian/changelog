@@ -1,6 +1,7 @@
-openmediavault-docker-gui (3.0.5) UNRELEASED; urgency=medium
+openmediavault-docker-gui (3.0.5) stable; urgency=medium
 
   * Make it possible to update linuxserver.io images from repo tab
+  * Various bug fixes
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 16 Jan 2016 12:00:17 +0100
 
