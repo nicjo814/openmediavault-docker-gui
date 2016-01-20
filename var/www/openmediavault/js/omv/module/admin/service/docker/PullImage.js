@@ -107,8 +107,11 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
         var me = this;
         if (me.action === "refresh") {
             me.welcomeText = "This will download the latest version of the docker image.\r\n\r\n" +
-                "It will also delete all containers using the image and recreate them based on the new image.\r\n\r\n" + 
-                "Please make sure that all data used by the containers are persistent since it will otherwise be deleted too.";
+                "***WARNING***\r\n" +
+                "It will also delete all containers using the image and recreate them based on the new image.\r\n" + 
+                "Please make sure that all data used by the containers are persistent since it will otherwise be deleted too.\r\n\r\n" +
+                "Please see here for more informtion:\r\n" +
+                "http://forums.openmediavault.org/index.php/Thread/10921-openmediavault-docker-gui-Testing/?postID=101996#post102450";
         }
         me.fp = Ext.create("OMV.form.Panel", {
             items: [{
@@ -159,7 +162,6 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         listeners: {
                             scope: this,
                             click: function(button, e , eOpts) {
-                                console.log(this);
                                 window.open("https://hub.docker.com/r/" + this.down('panel').getForm().findField("repository").getValue());
                             }
                         }
@@ -354,15 +356,38 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         }
                         if (!this.cmdIsRunning) {
                             Ext.getCmp("dockerImageGrid").doReload();
-                            Ext.getCmp("dockerRepoGrid").doReload();
                             if (me.action === "refresh") {
-                                OMV.MessageBox.show({
-                                    title: _("Refreshing containers"),
-                                    msg: _("All containers will now be updated to the latest version</br>" +
-                                           "Refresh overview tab to see when the containers are restarted"),
+                                //Re-create all containers based on newly pulled image
+                                OMV.Rpc.request({
                                     scope: me,
-                                    buttons: Ext.Msg.OK
+                                    callback: function(id, success, response) {
+                                        if (response) {
+                                            OMV.MessageBox.show({
+                                                title: _("Warning"),
+                                                msg: _("Please be aware that <b>all</b> non-persistent data within the container</br>" +
+                                                       "will be <b>deleted</b></br>" +
+                                                       "Please see here for more information:</br>" +
+                                                       "<a href='http://forums.openmediavault.org/index.php/Thread/10921-openmediavault-docker-gui-Testing/?postID=101996#post102450'" +
+                                                " target='_blank'>Link</a></br>" +
+                                                    "This warning can be disabled on the Settings tab"),
+                                                scope: me,
+                                                buttons: Ext.Msg.OK
+                                            });
+                                        }
+                                        Ext.getCmp("dockerRepoGrid").doReload();
+                                        Ext.getCmp("dockerContainerGrid").doReload();
+                                    },
+                                    relayErrors: false,
+                                    rpcData: {
+                                        service: "Docker",
+                                        method: "refreshContainers",
+                                        params: {
+                                            image: me.repo
+                                        }
+                                    }
                                 });
+                            } else {
+                                Ext.getCmp("dockerRepoGrid").doReload();
                             }
                         }
                     } else {

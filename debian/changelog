@@ -1,3 +1,9 @@
+openmediavault-docker-gui (3.0.5) UNRELEASED; urgency=medium
+
+  * Make it possible to update linuxserver.io images from repo tab
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 16 Jan 2016 12:00:17 +0100
+
 openmediavault-docker-gui (3.0.4) stable; urgency=medium
 
   * Add timestamp to image object

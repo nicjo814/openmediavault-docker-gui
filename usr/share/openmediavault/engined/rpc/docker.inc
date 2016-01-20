@@ -99,6 +99,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("getVolumesFrom");
         $this->registerMethod("commitContainer");
         $this->registerMethod("modifyWarningEnabled");
+        $this->registerMethod("refreshContainers");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -471,6 +472,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
 
         //Add image to command
         $cmd .= "\"" . $params['image'] . "\" 2>&1";
+
+        //throw new OMVModuleDockerException($cmd);
+
         OMVModuleDockerUtil::exec($cmd, $out, $res);
 
     }
@@ -516,12 +520,12 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             $exposedPort = "";
             foreach ($image->getPorts() as $port) {
                 if (strcmp($binding['containerportstring'], $port['name']) === 0) {
-                    $exposedPort = $port['name'];
+                    $exposedPort = explode("/", $port['name'])[0];
                     break;
                 }
             }
             if (strcmp($exposedPort, "") === 0) {
-                $customPort = $binding['containerportstring'];
+                $customPort = explode("/", $binding['containerportstring'])[0];
             }
             array_push($portForwards,
                 array(
@@ -571,6 +575,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         //Remove existing container
         $cmd = "docker stop " . $params['cid'] . " && docker rm " . $params['cid'];
         OMVModuleDockerUtil::exec($cmd, $out, $res);
+
+        if ($params['refresh']) {
+            $params = $old_params;
+        }
 
         //Try to start up a new container with the given parameters.
         //Revert to old parameters upon failure
@@ -792,6 +800,44 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             return array("response" => "true");
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Refresh all containers based on a specific image
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function refreshContainers($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        global $xmlConfig;
+
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+        $image = $params['image'];
+        $containers = OMVModuleDockerUtil::getContainers($settings['apiPort']);
+
+        foreach ($containers as $c) {
+            if (strcmp($c['image'], $image) === 0) {
+                $new_params = array(
+                    "cid" => $c['id'],
+                    "refresh" => true
+                );
+                $this->modifyContainer($new_params, $context);
+            }
         }
     }
 
@@ -1369,7 +1415,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                             "containerportnr" => trim((string)$port->ContainerPort),
                             "hostip" => "0.0.0.0",
                             "hostport" => trim((string)$port->HostPort),
-                            "proto" => trim((string)$port->Protocol)
+                            "proto" => "Select"
                         ));
 
                 }
