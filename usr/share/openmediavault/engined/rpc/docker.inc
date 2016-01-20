@@ -1421,8 +1421,10 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 }
             }
             $extraargs = "";
-            foreach ($image->ExtraParams as $param) {
-                $extraargs .= trim((string)$param) . " ";
+            if ((isset($image->ExtraParams)) && is_array($image->ExtraParams)) {
+                foreach ($image->ExtraParams as $param) {
+                    $extraargs .= trim((string)$param) . " ";
+                }
             }
             $extraargs = trim($extraargs);
             $categories = explode(":", trim((string)$image->Category));
@@ -1440,10 +1442,15 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                     $logo = $logo_name;
                 }
             }
+            $desc = "No description available";
+            if (isset($image->Overview)) {
+                $desc = trim((string)$image->Overview);
+            }
+
             $temp = array("name" => trim((string)$image->Name),
                 "category" => $categories,
                 "logo" => $logo,
-                "desc" => trim((string)$image->Overview),
+                "desc" => $desc,
                 "repo" => trim((string)$image->Repository),
                 "pulled" => $pulled,
                 "timesync" => $timesync,

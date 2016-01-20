@@ -153,8 +153,10 @@ class OMVModuleDockerImage
             }
         }
         $this->_volumes = array();
-        foreach ($imageData->Config->Volumes as $key => $val) {
-            array_push($this->_volumes, array($key));
+        if ((isset($imageData->Config->Volumes) && is_array($imageData->Config->Volumes))) {
+            foreach ($imageData->Config->Volumes as $key => $val) {
+                array_push($this->_volumes, array($key));
+            }
         }
 
     }
@@ -235,7 +237,7 @@ class OMVModuleDockerImage
     {
         return $this->_envVars;
     }
-    
+
     /**
      * Get the volumes exposed by the image
      *

@@ -300,8 +300,10 @@ class OMVModuleDockerContainer
             $this->_hasMounts = true;
         }
         $this->_volumesFrom = array();
-        foreach ($containerData->HostConfig->VolumesFrom as $volume) {
-            array_push($this->_volumesFrom, array("from" => $volume));
+        if ((isset($containerData->HostConfig->VolumesFrom) && (is_array($containerData->HostConfig->VolumesFrom)))) {
+            foreach ($containerData->HostConfig->VolumesFrom as $volume) {
+                array_push($this->_volumesFrom, array("from" => $volume));
+            }
         }
         $this->_hostName = "";
         if (!(strcmp($containerData->Config->Hostname, "") === 0)) {
