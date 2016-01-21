@@ -141,19 +141,21 @@ class OMVModuleDockerImage
         $imageData = json_decode($response);
         $this->_timestamp = date("U", $item->Created); 
         $this->_ports = array();
-        foreach ($imageData->Config->ExposedPorts as
-            $exposedport => $hostports) {
-            array_push($this->_ports, array("name" => $exposedport));
+        if (isset($imageData->Config->ExposedPorts)) {
+            foreach ($imageData->Config->ExposedPorts as
+                $exposedport => $hostports) {
+                array_push($this->_ports, array("name" => $exposedport));
+            }
         }
         $this->_envVars = array();
-        if (is_array($imageData->Config->Env)) {
+        if (isset($imageData->Config->Env)) {
             foreach ($imageData->Config->Env as $eVar) {
                 $eVarAry = explode("=", $eVar);
                 $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
         $this->_volumes = array();
-        if ((isset($imageData->Config->Volumes) && is_array($imageData->Config->Volumes))) {
+        if (isset($imageData->Config->Volumes)) {
             foreach ($imageData->Config->Volumes as $key => $val) {
                 array_push($this->_volumes, array($key));
             }

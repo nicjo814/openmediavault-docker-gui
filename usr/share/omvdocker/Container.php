@@ -227,24 +227,26 @@ class OMVModuleDockerContainer
             $this->_state = "stopped";
         }
         $this->_ports = array();
-        foreach ($containerData->NetworkSettings->Ports as $exposedport => $hostports) {
-            if ($hostports) {
-                $this->_ports[$exposedport] = array();
-                foreach ($hostports as $hostport) {
-                    $tmparray = array(
-                        "HostIp" => $hostport->HostIp,
-                        "HostPort" => $hostport->HostPort);
-                    array_push($this->_ports[$exposedport], $tmparray);
+        if (isset($containerData->NetworkSettings->Ports)) {
+            foreach ($containerData->NetworkSettings->Ports as $exposedport => $hostports) {
+                if ($hostports) {
+                    $this->_ports[$exposedport] = array();
+                    foreach ($hostports as $hostport) {
+                        $tmparray = array(
+                            "HostIp" => $hostport->HostIp,
+                            "HostPort" => $hostport->HostPort);
+                        array_push($this->_ports[$exposedport], $tmparray);
+                    }
+                } else {
+                    $this->_ports[$exposedport] = null;
                 }
-            } else {
-                $this->_ports[$exposedport] = null;
             }
         }
         $this->_networkMode = $containerData->HostConfig->NetworkMode;
         $this->_privileged = $containerData->HostConfig->Privileged;
         $this->_restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
         $this->_envVars = array();
-        if (is_array($containerData->Config->Env)) {
+        if (isset($containerData->Config->Env)) {
             foreach ($containerData->Config->Env as $eVar) {
                 $eVarAry = explode("=", $eVar);
                 $this->_envVars[$eVarAry[0]] = $eVarAry[1];
@@ -252,46 +254,56 @@ class OMVModuleDockerContainer
         }
         $this->_imageId = $containerData->Image;
         $this->_portBindings = array();
-        foreach ($containerData->HostConfig->PortBindings as $containerPort => $mappings) {
-            foreach ($mappings as $mapping) {
-                array_push(
-                    $this->_portBindings,
-                    array(
-                        "containerportstring" => $containerPort,
-                        "containerportnr" => preg_split('/\//', $containerPort)[0],
-                        "hostip" => $mapping->HostIp,
-                        "hostport" => $mapping->HostPort,
-                        "proto" => preg_split('/\//', $containerPort)[1]
-                    )
-                );
+        if (isset($containerData->HostConfig->PortBindings)) {
+            foreach ($containerData->HostConfig->PortBindings as $containerPort => $mappings) {
+                foreach ($mappings as $mapping) {
+                    array_push(
+                        $this->_portBindings,
+                        array(
+                            "containerportstring" => $containerPort,
+                            "containerportnr" => preg_split('/\//', $containerPort)[0],
+                                "hostip" => $mapping->HostIp,
+                                "hostport" => $mapping->HostPort,
+                                "proto" => preg_split('/\//', $containerPort)[1]
+                                )
+                            );
+                }
             }
         }
         $this->_bindMounts = array();
         $this->_timeSync = false;
-        foreach ($containerData->HostConfig->Binds as $bind) {
-            if (strcmp($bind, "/etc/localtime:/etc/localtime:ro") === 0) {
-                $this->_timeSync = true;
-                continue;
-            }
-            array_push(
-                $this->_bindMounts,
-                array(
-                    "from" => preg_split('/\:/', $bind)[0],
-                    "to" => preg_split('/\:/', $bind)[1],
-                    "mode" => preg_split('/\:/', $bind)[2]
-                )
-            );
-        }
-        foreach ($containerData->Mounts as $mount) {
-            if ((strcmp($mount->Mode, "") === 0) && (strcmp($mount->Driver, "local") === 0)) {
+        if (isset($containerData->HostConfig->Binds)) {
+            foreach ($containerData->HostConfig->Binds as $bind) {
+                if (strcmp($bind, "/etc/localtime:/etc/localtime:ro") === 0) {
+                    $this->_timeSync = true;
+                    continue;
+                }
+                $mode = "";
+                if (isset(preg_split('/\:/', $bind)[2])) {
+                    $mode = preg_split('/\:/', $bind)[2];
+                }
                 array_push(
                     $this->_bindMounts,
                     array(
-                        "from" => $mount->Destination,
-                        "to" => "",
-                        "mode" => $mount->Mode
+                        "from" => preg_split('/\:/', $bind)[0],
+                        "to" => preg_split('/\:/', $bind)[1],
+                        "mode" => $mode
                     )
                 );
+            }
+        }
+        if (isset($containerData->Mounts)) {
+            foreach ($containerData->Mounts as $mount) {
+                if ((strcmp($mount->Mode, "") === 0) && (isset($mount->Driver)) && (strcmp($mount->Driver, "local") === 0)) {
+                    array_push(
+                        $this->_bindMounts,
+                        array(
+                            "from" => $mount->Destination,
+                            "to" => "",
+                            "mode" => $mount->Mode
+                        )
+                    );
+                }
             }
         }
         $this->_names = ltrim($item->Names[0], "/");
@@ -300,7 +312,7 @@ class OMVModuleDockerContainer
             $this->_hasMounts = true;
         }
         $this->_volumesFrom = array();
-        if ((isset($containerData->HostConfig->VolumesFrom) && (is_array($containerData->HostConfig->VolumesFrom)))) {
+        if (isset($containerData->HostConfig->VolumesFrom)) {
             foreach ($containerData->HostConfig->VolumesFrom as $volume) {
                 array_push($this->_volumesFrom, array("from" => $volume));
             }
