@@ -352,8 +352,15 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
             );
         }
 
+        /*
         if ($settings['enabled']) {
             $objects = OMVModuleDockerUtil::getContainers(
+                $settings['apiPort']
+            );
+        }
+         */
+        if ($settings['enabled']) {
+            $objects = OMVModuleDockerUtil::getContainerList(
                 $settings['apiPort']
             );
         }

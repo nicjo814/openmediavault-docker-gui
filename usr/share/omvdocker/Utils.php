@@ -234,6 +234,59 @@ class OMVModuleDockerUtil
         }
         return $objects;
     }
+    
+    /**
+     * Returns an array with Containers for presentation in grid
+     *
+     * @param int $apiPort Network port to use in API call
+     *
+     * @return array $objects An array with Container objects
+     *
+     */
+    public static function getContainerList($apiPort)
+    {
+        $objects = array();
+        $now = date("c");
+        $url = "http://localhost:" . $apiPort . "/containers/json?all=1";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        foreach (json_decode($response) as $item) {
+            $ports = "";
+            if (isset($item->Ports)) {
+                foreach ($item->Ports as $port) {
+                    $ports .= $port->IP . ":" .
+                        $port->PublicPort . "->" .
+                        $port->PrivatePort . "/" .
+                        $port->Type . ", ";
+                }
+            }
+            $ports = rtrim($ports, ", ");
+            $state = "running";
+            if (preg_match('/^Exited \(0\).*$/', $item->Status)) {
+                $state = "stopped";
+            } elseif (preg_match('/^Exited.*$/', $item->Status)) {
+                $state = "dead";
+            }
+
+            array_push(
+                $objects,
+                array(
+                    "id" => substr($item->Id, 0, 12),
+                    "image" => $item->Image,
+                    "command" => $item->Command,
+                    "status" => $item->Status,
+                    "ports" => $ports,
+                    "name" => ltrim($item->Names[0], "/"),
+                    "created" => OMVModuleDockerUtil::getWhen(
+                        $now,
+                        date("c", $item->Created)
+                    ) . " ago",                  
+                    "state" => $state
+                )
+            );
+        }
+        return $objects;
+    }
+
 
     /**
      * Returns a single container from it's ID
