@@ -371,13 +371,28 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
         var sm = me.getSelectionModel();
         var records = sm.getSelection();
         var record = records[0];
-        Ext.create("OMV.module.admin.service.docker.RunContainer", {
-            title: _("Run image"),
-            image: record.get("repository") + ":" + record.get("tag"),
-            ports: record.get("ports"),
-            envvars: record.get("envvars"),
-            imagevolumes: record.get("imagevolumes")
-        }).show();
+        OMV.Rpc.request({
+            scope: me,
+            callback: function(id, success, response) {
+                if (success && response) {
+                    Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                        title: _("Run image"),
+                        image: response["repository"] + ":" + response["tag"],
+                        ports: response["ports"],
+                        envvars: response["envvars"],
+                        imagevolumes: response["imagevolumes"]
+                    }).show();
+                }
+            },
+            relayErrors: false,
+            rpcData: {
+                service: "Docker",
+                method: "getImageData",
+                params: {
+                    id: record.get("id")
+                }
+            }
+        });
     },
 
     onDetailsButton: function() {

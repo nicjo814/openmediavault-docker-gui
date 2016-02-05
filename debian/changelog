@@ -1,7 +1,7 @@
 openmediavault-docker-gui (3.0.6) UNRELEASED; urgency=medium
 
   * Bug fixes to container and image backend
-  * Rewrite to improve container listing performance
+  * Rewrite to improve container and image listing performance 
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 21 Jan 2016 15:57:44 +0100
 

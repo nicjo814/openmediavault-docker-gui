@@ -147,6 +147,48 @@ class OMVModuleDockerUtil
     }
 
     /**
+     * Returns an array with Images to be presented in the grid
+     *
+     * @param int  $apiPort     Network port to use in API call
+     * @param bool $incDangling Flag to filter dangling images (not used)
+     *
+     * @return array $objects An array with Image objects
+     *
+     */
+    public static function getImageList($apiPort, $incDangling)
+    {
+        $objects=array();
+        $now = date("c");
+        $url = "http://localhost:" . $apiPort . "/images/json?all=0";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $data = array();
+        foreach (json_decode($response) as $item) {
+            $repoTags = explode(":", $item->RepoTags[0]);
+            $repository = $repoTags[0];
+            $tag = $repoTags[1];
+            if (strcmp($repository, "<none>") === 0) {
+                $repository = "none";
+            }
+            if (strcmp($tag, "<none>") === 0) {
+                $tag = "none";
+            }
+            $created = OMVModuleDockerUtil::getWhen(
+                $now,
+                date("c", $item->Created)
+            ) . " ago";
+            $tmp = array(
+                "repository" => $repository,
+                "tag" => $tag,
+                "id" => substr($item->Id, 0, 12),
+                "created" => $created,
+                "size" => OMVModuleDockerUtil::bytesToSize($item->VirtualSize)
+            );
+            array_push($objects, $tmp);
+        }
+        return $objects;
+    }
+
+    /**
      * Returns a single image from it's ID
      *
      * @param string $id      The ID of the image to retrieve
@@ -234,7 +276,7 @@ class OMVModuleDockerUtil
         }
         return $objects;
     }
-    
+
     /**
      * Returns an array with Containers for presentation in grid
      *

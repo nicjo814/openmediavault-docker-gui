@@ -87,6 +87,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("pullImage");
         $this->registerMethod("deleteImage");
         $this->registerMethod("searchImages");
+        $this->registerMethod("getImageData");
 
         $this->registerMethod("getContainers");
         $this->registerMethod("runContainer");
@@ -144,7 +145,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $incDangling = true;
             }
 
-            $objects = OMVModuleDockerUtil::getImages(
+            $objects = OMVModuleDockerUtil::getImageList(
                 $settings['apiPort'],
                 $incDangling
             );
@@ -325,6 +326,43 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
 
         }
         return $objects;
+    }
+
+    /**
+     * Get data of specific Image
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $objects An array ith all repositories found
+     */
+    public function getImageData($params, $context)
+    {
+        global $xmlConfig;
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+
+        $image = OMVModuleDockerUtil::getImage($params['id'], $settings['apiPort']);
+        $object = array(
+            "repository" => rtrim(ltrim($image->getRepository(), "<"), ">"),
+            "tag" => rtrim(ltrim($image->getTag(), "<"), ">"),
+            "id" => $image->getId(),
+            "created" => $image->getCreated(),
+            "size" => $image->getSize(),
+            "ports" => $image->getPorts(),
+            "envvars" => $image->getEnvVars(),
+            "imagevolumes" => $image->getVolumes()
+        );
+        return $object;
     }
 
     /**
