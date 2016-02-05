@@ -866,7 +866,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $this->_getXpath()
             );
         }
-        $container = OMVModuleDockerUtil::getContainer($params['id'],$settings['apiPort']);
+        $container = OMVModuleDockerUtil::getContainer($params['id'], $settings['apiPort']);
         $ports = "";
         foreach ($container->getPorts() as $exposedport => $hostports) {
             if ($hostports) {
@@ -882,7 +882,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $ports = rtrim($ports, ", ");
         $image = OMVModuleDockerUtil::getImage(
             substr($container->getImageId(), 0, 12),
-            $apiPort
+            $settings['apiPort']
         );
 
         $object = array(
