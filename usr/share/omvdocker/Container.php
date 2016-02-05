@@ -252,7 +252,7 @@ class OMVModuleDockerContainer
                 $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
-        $this->_imageId = $containerData->Image;
+        $this->_imageId = substr($containerData->Image, 7);
         $this->_portBindings = array();
         if (isset($containerData->HostConfig->PortBindings)) {
             foreach ($containerData->HostConfig->PortBindings as $containerPort => $mappings) {

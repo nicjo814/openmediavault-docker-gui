@@ -179,7 +179,7 @@ class OMVModuleDockerUtil
             $tmp = array(
                 "repository" => $repository,
                 "tag" => $tag,
-                "id" => substr($item->Id, 0, 12),
+                "id" => substr($item->Id, 7, 12),
                 "created" => $created,
                 "size" => OMVModuleDockerUtil::bytesToSize($item->VirtualSize)
             );
@@ -204,7 +204,7 @@ class OMVModuleDockerUtil
         $response = OMVModuleDockerUtil::doApiCall($url);
         $data = array();
         foreach (json_decode($response) as $item) {
-            $data[substr($item->Id, 0, 12)] = $item;
+            $data[substr($item->Id, 7, 12)] = $item;
         }
         return (new OMVModuleDockerImage($data[$id]->Id, $data, $apiPort));
     }
