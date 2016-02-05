@@ -655,11 +655,11 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             });
 
         } else {
-            //Display warning if setting is enabled
             OMV.Rpc.request({
                 scope: me,
                 callback: function(id, success, response) {
                     if (response) {
+                        //Display warning if setting is enabled
                         OMV.MessageBox.show({
                             title: _("Warning"),
                             msg: _("Please be aware that <b>all</b> non-persistent data within the container</br>" +
@@ -669,8 +669,83 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                             " target='_blank'>Link</a></br>" +
                                 "This warning can be disabled on the Settings tab"),
                             scope: me,
-                            buttons: Ext.Msg.OK
+                            buttons: Ext.Msg.OK,
+                            fn: function(buttonId) {
+                                if (buttonId === "ok") {
+                                    OMV.Rpc.request({
+                                        scope: me,
+                                        callback: function(id, success, response) {
+                                            if (success && response) {
+                                                Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                                                    title: _("Modify container"),
+                                                    image: response["image"],
+                                                    ports: response["exposedports"],
+                                                    envvars: response["envvars"],
+                                                    restartpolicy: response["restartpolicy"],
+                                                    privileged: response["privileged"],
+                                                    networkmode: response["networkmode"],
+                                                    portbindings: response["portbindings"],
+                                                    bindmounts: response["bindmounts"],
+                                                    cenvvars: response["cenvvars"],
+                                                    copyVolumes: response["volumesfrom"],
+                                                    hostname: response["hostname"],
+                                                    timesync: response["timesync"],
+                                                    imagevolumes: response["imagevolumes"],
+                                                    name: response["name"],
+                                                    cid: response["id"],
+                                                    action: "modify"
+                                                }).show();
+                                            }
+                                        },
+                                        relayErrors: false,
+                                        rpcData: {
+                                            service: "Docker",
+                                            method: "getContainerData",
+                                            params: {
+                                                id: record.get("id")
+                                            }
+                                        }
+                                    });
+
+                                }
+                            }
                         });
+                    } else {
+                        OMV.Rpc.request({
+                            scope: me,
+                            callback: function(id, success, response) {
+                                if (success && response) {
+                                    Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                                        title: _("Modify container"),
+                                        image: response["image"],
+                                        ports: response["exposedports"],
+                                        envvars: response["envvars"],
+                                        restartpolicy: response["restartpolicy"],
+                                        privileged: response["privileged"],
+                                        networkmode: response["networkmode"],
+                                        portbindings: response["portbindings"],
+                                        bindmounts: response["bindmounts"],
+                                        cenvvars: response["cenvvars"],
+                                        copyVolumes: response["volumesfrom"],
+                                        hostname: response["hostname"],
+                                        timesync: response["timesync"],
+                                        imagevolumes: response["imagevolumes"],
+                                        name: response["name"],
+                                        cid: response["id"],
+                                        action: "modify"
+                                    }).show();
+                                }
+                            },
+                            relayErrors: false,
+                            rpcData: {
+                                service: "Docker",
+                                method: "getContainerData",
+                                params: {
+                                    id: record.get("id")
+                                }
+                            }
+                        });
+
                     }
                 },
                 relayErrors: false,
@@ -682,25 +757,6 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                     }
                 }
             });
-            Ext.create("OMV.module.admin.service.docker.RunContainer", {
-                title: _("Modify container"),
-                image: record.get("image"),
-                ports: record.get("exposedports"),
-                envvars: record.get("envvars"),
-                restartpolicy: record.get("restartpolicy"),
-                privileged: record.get("privileged"),
-                networkmode: record.get("networkmode"),
-                portbindings: record.get("portbindings"),
-                bindmounts: record.get("bindmounts"),
-                cenvvars: record.get("cenvvars"),
-                copyVolumes: record.get("volumesfrom"),
-                hostname: record.get("hostname"),
-                timesync: record.get("timesync"),
-                imagevolumes: record.get("imagevolumes"),
-                name: record.get("name"),
-                cid: record.get("id"),
-                action: "modify"
-            }).show();
         }
     },
 
