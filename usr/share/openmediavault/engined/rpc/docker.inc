@@ -100,6 +100,7 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
         $this->registerMethod("commitContainer");
         $this->registerMethod("modifyWarningEnabled");
         $this->registerMethod("refreshContainers");
+        $this->registerMethod("getContainerData");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -846,6 +847,75 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $this->modifyContainer($new_params, $context);
             }
         }
+    }
+
+    /**
+     * Get data of a single container
+     * 
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function getContainerData($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        global $xmlConfig;
+
+        $settings = $xmlConfig->get($this->_getXpath());
+        if (is_null($settings)) {
+            throw new OMVException(
+                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
+                $this->_getXpath()
+            );
+        }
+        $container = OMVModuleDockerUtil::getContainer($params['id'],$settings['apiPort']);
+        $ports = "";
+        foreach ($container->getPorts() as $exposedport => $hostports) {
+            if ($hostports) {
+                foreach ($hostports as $hostport) {
+                    $ports .= $hostport["HostIp"] . ":" .
+                        $hostport["HostPort"] .
+                        "->" . $exposedport . ", ";
+                }
+            } else {
+                $ports .= $exposedport . ", ";
+            }
+        }
+        $ports = rtrim($ports, ", ");
+        $image = OMVModuleDockerUtil::getImage(
+            substr($container->getImageId(), 0, 12),
+            $apiPort
+        );
+
+        $object = array(
+            "id" => $container->getId(),
+            "image" => $container->getImage(),
+            "command" => $container->getCommand(),
+            "created" => $container->getCreated(),
+            "state" => $container->getState(),
+            "status" => $container->getStatus(),
+            "name" => $container->getName(),
+            "privileged" => $container->getPrivileged(),
+            "restartpolicy" => $container->getRestartPolicy(),
+            "networkmode" => ucfirst($container->getNetworkMode()),
+            "envvars" => $image->getEnvVars(),
+            "cenvvars" => $container->getEnvironmentVariables(),
+            "exposedports" => $image->getPorts(),
+            "portbindings" => $container->getPortBindings(),
+            "bindmounts" => $container->getBindMounts(),
+            "ports" => $ports,
+            "hasmounts" => $container->hasMounts(),
+            "volumesfrom" => $container->getVolumesFrom(),
+            "hostname" => $container->getHostName(),
+            "timesync" => $container->syncsTime(),
+            "imagevolumes" => $image->getVolumes()
+        );
+        return $object;
     }
 
     /**

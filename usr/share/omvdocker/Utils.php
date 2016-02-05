@@ -253,9 +253,11 @@ class OMVModuleDockerUtil
             $ports = "";
             if (isset($item->Ports)) {
                 foreach ($item->Ports as $port) {
-                    $ports .= $port->IP . ":" .
-                        $port->PublicPort . "->" .
-                        $port->PrivatePort . "/" .
+                    if (strcmp((string)$port->IP, "") !== 0) {
+                        $ports .= $port->IP . ":" .
+                            $port->PublicPort . "->";
+                    }
+                    $ports .= $port->PrivatePort . "/" .
                         $port->Type . ", ";
                 }
             }
@@ -265,6 +267,8 @@ class OMVModuleDockerUtil
                 $state = "stopped";
             } elseif (preg_match('/^Exited.*$/', $item->Status)) {
                 $state = "dead";
+            } elseif (strcmp((string)$item->Status, "Created") === 0) {
+                $state = "stopped";
             }
 
             array_push(

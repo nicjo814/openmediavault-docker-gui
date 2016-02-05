@@ -103,8 +103,6 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
     beforeRender: function() {
         var me = this;
         me.callParent(arguments);
-
-        console.log(me.bindmounts);        
         //Add bind mounts and an empty row
         var bindMountsFieldset = me.queryById("dockerBindMounts");
         for (i = 0; i < me.bindmounts.length; i++) {

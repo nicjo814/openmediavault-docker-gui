@@ -593,6 +593,7 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
         });
     },
 
+    /*
     onCopyButton: function() {
         var me = this;
         var sm = me.getSelectionModel();
@@ -626,7 +627,56 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
             }).show();
         }
     },
+    */
     
+    onCopyButton: function() {
+        var me = this;
+        var sm = me.getSelectionModel();
+        var records = sm.getSelection();
+        var record = records[0];
+        OMV.Rpc.request({
+            scope: me,
+            callback: function(id, success, response) {
+                if (success && response) {
+                    if (record.get("status") === "Created") {
+                        var imageStore = me.up('tabpanel').down('dockerImageGrid').getStore();
+                        Ext.create("OMV.module.admin.service.docker.CreateContainer", {
+                            title: _("Copy data container"),
+                            imageStore: imageStore,
+                            image: response["image"],
+                            bindmounts: response["bindmounts"]
+                        }).show();
+                    } else {
+                        Ext.create("OMV.module.admin.service.docker.RunContainer", {
+                            title: _("Copy container"),
+                            image: response["image"],
+                            ports: response["exposedports"],
+                            envvars: response["envvars"],
+                            restartpolicy: response["restartpolicy"],
+                            privileged: response["privileged"],
+                            networkmode: response["networkmode"],
+                            portbindings: response["portbindings"],
+                            bindmounts: response["bindmounts"],
+                            cenvvars: response["cenvvars"],
+                            copyVolumes: response["volumesfrom"],
+                            hostname: response["hostname"],
+                            timesync: response["timesync"],
+                            imagevolumes: response["imagevolumes"]
+                        }).show();
+                    }
+                }
+            },
+            relayErrors: false,
+            rpcData: {
+                service: "Docker",
+                method: "getContainerData",
+                params: {
+                    id: record.get("id")
+                }
+            }
+        });
+    },
+
     onModifyButton: function() {
         var me = this;
         var sm = me.getSelectionModel();
@@ -652,8 +702,8 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
                                    "will be <b>deleted</b></br>" +
                                    "Please see here for more information:</br>" +
                                    "<a href='http://forums.openmediavault.org/index.php/Thread/10921-openmediavault-docker-gui-Testing/?postID=101996#post102450'" +
-                                   " target='_blank'>Link</a></br>" +
-                                   "This warning can be disabled on the Settings tab"),
+                            " target='_blank'>Link</a></br>" +
+                                "This warning can be disabled on the Settings tab"),
                             scope: me,
                             buttons: Ext.Msg.OK
                         });
