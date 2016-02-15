@@ -1,3 +1,9 @@
+openmediavault-docker-gui (3.0.7) UNRELEASED; urgency=medium
+
+  * Bug fix to Image backend 
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Mon, 15 Feb 2016 12:57:20 +0100
+
 openmediavault-docker-gui (3.0.6) stable; urgency=medium
 
   * Bug fixes to container and image backend

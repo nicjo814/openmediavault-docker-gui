@@ -122,7 +122,7 @@ class OMVModuleDockerImage
         $this->_id = $id;
         $item = $data[substr($id, 0, 12)];
 
-        if (is_array($item->RepoTags) && (count($item->RepoTags) > 0)) {
+        if (isset($item->RepoTags)) {
             $this->_repository = preg_split('/\:/', $item->RepoTags[0])[0];
             $this->_tag = preg_split('/\:/', $item->RepoTags[0])[1];
         } else {

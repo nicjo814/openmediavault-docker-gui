@@ -206,7 +206,7 @@ class OMVModuleDockerUtil
         foreach (json_decode($response) as $item) {
             $data[substr($item->Id, 7, 12)] = $item;
         }
-        return (new OMVModuleDockerImage($data[$id]->Id, $data, $apiPort));
+        return (new OMVModuleDockerImage(substr($data[$id]->Id, 7, 12), $data, $apiPort));
     }
 
 

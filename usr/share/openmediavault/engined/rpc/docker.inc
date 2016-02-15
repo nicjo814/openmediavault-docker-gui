@@ -350,8 +350,9 @@ class OMVRpcServiceDocker extends OMVRpcServiceAbstract
                 $this->_getXpath()
             );
         }
-
+        
         $image = OMVModuleDockerUtil::getImage($params['id'], $settings['apiPort']);
+
         $object = array(
             "repository" => rtrim(ltrim($image->getRepository(), "<"), ">"),
             "tag" => rtrim(ltrim($image->getTag(), "<"), ">"),
