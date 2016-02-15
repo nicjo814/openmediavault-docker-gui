@@ -207,7 +207,6 @@ class OMVModuleDockerContainer
         $this->_id = $id;
         $now = date("c");
         $item = $data[substr($id, 0, 12)];
-        $this->_image = $item->Image;
         $this->_status = $item->Status;
         $this->_command = $item->Command;
         $this->_created = OMVModuleDockerUtil::getWhen(
@@ -218,6 +217,7 @@ class OMVModuleDockerContainer
         $url = "http://localhost:" . $apiPort . "/containers/$id/json";
         $response = OMVModuleDockerUtil::doApiCall($url);
         $containerData = json_decode($response);
+        $this->_image = $containerData->Config->Image;
         $this->_state = "running";
         if ($containerData->State->Running) {
             $this->_state = "running";
