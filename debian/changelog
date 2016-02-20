@@ -1,4 +1,4 @@
-openmediavault-docker-gui (3.0.7) UNRELEASED; urgency=medium
+openmediavault-docker-gui (3.0.7) stable; urgency=medium
 
   * Bug fix to Image backend 
   * Bug fix to Container backend
