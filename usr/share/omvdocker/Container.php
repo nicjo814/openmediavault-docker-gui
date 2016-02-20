@@ -243,6 +243,9 @@ class OMVModuleDockerContainer
             }
         }
         $this->_networkMode = $containerData->HostConfig->NetworkMode;
+        if (strcmp($this->_networkMode, "default") === 0) {
+            $this->_networkMode = "bridge";
+        }
         $this->_privileged = $containerData->HostConfig->Privileged;
         $this->_restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
         $this->_envVars = array();
