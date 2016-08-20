@@ -1,3 +1,9 @@
+openmediavault-docker-gui (3.0.9) stable; urgency=low
+
+  * Port to OMV 3.0.26
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 20 Aug 2016 06:36:37 -0400
+
 openmediavault-docker-gui (3.0.8) stable; urgency=low
 
   * Changed dependency of OMV Package to = 3.0.13 to avoid accidental user updates

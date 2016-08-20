@@ -23,10 +23,18 @@
  */
 
 require_once "Exception.php";
-require_once "openmediavault/util.inc";
-require_once "openmediavault/system.inc";
 require_once "Image.php";
 require_once "Container.php";
+
+use OMV\Config\Database;
+use OMV\Config\ConfigObject;
+use OMV\Rpc\ServiceAbstract;
+use OMV\Engine\Notify;
+use OMV\System\SystemCtl;
+use OMV\System\Process;
+use OMV\Rpc\Rpc;
+use OMV\Uuid;
+use OMV\System\MountPoint;
 
 
 /**
@@ -41,6 +49,9 @@ require_once "Container.php";
  */
 class OMVModuleDockerUtil
 {
+    static private $dataModelPath = 'conf.service.docker';
+    static private $database;
+
     /**
      * Returns the result of a call to the Docker API
      *
@@ -77,19 +88,19 @@ class OMVModuleDockerUtil
     public static function stopDockerService()
     {
         $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-        OMVUtil::exec($cmd, $out, $res);
+        $process = new Process($cmd);
+        $out = $process->execute();
 
-        while ($out[0] > 0) {
+        while ($out > 0) {
             //Wait for the docker service to stop before making config changes
-            $cmd = "systemctl stop docker.socket";
-            OMVUtil::exec($cmd, $out, $res);
-            unset($out);
-            $cmd = "systemctl stop docker";
-            OMVUtil::exec($cmd, $out, $res);
-            unset($out);
+            $systemCtl = new SystemCtl("docker.socker");
+            $systemCtl->stop();
+            $systemCtl = new SystemCtl("docker");
+            $systemCtl->stop();
             sleep(1);
             $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-            OMVUtil::exec($cmd, $out, $res);
+            $process = new Process($cmd);
+            $out = $process->execute();
         }
     }
 
@@ -101,8 +112,9 @@ class OMVModuleDockerUtil
     public static function startDockerService()
     {
         //Start the daemon again after changes have been made
-        $cmd = "systemctl start docker";
-        OMVUtil::exec($cmd, $out, $res);
+        $systemCtl = new SystemCtl("docker");
+        $systemCtl->start();
+
     }
 
     /**
@@ -432,9 +444,9 @@ class OMVModuleDockerUtil
      * @return void
      *
      */
-    public function changeDockerSettings($apiPort, $absPath)
+    public static function changeDockerSettings($context, $apiPort, $absPath)
     {
-        global $xmlConfig;
+        self::$database = Database::getInstance();
         OMVModuleDockerUtil::stopDockerService();
 
         //Do some sanity checks before making changes to running config.
@@ -460,34 +472,22 @@ class OMVModuleDockerUtil
         }
 
         // Next get the old settings object
-        $oldSettings = $xmlConfig->get("/config/services/docker");
-        if (is_null($oldSettings)) {
-            throw new OMVException(
-                OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
-                "/config/services/docker"
-            );
-        }
+        $oldSettings = self::$database->getAssoc(self::$dataModelPath);
 
         // Next umount old bind mount
         if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
-            $oldMntentXpath = "//system/fstab/mntent[uuid='" .
-                $oldSettings['dockermntent'] . "']";
-            if (!$oldMntent = $xmlConfig->get($oldMntentXpath)) {
-                throw new OMVException(
-                    OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED,
-                    $xpath
-                );
-            } else {
-                $me = new OMVMntEnt($oldMntent['fsname'], $oldMntent['dir']);
+            $oldMntent = Rpc::call("FsTab", "get", ["uuid"=>$oldSettings['dockermntent']], $context);
+            $me = new MountPoint($oldMntent['fsname'], $oldMntent['dir']);
+            $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
+            unset($out);
+            $process = new Process($cmd);
+            $out = $process->execute();
+            while ($out > 0) {
+                $me->umount();
                 $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
                 unset($out);
-                OMVUtil::exec($cmd, $out, $res);
-                while ($out[0] > 0) {
-                    $me->umount();
-                    $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
-                    unset($out);
-                    OMVUtil::exec($cmd, $out, $res);
-                }
+                $process = new Process($cmd);
+                $out = $process->execute();
             }
         }
 
@@ -527,13 +527,15 @@ class OMVModuleDockerUtil
 
         //Next fix OMV config backend if the base path should be relocated
         //Start by removing any old mntent entries
-        $tmpXpath = "//system/fstab/mntent[dir='/var/lib/docker/openmediavault']";
-        $xmlConfig->delete($tmpXpath);
+        $mnt = Rpc::call("FsTab", "getByDir", ["dir"=>'/var/lib/docker/openmediavault'],$context);
+        if($mnt)
+            Rpc::call("FsTab", "delete", ["uuid"=>$mnt['uuid']],$context);
 
         //Next generate a new mntent entry if a shared folder is specified
         if (!(strcmp($absPath, "") === 0)) {
-            $newMntent = array(
-                "uuid" => OMVUtil::uuid(),
+
+            $newMntent = [
+                "uuid" => Uuid::uuid4(),
                 "fsname" => $absPath,
                 "dir" => "/var/lib/docker/openmediavault",
                 "type" => "none",
@@ -541,8 +543,9 @@ class OMVModuleDockerUtil
                 "freq" => "0",
                 "passno" => "0",
                 "hidden" => "0"
-            );
-            $xmlConfig->set("//system/fstab", array("mntent" => $newMntent));
+            ];
+
+            Rpc::call("FsTab", "set", $newMntent, $context);
         }
 
         //Update settings object
@@ -557,55 +560,28 @@ class OMVModuleDockerUtil
             "apiPort" => $oldSettings['apiPort'],
             "sharedfolderref" => $oldSettings['sharedfolderref']
         );
-        if (false === $xmlConfig->replace("/config/services/docker", $object)) {
-            throw new OMVException(
-                OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED,
-                "/config/services/docker"
-            );
-        }
+
+        $config = new ConfigObject(self::$dataModelPath);
+        $config->setAssoc($object);
+        self::$database->set($config);
 
         //Re-generate fstab entries
         $cmd = "export LANG=C; omv-mkconf fstab 2>&1";
-        OMVUtil::exec($cmd, $out, $res);
+        $process = new Process($cmd);
+        $out = $process->execute();
 
         // Finally mount the new bind-mount entry
         if (!(strcmp($absPath, "") === 0)) {
-            $me = new OMVMntEnt($newMntent['fsname'], $newMntent['dir']);
-            if (false === $me->mount()) {
-                throw new OMVException(
-                    OMVErrorMsg::E_MISC_FAILURE,
-                    sprintf(
-                        "Failed to mount '%s': %s", $objectv['fsname'],
-                        $me->getLastError()
-                    )
-                );
-            }
+            $me = new MountPoint($newMntent['fsname'], $newMntent['dir']);
+            $me->mount();
             //Remount the bind-mount with defaults options
             $cmd = "export LANG=C; mount -o remount,bind,defaults " .
                 $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
-            OMVUtil::exec($cmd, $out, $res);
+            $process = new Process($cmd);
+            $out = $process->execute();
         }
 
         OMVModuleDockerUtil::startDockerService();
     }
 
-    /**
-     * Helper function to execute a command and throw an exception on error
-     * (requires stderr redirected to stdout for proper exception message).
-     *
-     * @param string $cmd  Command to execute
-     * @param array  &$out If provided will contain output in an array
-     * @param int    &$res If provided will contain Exit status of the command
-     *
-     * @return string Last line of output when executing the command
-     * @throws OMVModuleDockerException
-     */
-    public static function exec($cmd, &$out = null, &$res = null)
-    {
-        $tmp = OMVUtil::exec($cmd, $out, $res);
-        if ($res) {
-            throw new OMVModuleDockerException(implode("\n", $out));
-        }
-        return $tmp;
-    }
 }
