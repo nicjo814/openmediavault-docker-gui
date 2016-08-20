@@ -16,7 +16,8 @@
  */
 
 // require("js/omv/workspace/window/plugin/ConfigObject.js")
-// require("js/omv/window/RootFolderBrowser.js")
+// require("js/omvextras/window/RootFolderBrowser.js")
+
 Ext.define("OMV.module.admin.service.docker.BindMountRow", {
     extend: "Ext.container.Container",
     alias: "widget.module.admin.service.docker.bindmountrow",
@@ -67,7 +68,7 @@ Ext.define("OMV.module.admin.service.docker.BindMountRow", {
                 }
             },
             onTriggerClick : function() {
-                Ext.create("OMV.window.RootFolderBrowser", {
+                Ext.create("OmvExtras.window.RootFolderBrowser", {
                     listeners : {
                         scope  : this,
                         select : function(wnd, node, path) {
