@@ -93,7 +93,7 @@ class OMVModuleDockerUtil
 
         while ($out > 0) {
             //Wait for the docker service to stop before making config changes
-            $systemCtl = new SystemCtl("docker.socker");
+            $systemCtl = new SystemCtl("docker.socket");
             $systemCtl->stop();
             $systemCtl = new SystemCtl("docker");
             $systemCtl->stop();
