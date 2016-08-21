@@ -1,6 +1,7 @@
 openmediavault-docker-gui (3.1.0) stable; urgency=low
 
   * fix getByDir
+  * fix missing omvextras-common package
 
  -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 20 Aug 2016 13:45:59 -0400
 
