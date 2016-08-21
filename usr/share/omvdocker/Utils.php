@@ -527,7 +527,7 @@ class OMVModuleDockerUtil
 
         //Next fix OMV config backend if the base path should be relocated
         //Start by removing any old mntent entries
-        $mnt = Rpc::call("FsTab", "getByDir", ["dir"=>'/var/lib/docker/openmediavault'],$context);
+        $mnt = Rpc::call("FsTab", "getByDir", ["id"=>'/var/lib/docker/openmediavault'],$context);
         if($mnt)
             Rpc::call("FsTab", "delete", ["uuid"=>$mnt['uuid']],$context);
 
