@@ -39,7 +39,7 @@ use OMV\Config\ConfigObject;
 use OMV\Config\Database;
 use OMV\Engine\Notify\Dispatcher;
 use OMV\System\Process;
-use OMV\Rpc;
+use OMV\Rpc\Rpc;
 
 //use OMV\Rpc\ServiceManager;
 

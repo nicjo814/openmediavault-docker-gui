@@ -33,7 +33,6 @@ use OMV\Engine\Notify;
 use OMV\System\SystemCtl;
 use OMV\System\Process;
 use OMV\Rpc\Rpc;
-use OMV\Uuid;
 use OMV\System\MountPoint;
 
 
@@ -87,21 +86,14 @@ class OMVModuleDockerUtil
      */
     public static function stopDockerService()
     {
-        $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-        $process = new Process($cmd);
-        $out = $process->execute();
-
-        while ($out > 0) {
+        do {
             //Wait for the docker service to stop before making config changes
             $systemCtl = new SystemCtl("docker.socket");
             $systemCtl->stop();
-            $systemCtl = new SystemCtl("docker");
-            $systemCtl->stop();
+            $systemCtl2 = new SystemCtl("docker");
+            $systemCtl2->stop();
             sleep(1);
-            $cmd = 'ps aux | grep "/usr/bin/docker daemon" | grep -v grep | wc -l';
-            $process = new Process($cmd);
-            $out = $process->execute();
-        }
+        } while ($systemCtl->isActive() || $systemCtl2->isActive());
     }
 
     /**
@@ -527,7 +519,7 @@ class OMVModuleDockerUtil
 
         //Next fix OMV config backend if the base path should be relocated
         //Start by removing any old mntent entries
-        $mnt = Rpc::call("FsTab", "getByDir", ["id"=>'/var/lib/docker/openmediavault'],$context);
+        $mnt = Rpc::call("FsTab", "getByDir", ["dir"=>'/var/lib/docker/openmediavault'],$context);
         if($mnt)
             Rpc::call("FsTab", "delete", ["uuid"=>$mnt['uuid']],$context);
 
@@ -535,17 +527,16 @@ class OMVModuleDockerUtil
         if (!(strcmp($absPath, "") === 0)) {
 
             $newMntent = [
-                "uuid" => Uuid::uuid4(),
+                "uuid" => \OMV\Environment::get("OMV_CONFIGOBJECT_NEW_UUID"),
                 "fsname" => $absPath,
                 "dir" => "/var/lib/docker/openmediavault",
                 "type" => "none",
                 "opts" => "bind,defaults",
-                "freq" => "0",
-                "passno" => "0",
-                "hidden" => "0"
+                "freq" => 0,
+                "passno" => 0
             ];
 
-            Rpc::call("FsTab", "set", $newMntent, $context);
+            $newMntent = Rpc::call("FsTab", "set", $newMntent, $context);
         }
 
         //Update settings object
