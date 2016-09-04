@@ -1162,7 +1162,8 @@ class OMVRpcServiceDocker extends ServiceAbstract
         if (file_exists($srcpath . "/containers") && file_exists($srcpath . "/volumes")) {
             if (file_exists($srcpath . "/devicemapper/mnt")) {
                 $cmd = "umount $srcpath/devicemapper/mnt/*";
-                $process = Prcoess($cmd);
+                $process = new Process($cmd);
+                $process->setQuiet();
                 $process->execute();
             }
             // Create a background process.
