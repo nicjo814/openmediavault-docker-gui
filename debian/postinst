@@ -8,16 +8,19 @@ set -e
 
 case "$1" in
   configure)
-    
+
+    SERVICE_XPATH_NAME="docker"
+    SERVICE_XPATH="/config/services/${SERVICE_XPATH_NAME}"
+
     #Setup initial OMV configuration
-	if ! omv_config_exists "/config/services/docker"; then
+    if ! omv_config_exists "/config/services/docker"; then
       echo "Initialize configuration"
-	  object="<apiPort>42005</apiPort>"
-	  object="${object}<sharedfolderref></sharedfolderref>"
-      object="${object}<enabled>0</enabled>"
-      object="${object}<dockermntent></dockermntent>"
-      object="${object}<cwarn>1</cwarn>"
-      omv_config_add_element "/config/services" "docker" "${object}" true
+      omv_config_add_node "/config/services" "${SERVICE_XPATH_NAME}"
+      omv_config_add_key "${SERVICE_XPATH}" "apiPort" "42005"
+      omv_config_add_key "${SERVICE_XPATH}" "sharedfolderref" ""
+      omv_config_add_key "${SERVICE_XPATH}" "enabled" "0"
+      omv_config_add_key "${SERVICE_XPATH}" "dockermntent" ""
+      omv_config_add_key "${SERVICE_XPATH}" "cwarn" "1"
     fi
 
     #Remove deprecated stuff to ensure clean installation
