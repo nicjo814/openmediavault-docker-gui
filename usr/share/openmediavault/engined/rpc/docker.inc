@@ -1270,7 +1270,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $process->execute();
 
         //First populate with logos from OMV repo
-        $baseUrl = "http://openmediavault-plugin-developers.github.io/" . 
+        $baseUrl = "http://openmediavault-plugin-developers.github.io/" .
             "openmediavault-docker-repo/";
         $imgBase = $baseUrl . "logos/";
         $repoUrl = $baseUrl . "dockerlist.xml";
@@ -1343,28 +1343,68 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $cmd = "mkdir -p $logoPath";
         $process = new Process($cmd);
         $process->execute();
-
-        //First populate with images from OMV repo
-        $baseUrl = "http://openmediavault-plugin-developers.github.io/" . 
-            "openmediavault-docker-repo/";
-        $imgBase = $baseUrl . "logos/";
-        $repoUrl = $baseUrl . "dockerlist.xml";
-        $data = file_get_contents($repoUrl);
-        $xml = simplexml_load_string($data);
-        $objects = array();
-        foreach ($xml as $image) {        
-            //Use blank logo if no logo is found
-            $logo = "";
-            if (file_exists($logoPath . $image->imageurl)) {
-                $logo = $image->imageurl;
+        try{
+            //First populate with images from OMV repo
+            $baseUrl = "http://openmediavault-plugin-developers.github.io/" .
+                "openmediavault-docker-repo/";
+            $imgBase = $baseUrl . "logos/";
+            $repoUrl = $baseUrl . "dockerlist.xml";
+            $data = file_get_contents($repoUrl);
+            $xml = simplexml_load_string($data);
+            $objects = array();
+            foreach ($xml as $image) {
+                //Use blank logo if no logo is found
+                $logo = "";
+                if (file_exists($logoPath . $image->imageurl)) {
+                    $logo = $image->imageurl;
+                }
+                //Silently skip any records that are missing data
+                if ((strlen($image->name) === 0) || (strlen($image->desc) === 0) || (strlen($image->category) === 0) || (strlen($image->repo) === 0)) {
+                    continue;
+                } else {
+                    $ports_ary = array();
+                    $pulled = false;
+                    $imgRepo = trim((string)$image->repo);
+                    if (isset($pulledImages[$imgRepo])) {
+                        $pulled = true;
+                        $image_obj = OMVModuleDockerUtil::getImage(
+                            $pulledImages[$imgRepo],
+                            $settings['apiPort']
+                        );
+                        $ports_ary = $image_obj->getPorts();
+                    }
+                    $temp = array("name" => $image->name,
+                        "category" => $image->category,
+                        "logo" => $logo,
+                        "desc" => $image->desc,
+                        "repo" => $image->repo,
+                        "pulled" => $pulled,
+                        "timesync" => true,
+                        "restartpolicy" => "always",
+                        "privileged" => false,
+                        "cenvvars" => array(),
+                        "envvars" => array(),
+                        "ports" => $ports_ary,
+                        "portbindings" => array(),
+                        "extraargs" => "",
+                        "isupdated" => false
+                    );
+                    array_push($objects, $temp);
+                }
             }
-            //Silently skip any records that are missing data
-            if ((strlen($image->name) === 0) || (strlen($image->desc) === 0) || (strlen($image->category) === 0) || (strlen($image->repo) === 0)) {
-                continue;
-            } else {
+
+            //Next populate with linuxserver.io images
+            $url = "http://tools.linuxserver.io/docker-templates.json";
+            $local_logo_path = "/var/www/openmediavault/images/dockerrepo/";
+            $json = file_get_contents($url);
+            $data = json_decode($json);
+            foreach ($data->applist as $image) {
+
+                $cenv_ary = array();
                 $ports_ary = array();
                 $pulled = false;
-                $imgRepo = trim((string)$image->repo);
+                $updated = false;
+                $imgRepo = trim((string)$image->Repository);
                 if (isset($pulledImages[$imgRepo])) {
                     $pulled = true;
                     $image_obj = OMVModuleDockerUtil::getImage(
@@ -1372,133 +1412,97 @@ class OMVRpcServiceDocker extends ServiceAbstract
                         $settings['apiPort']
                     );
                     $ports_ary = $image_obj->getPorts();
+                    $local_time = (int)date("U", $image_obj->getTimestamp());
+                    $repo_time = (int)date("U", trim((string)$image->Updated));
+                    if ($local_time < $repo_time) {
+                        $updated = true;
+                    }
                 }
-                $temp = array("name" => $image->name,
-                    "category" => $image->category,
+                $timesync = true;
+                if (strcmp(trim((string)$image->BindTime), "false") === 0) {
+                    $timesync = false;
+                }
+                $privileged = false;
+                if (strcmp(trim((string)$image->Privileged), "true") === 0) {
+                    $privileged = true;
+                }
+                foreach ($image->Environment->Variable as $cenvvar) {
+                    if ((strcmp(trim((string)$cenvvar->Name), "PUID") === 0) ||
+                        (strcmp(trim((string)$cenvvar->Name), "PGID") === 0)) {
+                        continue;
+                    }
+                    $cenv_ary[$cenvvar->Name] = $cenvvar->Value;
+                }
+                $cenv_ary["PUID"] = 65534;
+                $cenv_ary["PGID"] = 65534;
+                $nw_mode = ucfirst(trim((string)$image->Networking->Mode));
+                $port_bindings = array();
+                if (strcmp($nw_mode, "Bridge") === 0) {
+                    foreach ($image->Networking->Publish[0]->Port as $port) {
+                        array_push(
+                            $port_bindings,
+                            array(
+                                "containerportstring" => trim((string)$port->ContainerPort) . "/" . trim((string)$port->Protocol),
+                                "containerportnr" => trim((string)$port->ContainerPort),
+                                "hostip" => "0.0.0.0",
+                                "hostport" => trim((string)$port->HostPort),
+                                "proto" => "Select"
+                            ));
+
+                    }
+                }
+                $extraargs = "";
+                if ((isset($image->ExtraParams)) && is_array($image->ExtraParams)) {
+                    foreach ($image->ExtraParams as $param) {
+                        $extraargs .= trim((string)$param) . " ";
+                    }
+                }
+                $extraargs = trim($extraargs);
+                $categories = explode(":", trim((string)$image->Category));
+                $categories = implode("<br>", $categories);
+
+                //Use blank logo if no Icon is specified
+                $logo = "";
+                if (strcmp(trim((string)$image->Icon), "") !== 0) {
+                    $logo_url = trim((string)$image->Icon);
+                    $repo_name = trim((string)$image->Repository);
+                    preg_match('/^.*(\.[^\.]+)$/', $logo_url, $matches);
+                    $logo_suffix = $matches[1];
+                    $logo_name = str_replace("/", "_", $repo_name) . $logo_suffix;
+                    if (file_exists($local_logo_path . $logo_name)) {
+                        $logo = $logo_name;
+                    }
+                }
+                $desc = "No description available";
+                if (isset($image->Overview)) {
+                    $desc = trim((string)$image->Overview);
+                }
+
+                $temp = array("name" => trim((string)$image->Name),
+                    "category" => $categories,
                     "logo" => $logo,
-                    "desc" => $image->desc,
-                    "repo" => $image->repo,
+                    "desc" => $desc,
+                    "repo" => trim((string)$image->Repository),
                     "pulled" => $pulled,
-                    "timesync" => true,
+                    "timesync" => $timesync,
                     "restartpolicy" => "always",
-                    "privileged" => false,
-                    "cenvvars" => array(),
+                    "privileged" => $privileged,
+                    "cenvvars" => $cenv_ary,
                     "envvars" => array(),
                     "ports" => $ports_ary,
-                    "portbindings" => array(),
-                    "extraargs" => "",
-                    "isupdated" => false
+                    "networkmode" => $nw_mode,
+                    "portbindings" => $port_bindings,
+                    "extraargs" => $extraargs,
+                    "isupdated" => $updated
                 );
                 array_push($objects, $temp);
-            }
         }
-
-        //Next populate with linuxserver.io images
-        $url = "http://tools.linuxserver.io/docker-templates.json";
-        $local_logo_path = "/var/www/openmediavault/images/dockerrepo/";
-        $json = file_get_contents($url);
-        $data = json_decode($json);
-        foreach ($data->applist as $image) {
-
-            $cenv_ary = array();
-            $ports_ary = array();
-            $pulled = false;
-            $updated = false;
-            $imgRepo = trim((string)$image->Repository);
-            if (isset($pulledImages[$imgRepo])) {
-                $pulled = true;
-                $image_obj = OMVModuleDockerUtil::getImage(
-                    $pulledImages[$imgRepo],
-                    $settings['apiPort']
-                );
-                $ports_ary = $image_obj->getPorts();
-                $local_time = (int)date("U", $image_obj->getTimestamp());
-                $repo_time = (int)date("U", trim((string)$image->Updated));
-                if ($local_time < $repo_time) {
-                    $updated = true;
-                }
-            }
-            $timesync = true;
-            if (strcmp(trim((string)$image->BindTime), "false") === 0) {
-                $timesync = false;
-            }
-            $privileged = false;
-            if (strcmp(trim((string)$image->Privileged), "true") === 0) {
-                $privileged = true;
-            }
-            foreach ($image->Environment->Variable as $cenvvar) {
-                if ((strcmp(trim((string)$cenvvar->Name), "PUID") === 0) ||
-                    (strcmp(trim((string)$cenvvar->Name), "PGID") === 0)) {
-                    continue;
-                }
-                $cenv_ary[$cenvvar->Name] = $cenvvar->Value; 
-            }
-            $cenv_ary["PUID"] = 65534;
-            $cenv_ary["PGID"] = 65534;
-            $nw_mode = ucfirst(trim((string)$image->Networking->Mode));
-            $port_bindings = array();
-            if (strcmp($nw_mode, "Bridge") === 0) {
-                foreach ($image->Networking->Publish[0]->Port as $port) {
-                    array_push(
-                        $port_bindings,
-                        array(
-                            "containerportstring" => trim((string)$port->ContainerPort) . "/" . trim((string)$port->Protocol),
-                            "containerportnr" => trim((string)$port->ContainerPort),
-                            "hostip" => "0.0.0.0",
-                            "hostport" => trim((string)$port->HostPort),
-                            "proto" => "Select"
-                        ));
-
-                }
-            }
-            $extraargs = "";
-            if ((isset($image->ExtraParams)) && is_array($image->ExtraParams)) {
-                foreach ($image->ExtraParams as $param) {
-                    $extraargs .= trim((string)$param) . " ";
-                }
-            }
-            $extraargs = trim($extraargs);
-            $categories = explode(":", trim((string)$image->Category));
-            $categories = implode("<br>", $categories);
-
-            //Use blank logo if no Icon is specified
-            $logo = "";
-            if (strcmp(trim((string)$image->Icon), "") !== 0) {
-                $logo_url = trim((string)$image->Icon);
-                $repo_name = trim((string)$image->Repository);
-                preg_match('/^.*(\.[^\.]+)$/', $logo_url, $matches);
-                $logo_suffix = $matches[1];
-                $logo_name = str_replace("/", "_", $repo_name) . $logo_suffix;
-                if (file_exists($local_logo_path . $logo_name)) {
-                    $logo = $logo_name;
-                }
-            }
-            $desc = "No description available";
-            if (isset($image->Overview)) {
-                $desc = trim((string)$image->Overview);
-            }
-
-            $temp = array("name" => trim((string)$image->Name),
-                "category" => $categories,
-                "logo" => $logo,
-                "desc" => $desc,
-                "repo" => trim((string)$image->Repository),
-                "pulled" => $pulled,
-                "timesync" => $timesync,
-                "restartpolicy" => "always",
-                "privileged" => $privileged,
-                "cenvvars" => $cenv_ary,
-                "envvars" => array(),
-                "ports" => $ports_ary,
-                "networkmode" => $nw_mode,
-                "portbindings" => $port_bindings,
-                "extraargs" => $extraargs,
-                "isupdated" => $updated
-            );
-            array_push($objects, $temp);
+        }catch (Exception $e){
+            if(!isset($objects))
+                $objects = [];
+        }finally{
+            return $objects;
         }
-
-        return $objects;
     }
 
     //throw new OMVModuleDockerException($cmd);
