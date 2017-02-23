@@ -1,3 +1,9 @@
+openmediavault-docker-gui (3.1.4) stable; urgency=low
+
+  * Fix modifyContainer
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 23 Feb 2017 17:22:20 +0900
+
 openmediavault-docker-gui (3.1.3) stable; urgency=medium
 
   * Handle bad dockerRepo response

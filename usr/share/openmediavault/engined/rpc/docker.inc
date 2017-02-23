@@ -524,7 +524,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $container = OMVModuleDockerUtil::getContainer($params['cid'], $settings['apiPort']);
         $image = OMVModuleDockerUtil::getImage(
             substr($container->getImageId(), 0, 12),
-            $apiPort
+            $settings['apiPort']
         );
 
         $restart = false;
