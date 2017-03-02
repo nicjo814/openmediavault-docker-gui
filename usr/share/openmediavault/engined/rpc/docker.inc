@@ -1374,11 +1374,11 @@ class OMVRpcServiceDocker extends ServiceAbstract
                         );
                         $ports_ary = $image_obj->getPorts();
                     }
-                    $temp = array("name" => $image->name,
-                        "category" => $image->category,
-                        "logo" => $logo,
-                        "desc" => $image->desc,
-                        "repo" => $image->repo,
+                    $temp = array("name" => (string)$image->name,
+                        "category" => (string)$image->category,
+                        "logo" => (string)$logo,
+                        "desc" => (string)$image->desc,
+                        "repo" => (string)$image->repo,
                         "pulled" => $pulled,
                         "timesync" => true,
                         "restartpolicy" => "always",
