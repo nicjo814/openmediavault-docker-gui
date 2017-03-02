@@ -33,7 +33,7 @@ use OMV\Engine\Notify;
 use OMV\System\SystemCtl;
 use OMV\System\Process;
 use OMV\Rpc\Rpc;
-use OMV\System\MountPoint;
+use OMV\System\Filesystem\Filesystem;
 
 
 /**
@@ -444,6 +444,7 @@ class OMVModuleDockerUtil
         //Do some sanity checks before making changes to running config.
 
         //First check that there is no manual base path relocation in the file
+        //Second update /etc/default/docker with user provided data
         // /etc/default/docker
         $fileName = "/etc/default/docker";
         $data = file_get_contents($fileName);
@@ -461,6 +462,7 @@ class OMVModuleDockerUtil
                     "($matches[1])\n"
                 );
             }
+            $result .= $line . "\n";
         }
 
         // Next get the old settings object
@@ -468,41 +470,19 @@ class OMVModuleDockerUtil
 
         // Next umount old bind mount
         if (!(strcmp($oldSettings['dockermntent'], "") === 0)) {
-            $oldMntent = Rpc::call("FsTab", "get", ["uuid"=>$oldSettings['dockermntent']], $context);
-            $me = new MountPoint($oldMntent['fsname'], $oldMntent['dir']);
             $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
-            unset($out);
             $process = new Process($cmd);
             $out = $process->execute();
             while ($out > 0) {
-                $me->umount();
+                $cmd = "umount /var/lib/docker/openmediavault";
+                $process = new Process($cmd);
+                $out = $process->execute();
                 $cmd = "mount | grep /var/lib/docker/openmediavault | wc -l";
-                unset($out);
                 $process = new Process($cmd);
                 $out = $process->execute();
             }
         }
 
-        //First update /etc/default/docker with user provided data
-        $fileName = "/etc/default/docker";
-        $data = file_get_contents($fileName);
-        $lines = explode("\n", $data);
-        $result = "";
-        foreach ($lines as $line) {
-            if (strcmp($line, "### Do not change these lines. They are added and updated by the OMV Docker GUI plugin.") === 0) {
-                break;
-            } elseif ((preg_match('/^[^\#]+.*\-g[\s]?([^\"]+)[\s]?.*/', $line, $matches)) && (strcmp($absPath, "") !== 0)) {
-                OMVModuleDockerUtil::startDockerService();
-                throw new OMVModuleDockerException(
-                    "Docker " .
-                    "base path relocation detected in " .
-                    "configuration file\n" .
-                    "Please remove it manually " .
-                    "($matches[1])\n"
-                );
-            }
-            $result .= $line . "\n";
-        }
         $result = rtrim($result);
         $result .= "\n\n" . '### Do not change these lines. They are added ' .
             'and updated by the OMV Docker GUI plugin.' . "\n";
@@ -520,8 +500,11 @@ class OMVModuleDockerUtil
         //Next fix OMV config backend if the base path should be relocated
         //Start by removing any old mntent entries
         $mnt = Rpc::call("FsTab", "getByDir", ["dir"=>'/var/lib/docker/openmediavault'],$context);
-        if($mnt)
-            Rpc::call("FsTab", "delete", ["uuid"=>$mnt['uuid']],$context);
+        if($mnt){
+            $config = new ConfigObject('conf.system.filesystem.mountpoint');
+            $config->setAssoc($mnt);
+            self::$database->delete($config,TRUE);
+        }
 
         //Next generate a new mntent entry if a shared folder is specified
         if (!(strcmp($absPath, "") === 0)) {
@@ -563,10 +546,8 @@ class OMVModuleDockerUtil
 
         // Finally mount the new bind-mount entry
         if (!(strcmp($absPath, "") === 0)) {
-            $me = new MountPoint($newMntent['fsname'], $newMntent['dir']);
-            $me->mount();
             //Remount the bind-mount with defaults options
-            $cmd = "export LANG=C; mount -o remount,bind,defaults " .
+            $cmd = "export LANG=C; mount -o bind,defaults " .
                 $newMntent['fsname'] . " " . $newMntent['dir'] . " 2>&1";
             $process = new Process($cmd);
             $out = $process->execute();

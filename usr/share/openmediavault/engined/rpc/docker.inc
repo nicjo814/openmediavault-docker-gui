@@ -928,6 +928,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $cmd = "docker version";
             unset($out);
             $process = new Process($cmd);
+            $process->setQuiet();
             $process->execute($out);
             $dockerVersionInfo = implode("\n", $out);
         }
