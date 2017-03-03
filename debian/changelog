@@ -1,3 +1,9 @@
+openmediavault-docker-gui (3.1.6) stable; urgency=low
+
+  * Fix enable bug
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 02 Mar 2017 18:59:51 -0600
+
 openmediavault-docker-gui (3.1.5) stable; urgency=low
 
   * Fix docker image path

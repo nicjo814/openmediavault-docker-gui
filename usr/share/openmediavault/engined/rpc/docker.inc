@@ -921,7 +921,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $process = new Process($cmd);
         $out = $process->execute();
 
-        if (!preg_match('/^Docker version ([\d\.]+)\,.*$/', $out, $matches)) {
+        if (!preg_match('/^Docker version.*$/', $out, $matches)) {
             $dockerVersionInfo = "Docker not installed";
         } else {
             $dockerVersion = $matches[1];
