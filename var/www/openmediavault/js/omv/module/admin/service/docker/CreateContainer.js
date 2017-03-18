@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ Ext.define("OMV.module.admin.service.docker.CreateContainer", {
         return items;
 
     },
-    
+
     beforeRender: function() {
         var me = this;
         me.callParent(arguments);

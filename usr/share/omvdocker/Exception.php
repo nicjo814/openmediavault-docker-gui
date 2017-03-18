@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * @category OMVModuleDockerException
  * @package  Openmediavault-docker-gui
@@ -36,7 +36,7 @@ class OMVModuleDockerException extends Exception
 {
     /**
      * Constructor
-     * 
+     *
      * @param string    $message  The message of the exception
      * @param int       $code     Exception code
      * @param Exception $previous Previous exception
@@ -44,7 +44,7 @@ class OMVModuleDockerException extends Exception
     public function __construct(
         $message = "",
         $code = 0,
-        Exception $previous = null) 
+        Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

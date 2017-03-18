@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * @category OMVModuleDockerImage
  * @package  Openmediavault-docker-gui
@@ -139,7 +139,7 @@ class OMVModuleDockerImage
         $response = OMVModuleDockerUtil::doApiCall($url);
 
         $imageData = json_decode($response);
-        $this->_timestamp = date("U", $item->Created); 
+        $this->_timestamp = date("U", $item->Created);
         $this->_ports = array();
         if (isset($imageData->Config->ExposedPorts)) {
             foreach ($imageData->Config->ExposedPorts as

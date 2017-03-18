@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,27 +59,32 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
     searchStore: [],
 
     columns: [{
+        xtype: "textcolumn",
         text: _("REPOSITORY"),
         dataIndex: 'repository',
         sortable: true,
         stateId: 'repository',
         filter: 'string'
     },{
+        xtype: "textcolumn",
         text: _("TAG"),
         dataIndex: 'tag',
         sortable: true,
         stateId: 'tag',
     },{
+        xtype: "textcolumn",
         text: _("IMAGE ID"),
         dataIndex: 'id',
         sortable: true,
         stateId: 'id'
     },{
+        xtype: "textcolumn",
         text: _("CREATED"),
         dataIndex: 'created',
         sortable: true,
         stateId: 'created'
     },{
+        xtype: "textcolumn",
         text: _("VIRTUAL SIZE"),
         dataIndex: 'size',
         sortable: true,
@@ -229,7 +234,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                 change: function(box, newValue, oldValue, eOpts) {
                     me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.filter = me.queryById("imageSearchFilter").getValue();
                 }
-            }   
+            }
         },{
             xtype: "combo",
             name: "searchCombo",
@@ -279,7 +284,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                         }).show();
                     }
                 },
-                
+
                 keypress: function(box, e, eOpts) {
                     me.queryById("imageSearchCombo").getStore().getProxy().rpcData.params.name = me.queryById("imageSearchCombo").getValue();
                 }

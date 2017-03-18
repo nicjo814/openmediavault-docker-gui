@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * @category OMVModuleDockerUtil
  * @package  Openmediavault-docker-gui
@@ -329,7 +329,7 @@ class OMVModuleDockerUtil
                     "created" => OMVModuleDockerUtil::getWhen(
                         $now,
                         date("c", $item->Created)
-                    ) . " ago",                  
+                    ) . " ago",
                     "state" => $state
                 )
             );

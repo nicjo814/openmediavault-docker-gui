@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,16 +46,19 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
     },
 
     columns: [{
+        xtype: "textcolumn",
         text: _("Category"),
         dataIndex: 'category',
         sortable: true,
         stateId: 'category',
     },{
+        xtype: "textcolumn",
         text: _("Name"),
         dataIndex: 'name',
         sortable: true,
         stateId: 'name',
     },{
+        xtype: "textcolumn",
         text: _("Logo"),
         align: "center",
         dataIndex: 'logo',
@@ -69,19 +72,21 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
         sortable: false,
         stateId: 'logo'
     },{
+        xtype: "textcolumn",
         text: _("Description"),
         dataIndex: 'desc',
         sortable: true,
         stateId: 'desc',
         cellWrap: true
     },{
+        xtype: "textcolumn",
         text: _("Repository"),
         dataIndex: 'repo',
         sortable: true,
         stateId: 'repo'
     },{
         text: _("Action"),
-        xtype:'actioncolumn',
+        xtype: 'actioncolumn',
         align: "center",
         items: [{
             icon: 'images/download.png',

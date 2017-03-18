@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,47 +51,55 @@ Ext.define("OMV.module.admin.service.docker.ContainerGrid", {
     },
 
     columns: [{
+        xtype: "textcolumn",
         text: _("CONTAINER ID"),
         dataIndex: 'id',
         sortable: true,
         stateId: 'id',
     },{
+        xtype: "textcolumn",
         text: _("IMAGE"),
         dataIndex: 'image',
         sortable: true,
         stateId: 'image',
-        filter: 'string' 
+        filter: 'string'
     },{
+        xtype: "textcolumn",
         text: _("COMMAND"),
         dataIndex: 'command',
         sortable: true,
         stateId: 'command'
     },{
+        xtype: "textcolumn",
         text: _("CREATED"),
         dataIndex: 'created',
         sortable: true,
         stateId: 'created'
     },{
+        xtype: "textcolumn",
         text: _("STATUS"),
         dataIndex: 'status',
         sortable: true,
         stateId: 'status'
     },{
+        xtype: "textcolumn",
         text: _("PORTS"),
         dataIndex: 'ports',
         sortable: true,
         stateId: 'ports'
     },{
+        xtype: "textcolumn",
         text: _("NAMES"),
         dataIndex: 'name',
         sortable: true,
         stateId: 'name'
     },{
+        xtype: "textcolumn",
         text: _("STATE"),
         dataIndex: 'state',
         sortable: true,
         stateId: 'state',
-        filter: 'list' 
+        filter: 'list'
     }],
 
     initComponent: function() {

@@ -4,10 +4,16 @@ XB-Plugin-Section: virtualization
 Priority: optional
 Maintainer: OpenMediaVault Plugin Developers <plugins@omv-extras.org>
 Build-Depends: debhelper (>= 9.0.0 )
-Standards-Version: 3.9.3
+Standards-Version: 3.9.6
 Homepage: http://omv-extras.org/
 
 Package: openmediavault-docker-gui
 Architecture: amd64
-Depends: ${misc:Depends}, openmediavault (>= 3.0.34), php5-curl, docker-engine (>=1.10), openmediavault-omvextrasorg (>= 3.0), omvextras-common, php5-imagick
+Depends: docker-engine (>=1.10),
+         omvextras-common,
+         openmediavault (>= 3.0.67),
+         openmediavault-omvextrasorg (>= 3.4.24),
+         php5-curl,
+         php5-imagick,
+         ${misc:Depends},
 Description: OpenMediaVault plugin for Docker

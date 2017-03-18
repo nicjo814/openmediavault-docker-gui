@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015 OpenMediaVault Plugin Developers
+ * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
  *
  * @category OMVRpcServiceDocker
  * @package  Openmediavault-docker-gui
