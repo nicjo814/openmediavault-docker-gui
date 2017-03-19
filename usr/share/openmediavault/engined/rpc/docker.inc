@@ -126,11 +126,19 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $this->registerMethod("executeCommand");
         $this->registerMethod("syncDockerLogos");
         $this->registerMethod("getDockerRepo");
+
+        $this->registerMethod("set");
+    }
+
+    public function set($params, $context)
+    {
+        // empty function for details window
+        // TODO:  change window type for log and container modify
     }
 
     /**
      * Get all Docker images
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -162,7 +170,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Pull a Docker image from the Docker Hub
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -217,7 +225,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Deletes a Docker image
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -245,7 +253,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Searches the Docker Hub for a specific repository
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -331,7 +339,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get data of specific Image
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -344,7 +352,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
         $settings=$this->database->getAssoc($this->dataModelPath);
-        
+
         $image = OMVModuleDockerUtil::getImage($params['id'], $settings['apiPort']);
 
         $object = array(
@@ -362,7 +370,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get all Docker containers
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -388,7 +396,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Run a single Docker container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -507,7 +515,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Modify a single Docker container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -566,7 +574,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         }
         $bindMounts = array();
         foreach($container->getBindMounts() as $mount) {
-            array_push($bindMounts, 
+            array_push($bindMounts,
                 array(
                     "from" => $mount['from'],
                     "to" => $mount['to'],
@@ -611,7 +619,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Start one or multiple Docker containers
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -630,7 +638,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Stop one or multiple Docker containers
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -649,7 +657,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Restart one or multiple Docker containers
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -668,7 +676,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Delete one or multiple Docker containers
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -696,7 +704,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Create a new Docker container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -742,7 +750,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get all containers with volumes mounted
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -754,7 +762,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $context,
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
-        $objects = array(); 
+        $objects = array();
         $settings=$this->database->getAssoc($this->dataModelPath);
 
         if ($settings['enabled']) {
@@ -772,7 +780,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Commit a container to a new image
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -791,7 +799,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Check if a warning should be displayed when modifying a container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -813,7 +821,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Refresh all containers based on a specific image
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -842,7 +850,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get data of a single container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -902,7 +910,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Retrieve all plugin settings
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -948,7 +956,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Set all plugin settings
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -965,9 +973,9 @@ class OMVRpcServiceDocker extends ServiceAbstract
             '{' .
             '"type": "object",' .
             '"properties": {' .
-            '"enabled": {	"type": "boolean" },' .
-            '"versionInfo": {	"type": "string" },' .
-            '"version": {	"type": "string" },' .
+            '"enabled": {   "type": "boolean" },' .
+            '"versionInfo": {   "type": "string" },' .
+            '"version": {   "type": "string" },' .
             '"apiPort": { "type": "integer" },' .
             '"sharedfolderref": { "type": "string" },' .
             '"uuid": { "type": "string" },' .
@@ -1041,7 +1049,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get detailed info on a Docker image or container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1061,7 +1069,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get logs from a Docker container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1081,7 +1089,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Get folder structure for folder browser
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1115,7 +1123,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Copy Docker data from one folder to another
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1132,8 +1140,8 @@ class OMVRpcServiceDocker extends ServiceAbstract
             '{' .
             '"type": "object",' .
             '"properties": {' .
-            '"srcpath": {	"type": "string" },' .
-            '"sharedfolderref": {	"type": "string" }' .
+            '"srcpath": {   "type": "string" },' .
+            '"sharedfolderref": {   "type": "string" }' .
             '}}'
         );
 
@@ -1202,7 +1210,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Execute command inside running Docker container
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1215,7 +1223,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
         $this->validateMethodParams(
-            $params, 
+            $params,
             '{' .
             '"type": "object",' .
             '"properties": {' .
@@ -1253,7 +1261,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Retrieve Docker logos from various sources
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1317,7 +1325,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     /**
      * Retrieve list of Docker repos from Github source
-     * 
+     *
      * @param array  $params  An associative array with all RPC call parameters
      * @param string $context The context of the user maing the RPC call
      *
@@ -1339,7 +1347,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             preg_match('/^([\S]+)\s+\S+\s+([\S]+).*$/', $out[$i], $matches);
             $imgName = $matches[1];
             $pulledImages[trim($imgName)] = $matches[2];
-        }        
+        }
         $logoPath = "/var/www/openmediavault/images/dockerrepo/";
         $cmd = "mkdir -p $logoPath";
         $process = new Process($cmd);
