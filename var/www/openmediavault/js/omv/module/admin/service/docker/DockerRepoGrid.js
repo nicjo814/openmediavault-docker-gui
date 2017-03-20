@@ -66,7 +66,8 @@ Ext.define("OMV.module.admin.service.docker.DockerRepoGrid", {
             if (value === "") {
                 return '<img src="images/docker_none.png" />';
             } else {
-                return '<img src="images/dockerrepo/' + value + '" />';
+                return '<img src="images/dockerrepo/' +
+                    Ext.String.htmlEncode(value) + '" />';
             }
         },
         sortable: false,
