@@ -136,6 +136,18 @@ class OMVRpcServiceDocker extends ServiceAbstract
         // TODO:  change window type for log and container modify
     }
 
+    // Get system architecture
+    private function getArch()
+    {
+        $uname = php_uname();
+        if ( strpos($uname, "armv") !== false  ) {
+            $arch = "armhf";
+        } else {
+            $arch = "amd64";
+        }
+        return $arch;
+    }
+
     /**
      * Get all Docker images
      *
@@ -1282,7 +1294,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $baseUrl = "http://openmediavault-plugin-developers.github.io/" .
             "openmediavault-docker-repo/";
         $imgBase = $baseUrl . "logos/";
-        $repoUrl = $baseUrl . "dockerlist.xml";
+        $repoUrl = sprintf("%sdockerlist_%s.xml", $baseUrl, $this->getArch());
         $data = file_get_contents($repoUrl);
         $xml = simplexml_load_string($data);
         foreach ($xml as $image) {
@@ -1357,7 +1369,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $baseUrl = "http://openmediavault-plugin-developers.github.io/" .
                 "openmediavault-docker-repo/";
             $imgBase = $baseUrl . "logos/";
-            $repoUrl = $baseUrl . "dockerlist.xml";
+            $repoUrl = sprintf("%sdockerlist_%s.xml", $baseUrl, $this->getArch());
             $data = file_get_contents($repoUrl);
             $xml = simplexml_load_string($data);
             $objects = array();
