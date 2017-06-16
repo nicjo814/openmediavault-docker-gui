@@ -45,13 +45,16 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
     //Some variables that are used
     ports: [],
     envvars: [],
-    restartpolicy: "always",
+    restartpolicy: "No",
     privileged: false,
     networkmode: "Bridge",
+    macvlan_network: "",
+    macvlan_ipaddress: "",
     portbindings: [],
     cenvvars: [],
     bindmounts: [],
     volumes: [],
+    maxretries: "",
     copyVolumes: [],
     hostname: "",
     timesync: true,
@@ -93,6 +96,16 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         var items = [];
 
         //Add general fieldset
+        var restartModes = Ext.create('Ext.data.Store', {
+            fields: ['policy'],
+            data : [
+                {"policy": "no"},
+                {"policy": "always"},
+                {"policy": "unless-stopped"},
+                {"policy": "on-failure"}
+            ]
+        });
+
         items.push({
             xtype: "fieldset",
             title: _("General"),
@@ -112,9 +125,35 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                 name: "timeSync",
                 boxLabel: _("Sync time with host")
             },{
-                xtype: "checkbox",
-                name: "restart",
-                boxLabel: _("Restart on system reboot")
+                xtype: "combo",
+                name: "restartpolicy",
+                store: restartModes,
+                fieldLabel: _("Restart Policy"),
+                displayField: 'policy',
+                valueField: 'policy',
+                queryMode: 'local',
+                value: "No",
+                allowBlank: false,
+                editable: false,
+                listeners: {
+                    scope: me,
+                    change: function(textfield, newValue, oldValue, eOpts) {
+                        var maxretries = me.getForm().findField("maxretries");
+                        if(newValue === "on-failure" ) {
+                            maxretries.setHidden(false);
+                            maxretries.setDisabled(false);
+                        } else {
+                            maxretries.setHidden(true);
+                            maxretries.setDisabled(true);
+                        }
+                    }
+                }
+            },{
+                xtype: "numberfield",
+                fieldLabel: _("Number of retries for on-failure mode"),
+                name: "maxretries",
+                hidden: true,
+                disabled: true
             },{
                 xtype: "checkbox",
                 name: "privileged",
@@ -128,7 +167,8 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             data : [
                 {"mode": "Bridge"},
                 {"mode": "Host"},
-                {"mode": "None"}
+                {"mode": "None"},
+                {"mode": "Macvlan"}
             ]
         });
 
@@ -158,13 +198,25 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     scope: me,
                     change: function(combo, newValue, oldValue, eOpts) {
                         var portField = me.queryById("dockerPortForward");
+                        var macvlansettingsField = me.queryById("macvlansettings");
                         var hostNameField = me.getForm().findField("hostName");
                         if(newValue === "Host" || newValue === "None") {
+                            macvlansettingsField.setHidden(true);
+                            macvlansettingsField.setDisabled(true);
                             portField.setHidden(true);
                             portField.setDisabled(true);
                             hostNameField.setHidden(true);
                             hostNameField.setDisabled(true);
+                        }  else if(newValue == "Macvlan" ) {
+                            macvlansettingsField.setHidden(false);
+                            macvlansettingsField.setDisabled(false);
+                            portField.setHidden(true);
+                            portField.setDisabled(true);
+                            hostNameField.setHidden(false);
+                            hostNameField.setDisabled(false);
                         } else {
+                            macvlansettingsField.setHidden(true);
+                            macvlansettingsField.setDisabled(true);
                             portField.setHidden(false);
                             portField.setDisabled(false);
                             hostNameField.setHidden(false);
@@ -203,6 +255,48 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     portCount: me.portCount,
                     id: "dockerPortForward-" + me.portCount,
                     exposedPorts: exposedPorts
+                }]
+            },{
+                xtype: "fieldset",
+                title: _("Macvlan settings"),
+                id: "macvlansettings",
+                hidden: true,
+                disabled: true,
+                padding: "0 10 10 10",
+                items: [{
+                    xtype: "combo",
+                    fieldLabel: _("Select macvlan network"),
+                    name: "macvlan_network",
+                    queryMode: "local",
+                    displayField: 'name',
+                    emptyText: _("Select a macvlan network ..."),
+                    store: Ext.create("OMV.data.Store", {
+                        autoLoad: true,
+                        model: OMV.data.Model.createImplicit({
+                            fields: [
+                                { name: "devicename", type: "string" }
+                            ]
+                        }),
+                        proxy: {
+                            type: "rpc",
+                            rpcData: {
+                                service: "Docker",
+                                method: "getMacVlan"
+                            }
+                        },
+                    }),
+                    allowBlank: false,
+                    forceSelection: true
+                },{
+                    xtype: "textfield",
+                    fieldLabel: _("IP Address"),
+                    name: "macvlan_ipaddress",
+                    vtype: "IPv4",
+                    allowBlank: true,
+                    plugins: [{
+                        ptype: "fieldinfo",
+                        text: _("Please check the docker <a href='https://docs.docker.com/engine/userguide/networking/get-started-macvlan/' target='_blank'>macvlan documentation</a> for more details.")
+                    }]
                 }]
             }]
         });
@@ -313,13 +407,18 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             me.getForm().findField("containerName").setValue(me.name);
         }
 
-        if(me.restartpolicy === "always") {
-            me.getForm().findField("restart").setValue(true);
-        }
+        //if(me.restartpolicy === "always") {
+          //  me.getForm().findField("policy").setValue(always);
+        //}
+        me.getForm().findField("restartpolicy").setValue(me.restartpolicy);
+        me.getForm().findField("maxretries").setValue(me.maxretries);
+        me.getForm().findField("macvlan_network").setValue(me.macvlan_network);
+        me.getForm().findField("macvlan_ipaddress").setValue(me.macvlan_ipaddress);
         me.getForm().findField("privileged").setValue(me.privileged);
         me.getForm().findField("timeSync").setValue(me.timesync);
         me.getForm().findField("networkMode").setValue(me.networkmode);
         me.getForm().findField("hostName").setValue(me.hostname);
+        me.getForm().findField("extraArgs").setValue(me.extraargs);
 
         //Add any ports mapped in container
         var portFieldset = me.queryById("dockerPortForward");
@@ -463,7 +562,10 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
         var me = this;
         var params = {
             image: me.getForm().findField("image").getValue(),
-            restart: me.getForm().findField("restart").getValue(),
+            restartpolicy: me.getForm().findField("restartpolicy").getValue(),
+            maxretries: me.getForm().findField("maxretries").getValue(),
+            macvlan_network: me.getForm().findField("macvlan_network").getValue(),
+            macvlan_ipaddress: me.getForm().findField("macvlan_ipaddress").getValue(),
             privileged: me.getForm().findField("privileged").getValue(),
             networkMode: me.getForm().findField("networkMode").getValue(),
             portForwards: me.portForwards,

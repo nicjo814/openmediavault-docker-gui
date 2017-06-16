@@ -1,3 +1,12 @@
+openmediavault-docker-gui (3.1.9) UNRELEASED; urgency=medium
+
+  * Add restart policy menu. Includes always, on-failure, unless-stopped.
+  * Add basic macvlan support in the gui to select the network and add the ip address.
+  * Retain the extra arguments on modify container action. 
+  * Add clear log button. 
+
+ -- root <root@localhost.localdomain>  Thu, 08 Jun 2017 23:48:05 +0100
+
 openmediavault-docker-gui (3.1.8) stable; urgency=low
 
   * Allow armhf arch and fetch arch-specific dockerlist
