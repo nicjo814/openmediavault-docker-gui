@@ -130,7 +130,7 @@ class OMVModuleDockerUtil
         //get the macvlan name
             $tmp=array(
                 "name"      => $item->Name,
-                "subnet"    => $item->IPAM->Config[0]->Subnet);
+                "description"    => $item->Name . " (" . $item->IPAM->Config[0]->Subnet . ")");
         //pass the macvlan names to an array
             array_push($objects, $tmp);
         }

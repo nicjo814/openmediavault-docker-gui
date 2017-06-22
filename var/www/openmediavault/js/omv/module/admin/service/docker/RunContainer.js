@@ -268,13 +268,14 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                     fieldLabel: _("Select macvlan network"),
                     name: "macvlan_network",
                     queryMode: "local",
-                    displayField: 'name',
+                    displayField: 'description',
                     emptyText: _("Select a macvlan network ..."),
                     store: Ext.create("OMV.data.Store", {
                         autoLoad: true,
                         model: OMV.data.Model.createImplicit({
                             fields: [
-                                { name: "devicename", type: "string" }
+                                { name: "name", type: "string" },
+                                { name: "description", type: "string" }
                             ]
                         }),
                         proxy: {
@@ -285,6 +286,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
                             }
                         },
                     }),
+                    valueField: "name",
                     allowBlank: false,
                     forceSelection: true
                 },{
