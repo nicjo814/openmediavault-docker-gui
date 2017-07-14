@@ -119,6 +119,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
         $this->registerMethod("getNetworks");
         $this->registerMethod("createNetwork");
+        $this->registerMethod("deleteNetwork");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -970,6 +971,35 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $process = new Process($cmd);
         $process->execute();
     }
+
+    /**
+     * Deletes a Docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function deleteNetwork($params, $context)
+    {
+        $this->validateMethodParams(
+            $params,
+            '{' .
+            '"type": "object",' .
+            '"properties": {' .
+            '"name": { "type" : "string" }' .
+            '}}'
+        );
+
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker network rm {$params['name']}";
+        $process = new Process($cmd);
+        $process->execute();
+    }
+
 
     /**
      * Retrieve all plugin settings
