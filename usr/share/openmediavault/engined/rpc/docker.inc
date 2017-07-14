@@ -118,6 +118,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $this->registerMethod("getContainerData");
 
         $this->registerMethod("getNetworks");
+        $this->registerMethod("createNetwork");
 
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
@@ -947,6 +948,28 @@ class OMVRpcServiceDocker extends ServiceAbstract
         return $objects;
     }
 
+    /**
+     * Create a new Docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function createNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker network create " .
+        "-d {$params['driver']} --subnet={$params['subnet']} ".
+        "--gateway={$params['gateway']} -o parent={$params['parent']} " .
+        "{$params['name']}";
+
+        $process = new Process($cmd);
+        $process->execute();
+    }
 
     /**
      * Retrieve all plugin settings

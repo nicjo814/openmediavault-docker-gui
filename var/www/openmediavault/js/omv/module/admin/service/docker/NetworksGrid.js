@@ -17,14 +17,11 @@
 
 // require("js/omv/WorkspaceManager.js")
 // require("js/omv/workspace/form/Panel.js")
-// require("js/omv/module/admin/service/docker/ImageGrid.js")
-// require("js/omv/workspace/window/plugin/ConfigObject.js")
-// require("js/omv/form/field/SharedFolderComboBox.js")
-// require("js/omvextras/window/RootFolderBrowser.js")
 // require("js/omv/window/MessageBox.js")
 // require("js/omv/Rpc.js")
+// require("js/omv/module/admin/service/docker/CreateNetwork.js")
 
-Ext.define("OMV.module.admin.service.docker.Networks", {
+Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
   extend: "OMV.workspace.grid.Panel",
   alias: "widget.dockerNetworksGrid",
   plugins: "gridfilters",
@@ -107,7 +104,7 @@ Ext.define("OMV.module.admin.service.docker.Networks", {
       text: _("Create"),
       icon: "images/add.png",
       iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-      disabled: true,
+      disabled: false,
       handler: Ext.Function.bind(me.onCreateButton, me, [ me ]),
       scope: me
     },{
@@ -181,7 +178,7 @@ Ext.define("OMV.module.admin.service.docker.Networks", {
     Ext.create("OMV.module.admin.service.docker.CreateNetwork", {
       title: _("Create network"),
       networksStore: networksStore,
-      networkDriver: "macvlan"
+      driver: "macvlan"
     }).show();
   },
 
@@ -208,5 +205,5 @@ OMV.WorkspaceManager.registerPanel({
   path: "/service/docker",
   text: _("Networks"),
   position: 17,
-  className: "OMV.module.admin.service.docker.Networks"
+  className: "OMV.module.admin.service.docker.NetworksGrid"
 });
