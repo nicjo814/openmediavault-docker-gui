@@ -110,6 +110,35 @@ class OMVModuleDockerUtil
     }
 
     /**
+     * Returns an array with maclvan network names and their subnets
+     *
+     * @param int  $apiPort     Network port to use in API call
+     * @param bool $incDangling Flag to filter dangling images (not used)
+     *
+     * @return array $objects An array with macvlan names and subnets
+     *
+     */
+    public static function getMacVlanNetworks($apiPort, $incDangling)
+    {
+        $objects=array();
+        $url = "http://localhost:" . $apiPort . "/networks/?filters=%7B%22driver%22%3A%7B%22macvlan%22%3Atrue%7D%7D";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $macvlan_data = json_decode($response);
+        $objects = array();
+        //Iterate over each macvlan object that the api returns
+        foreach ($macvlan_data as $item) {
+        //get the macvlan name
+            $tmp=array(
+                "name"      => $item->Name,
+                "description"    => $item->Name . " (" . $item->IPAM->Config[0]->Subnet . ")");
+        //pass the macvlan names to an array
+            array_push($objects, $tmp);
+        }
+        return $objects;
+    }
+
+
+    /**
      * Returns an array with Image objects on the system
      *
      * @param int  $apiPort     Network port to use in API call
@@ -264,7 +293,10 @@ class OMVModuleDockerUtil
                 "name" => $container->getName(),
                 "privileged" => $container->getPrivileged(),
                 "restartpolicy" => $container->getRestartPolicy(),
+                "maxretries" => $container->getMaxRetries(),
                 "networkmode" => ucfirst($container->getNetworkMode()),
+                "macvlan_network" => $container->getMacVlanContainerNetwork(),
+                "macvlan_ipaddress" => $container->getMacVlanContainerIpAddress(),
                 "envvars" => $image->getEnvVars(),
                 "cenvvars" => $container->getEnvironmentVariables(),
                 "exposedports" => $image->getPorts(),
@@ -273,6 +305,7 @@ class OMVModuleDockerUtil
                 "ports" => $ports,
                 "hasmounts" => $container->hasMounts(),
                 "volumesfrom" => $container->getVolumesFrom(),
+                "extraargs" => $container->getExtraArgs(),
                 "hostname" => $container->getHostName(),
                 "timesync" => $container->syncsTime(),
                 "imagevolumes" => $image->getVolumes());
@@ -317,6 +350,8 @@ class OMVModuleDockerUtil
                 $state = "stopped";
             }
 
+            $extraargs = $item->Labels->omv_docker_extra_args; 
+
             array_push(
                 $objects,
                 array(
@@ -330,7 +365,8 @@ class OMVModuleDockerUtil
                         $now,
                         date("c", $item->Created)
                     ) . " ago",
-                    "state" => $state
+                    "state" => $state,
+                    "extraargs" => $extraargs
                 )
             );
         }

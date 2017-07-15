@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Copyright (c) 2015-2017 OpenMediaVault Plugin Developers
@@ -18,11 +19,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_once "Exception.php";
+require_once "Utils.php";
 
 /**
  * Class for managing Docker containers
@@ -58,7 +61,7 @@ class OMVModuleDockerContainer
     /**
      * Time when container was created
      *
-     * @var 	string $_created
+     * @var     string $_created
      * @access private
      */
     private $_created;
@@ -66,7 +69,7 @@ class OMVModuleDockerContainer
     /**
      * Command that is started by the container
      *
-     * @var 	string $_command
+     * @var     string $_command
      * @access private
      */
     private $_command;
@@ -74,7 +77,7 @@ class OMVModuleDockerContainer
     /**
      * Status of the container
      *
-     * @var 	string $_status
+     * @var     string $_status
      * @access private
      */
     private $_status;
@@ -82,7 +85,7 @@ class OMVModuleDockerContainer
     /**
      * State of the container
      *
-     * @var 	string $_state
+     * @var     string $_state
      * @access private
      */
     private $_state;
@@ -90,7 +93,7 @@ class OMVModuleDockerContainer
     /**
      * Ports mapped to the container
      *
-     * @var 	array $_ports
+     * @var     array $_ports
      * @access private
      */
     private $_ports;
@@ -98,7 +101,7 @@ class OMVModuleDockerContainer
     /**
      * Network mode of the container
      *
-     * @var 	string $_networkMode
+     * @var     string $_networkMode
      * @access private
      */
     private $_networkMode;
@@ -106,7 +109,7 @@ class OMVModuleDockerContainer
     /**
      * Privileged mode of the container
      *
-     * @var 	bool $_privileged
+     * @var     bool $_privileged
      * @access private
      */
     private $_privileged;
@@ -114,15 +117,23 @@ class OMVModuleDockerContainer
     /**
      * Restart policy of the container
      *
-     * @var 	string $_restartPolicy
+     * @var     string $_restartPolicy
      * @access private
      */
     private $_restartPolicy;
 
     /**
+     * Max number of retries for on-failure restart policy
+     *
+     * @var     string $_maxRetries
+     * @access private
+     */
+    private $_maxRetries;
+
+    /**
      * Environment variables defined in the container
      *
-     * @var 	array $_envVars
+     * @var     array $_envVars
      * @access private
      */
     private $_envVars;
@@ -130,7 +141,7 @@ class OMVModuleDockerContainer
     /**
      * ID of the image the container is created from
      *
-     * @var 	string $_imageId
+     * @var     string $_imageId
      * @access private
      */
     private $_imageId;
@@ -138,7 +149,7 @@ class OMVModuleDockerContainer
     /**
      * Port bindings in the container
      *
-     * @var 	array $_portBindings
+     * @var     array $_portBindings
      * @access private
      */
     private $_portBindings;
@@ -146,7 +157,7 @@ class OMVModuleDockerContainer
     /**
      * Bind mounts in the container
      *
-     * @var 	array $_bindMounts
+     * @var     array $_bindMounts
      * @access private
      */
     private $_bindMounts;
@@ -154,7 +165,7 @@ class OMVModuleDockerContainer
     /**
      * Name of the container
      *
-     * @var 	string $_names
+     * @var     string $_names
      * @access private
      */
     private $_names;
@@ -162,7 +173,7 @@ class OMVModuleDockerContainer
     /**
      * Does the container have any mountpoints
      *
-     * @var 	bool $_hasMounts
+     * @var     bool $_hasMounts
      * @access private
      */
     private $_hasMounts;
@@ -186,7 +197,7 @@ class OMVModuleDockerContainer
     /**
      * Is the container syncing it's time with the host
      *
-     * @var 	bool $_timeSync
+     * @var     bool $_timeSync
      * @access private
      */
     private $_timeSync;
@@ -243,11 +254,22 @@ class OMVModuleDockerContainer
             }
         }
         $this->_networkMode = $containerData->HostConfig->NetworkMode;
+
+        $macvlans = OMVModuleDockerUtil::getMacVlanNetworks(
+            $apiPort
+        );
+        $macvlans = array_column($macvlans,'name');
+        $macvlan_network = $containerData->HostConfig->NetworkMode;
         if (strcmp($this->_networkMode, "default") === 0) {
             $this->_networkMode = "bridge";
+        } elseif (in_array($macvlan_network, $macvlans)) {
+            $this->_networkMode = "macvlan";
+            $this->_macVlanContainerNetwork = $containerData->HostConfig->NetworkMode;
+            $this->_macVlanContainerIpAddress = $containerData->NetworkSettings->Networks->$macvlan_network->IPAddress;
         }
         $this->_privileged = $containerData->HostConfig->Privileged;
         $this->_restartPolicy = $containerData->HostConfig->RestartPolicy->Name;
+        $this->_maxRetries = $containerData->HostConfig->RestartPolicy->MaximumRetryCount;
         $this->_envVars = array();
         if (isset($containerData->Config->Env)) {
             foreach ($containerData->Config->Env as $eVar) {
@@ -320,6 +342,17 @@ class OMVModuleDockerContainer
                 array_push($this->_volumesFrom, array("from" => $volume));
             }
         }
+
+        $this->_extraArgs = "";
+        if (isset($containerData->Config->Labels->omv_docker_extra_args)) {
+            $this->_extraArgs = $containerData->Config->Labels->omv_docker_extra_args;
+        }
+
+        $this->_logPath = $containerData->LogPath;
+        //$logPath = $containerData->LogPath;
+        //print $logPath;
+    
+
         $this->_hostName = "";
         if (!(strcmp($containerData->Config->Hostname, "") === 0)) {
             $this->_hostName .= $containerData->Config->Hostname;
@@ -339,6 +372,7 @@ class OMVModuleDockerContainer
     {
         return substr($this->_id, 0, 12);
     }
+
 
     /**
      * Get the image the conatiner is mapped to
@@ -440,6 +474,17 @@ class OMVModuleDockerContainer
     }
 
     /**
+     * Get the max number of retries for on-failure policy
+     *
+     * @return string $_maxRetries
+     * @access public
+     */
+    public function getMaxRetries()
+    {
+        return $this->_maxRetries;
+    }
+
+    /**
      * Get the environment variables defined in the container
      *
      * @return array $_envVars
@@ -536,6 +581,50 @@ class OMVModuleDockerContainer
     public function syncsTime()
     {
         return $this->_timeSync;
+    }
+
+    /**
+     * Get the macvlan network name of the container
+     *
+     * @return string $_macVlanContainerNetwork
+     * @access public
+     */
+    public function getMacVlanContainerNetwork()
+    {
+        return $this->_macVlanContainerNetwork;
+    }
+
+    /**
+     * Get the macvlan network ip address of the container
+     *
+     * @return string $_macVlanContainerIpAddress
+     * @access public
+     */
+    public function getMacVlanContainerIpAddress()
+    {
+        return $this->_macVlanContainerIpAddress;
+    }
+
+    /**
+     * Get the value of the label property called omv_docker_extra_args use to stored the extra args
+     *
+     * @return string $_extraArgs
+     * @access public
+     */
+    public function getExtraArgs()
+    {
+        return $this->_extraArgs;
+    }
+
+    /**
+     * Get the value of the property LogPath from container info
+     *
+     * @return string $_logPath
+     * @access public
+     */
+    public function getLogPath()
+    {
+        return $this->_logPath;
     }
 
 }

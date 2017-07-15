@@ -128,6 +128,8 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $this->registerMethod("getDockerRepo");
 
         $this->registerMethod("set");
+        $this->registerMethod("getMacVlan");
+        $this->registerMethod("clearLog");
     }
 
     public function set($params, $context)
@@ -147,6 +149,30 @@ class OMVRpcServiceDocker extends ServiceAbstract
         }
         return $arch;
     }
+
+    /**
+     * Get all Docker images
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $objects An array with all docker macvlan network names and their respective subnet
+     */
+    public function getMacVlan($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $settings=$this->database->getAssoc($this->dataModelPath);
+
+        $objects = array();
+        $objects = OMVModuleDockerUtil::getMacVlanNetworks(
+            $settings['apiPort']
+        );
+        return $objects;
+    }
+
 
     /**
      * Get all Docker images
@@ -424,9 +450,30 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $cmd = "docker run -d ";
 
         //Check if restart checkbox is enabled
-        if ($params['restart']) {
-            $cmd .= "--restart=always ";
+        //if ($params['restartpolicy']) {
+        //    $cmd .= "--restart=always ";
+        //}
+
+        switch ($params['restartpolicy']) {
+            case "always":
+                $cmd .= "--restart=always ";
+                break;
+            case "no":
+                $cmd .= "--restart=no ";
+                break;
+            case "unless-stopped":
+                $cmd .= "--restart=unless-stopped ";
+                break;
+            case "on-failure":
+                if (isset($params['maxretries'])) {
+                    $cmd .= "--restart=on-failure:" . $params['maxretries'] . " ";
+                } elseif (!isset($params['maxretries'])) {
+                    $cmd .= "--restart=on-failure ";
+                }
+                break;
         }
+
+
 
         //Check if privileged checkbox is enabled
         if ($params['privileged']) {
@@ -463,6 +510,9 @@ class OMVRpcServiceDocker extends ServiceAbstract
             break;
         case "None":
             $cmd .= "--net=none ";
+            break;
+        case "Macvlan":
+            $cmd .= "--net=" . $params['macvlan_network'] . " " . "--ip=" . $params['macvlan_ipaddress'] . " ";
             break;
         }
 
@@ -513,6 +563,8 @@ class OMVRpcServiceDocker extends ServiceAbstract
         //Check if extra arguments are supplied
         $extraArgs = trim($params['extraArgs']);
         if (!(strcmp($extraArgs, "") === 0)) {
+            //Store the extra command parameters in a container label as omv_docker_extra_args
+            $cmd .= "--label omv_docker_extra_args=" . "\"" . $extraArgs . "\" ";
             $cmd .= $extraArgs . " ";
         }
 
@@ -547,10 +599,14 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $settings['apiPort']
         );
 
-        $restart = false;
-        if (strcmp($container->getRestartPolicy(), "always") === 0) {
-            $restart = true;
-        }
+        $restartpolicy = $container->getRestartPolicy();
+        $maxretries = $container->getMaxRetries();
+        //if (strcmp($container->getRestartPolicy(), "always") === 0) {
+         //   $restart = true;
+        //}
+        $networkMode = $container->getNetworkMode();
+        $macvlan_network = $container->getMacVlanContainerNetwork();
+        $macvlan_ipaddress = $container->getMacVlanContainerIpAddress();
         $portForwards = array();
         foreach ($container->getPortBindings() as $binding) {
             $customPort = "";
@@ -596,15 +652,19 @@ class OMVRpcServiceDocker extends ServiceAbstract
         }
 
         $old_params = array(
-            "restart" => $restart,
+            "restartpolicy" => $restartpolicy,
+            "maxretries" => $maxretries,
             "privileged" => $container->getPrivileged(),
             "timeSync" => $container->syncsTime(),
             "networkMode" => ucfirst($container->getNetworkMode()),
+            "macvlan_network" => $container->getMacVlanContainerNetwork(),
+            "macvlan_ipaddress" => $container->getMacVlanContainerIpAddress(),
             "portForwards" => $portForwards,
             "hostName" => $container->getHostName(),
             "envVars" => $envVars,
             "bindMounts" => $bindMounts,
             "volumes" => $container->getVolumesFrom(),
+            "extraargs" => $container->getExtraArgs(),
             "containerName" => $container->getName(),
             "image" => $container->getImage()
         );
@@ -712,6 +772,31 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $cmd = "docker rm " . $params['id'] . " 2>&1";
         $process = new Process($cmd);
         $process->execute();
+    }
+
+    /**
+     * Clear the log on one or multiple containers
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function clearLog($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $settings=$this->database->getAssoc($this->dataModelPath);
+        $ids = explode(" ", $params['id']);
+        foreach ($ids as $id) {
+            $container = OMVModuleDockerUtil::getContainer($id, $settings['apiPort']);
+            $logpath = $container->getLogPath();
+            $cmd = "cat /dev/null >" . $logpath;
+            $process = new Process($cmd);
+            $process->execute();
+        }
     }
 
     /**
@@ -904,7 +989,10 @@ class OMVRpcServiceDocker extends ServiceAbstract
             "name" => $container->getName(),
             "privileged" => $container->getPrivileged(),
             "restartpolicy" => $container->getRestartPolicy(),
+            "maxretries" => $container->getMaxRetries(),
             "networkmode" => ucfirst($container->getNetworkMode()),
+            "macvlan_network" => $container->getMacVlanContainerNetwork(),
+            "macvlan_ipaddress" => $container->getMacVlanContainerIpAddress(),
             "envvars" => $image->getEnvVars(),
             "cenvvars" => $container->getEnvironmentVariables(),
             "exposedports" => $image->getPorts(),
@@ -913,6 +1001,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             "ports" => $ports,
             "hasmounts" => $container->hasMounts(),
             "volumesfrom" => $container->getVolumesFrom(),
+            "extraargs" => $container->getExtraArgs(),
             "hostname" => $container->getHostName(),
             "timesync" => $container->syncsTime(),
             "imagevolumes" => $image->getVolumes()

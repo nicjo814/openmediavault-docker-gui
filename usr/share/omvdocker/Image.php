@@ -150,7 +150,7 @@ class OMVModuleDockerImage
         $this->_envVars = array();
         if (isset($imageData->Config->Env)) {
             foreach ($imageData->Config->Env as $eVar) {
-                $eVarAry = explode("=", $eVar);
+                $eVarAry = explode("=", $eVar,2);
                 $this->_envVars[$eVarAry[0]] = $eVarAry[1];
             }
         }
