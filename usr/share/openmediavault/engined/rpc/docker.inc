@@ -117,6 +117,10 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $this->registerMethod("refreshContainers");
         $this->registerMethod("getContainerData");
 
+        $this->registerMethod("getNetworks");
+        $this->registerMethod("createNetwork");
+        $this->registerMethod("deleteNetwork");
+
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
         $this->registerMethod("getDetails");
@@ -1010,6 +1014,83 @@ class OMVRpcServiceDocker extends ServiceAbstract
     }
 
     /**
+     * Get all Docker networks
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $objects An array with all Docker networks
+     */
+    public function getNetworks($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $settings=$this->database->getAssoc($this->dataModelPath);
+
+        $objects = array();
+        if ($settings['enabled']) {
+            $objects = OMVModuleDockerUtil::getNetworkList(
+                $settings['apiPort']
+            );
+        }
+        return $objects;
+    }
+
+    /**
+     * Create a new Docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function createNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker network create " .
+        "-d {$params['driver']} --subnet={$params['subnet']} ".
+        "--gateway={$params['gateway']} -o parent={$params['parent']} " .
+        "{$params['name']}";
+
+        $process = new Process($cmd);
+        $process->execute();
+    }
+
+    /**
+     * Deletes a Docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return void
+     */
+    public function deleteNetwork($params, $context)
+    {
+        $this->validateMethodParams(
+            $params,
+            '{' .
+            '"type": "object",' .
+            '"properties": {' .
+            '"name": { "type" : "string" }' .
+            '}}'
+        );
+
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker network rm {$params['name']}";
+        $process = new Process($cmd);
+        $process->execute();
+    }
+
+
+    /**
      * Retrieve all plugin settings
      *
      * @param array  $params  An associative array with all RPC call parameters
@@ -1617,4 +1698,3 @@ class OMVRpcServiceDocker extends ServiceAbstract
 
     //throw new OMVModuleDockerException($cmd);
 }
-

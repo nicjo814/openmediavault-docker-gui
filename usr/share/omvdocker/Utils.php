@@ -396,6 +396,33 @@ class OMVModuleDockerUtil
     }
 
     /**
+     * Returns an array with Networks to be presented in the grid
+     *
+     * @param int  $apiPort     Network port to use in API call
+     *
+     * @return array $objects An array with Image objects
+     *
+     */
+    public static function getNetworkList($apiPort)
+    {
+        $objects=array();
+        $now = date("c");
+        $url = "http://localhost:" . $apiPort . "/networks";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $data = array();
+        foreach (json_decode($response) as $item) {
+            $tmp = array(
+              "id" => substr($item->Id, 7, 12),
+              "name" => $item->Name,
+              "driver" => $item->Driver,
+              "scope" => $item->Scope
+            );
+            array_push($objects, $tmp);
+        }
+        return $objects;
+    }
+
+    /**
      * Returns a string representing a time sometime in the past
      *
      * @param string $now       Current timestamp

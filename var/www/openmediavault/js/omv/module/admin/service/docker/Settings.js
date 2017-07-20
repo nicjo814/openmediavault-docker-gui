@@ -49,6 +49,7 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
             var overviewPanel = parent.down("panel[title=" + _("Overview") + "]");
             var settingsPanel = parent.down("panel[title=" + _("Settings") + "]");
             var repoPanel = parent.down("panel[title=" + _("Docker images repo") + "]");
+            var networksPanel = parent.down("panel[title=" + _("Networks") + "]");
             var dockerVersion = settingsPanel.findField("version").getValue();
             var checked = settingsPanel.findField("enabled").checked
             settingsPanel.findField("destpath").setValue(settingsPanel.findField("sharedfolderref").getValue());
@@ -68,12 +69,17 @@ Ext.define("OMV.module.admin.service.docker.Settings", {
                     repoPanel.tab.show();
                     repoPanel.enable();
                     repoPanel.doReload();
+                    networksPanel.tab.show();
+                    networksPanel.enable();
+                    networksPanel.doReload();
                     parent.setActiveTab(overviewPanel);
                 } else {
                     overviewPanel.disable();
                     overviewPanel.tab.hide();
                     repoPanel.disable();
                     repoPanel.tab.hide();
+                    networksPanel.disable();
+                    networksPanel.tab.hide();
                     OMV.Rpc.request({
                         scope: me,
                         callback: function(id, success, response) {
