@@ -134,6 +134,10 @@ class OMVRpcServiceDocker extends ServiceAbstract
         $this->registerMethod("set");
         $this->registerMethod("getMacVlan");
         $this->registerMethod("clearLog");
+        $this->registerMethod("connectNetwork");
+        $this->registerMethod("disconnectNetwork");
+        $this->registerMethod("getContainersNotInSelectedNetwork");
+        $this->registerMethod("getContainersInSelectedNetwork");
     }
 
     public function set($params, $context)
@@ -1697,4 +1701,101 @@ class OMVRpcServiceDocker extends ServiceAbstract
     }
 
     //throw new OMVModuleDockerException($cmd);
+    
+    /**
+     * Connect the selected container to a specific docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $object An associative array with all the new settings
+     */
+    public function connectNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        if (empty($params['ipaddress'])) {
+            $cmd = "docker network connect " . $params['networkname'] . " " . $params['containername'] . " 2>&1";
+        } elseif (isset($params['ipaddress'])) {
+            $cmd = "docker network connect " . "--ip " . $params['ipaddress'] . " " . $params['networkname'] . " " . $params['containername'] . " 2>&1";
+        }
+        $process = new Process($cmd);
+        $process->execute($out);
+        return array("details" => implode("\n\r", $out));
+    }
+
+    /**
+     * Disconnect the selected container to a specific docker network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $object An associative array with all the new settings
+     */
+    public function disconnectNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+        $cmd = "docker network disconnect " . $params['networkname'] . " " . $params['containername'] . " 2>&1";
+        $process = new Process($cmd);
+        $process->execute($out);
+        return array("details" => implode("\n\r", $out));
+    }
+
+
+
+    /**
+     * Get all the containers that are not connected to the current selected network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $object An associative array with all the containers name
+     */
+    public function getContainersNotInSelectedNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        $objects = array();
+        $settings=$this->database->getAssoc($this->dataModelPath);
+        if ($settings['enabled']) {
+            $objects = OMVModuleDockerUtil::getContainersNotInSelectedNetworkList(
+                $settings['apiPort'],$params['selectednetwork']
+            );
+        }
+        return $objects;
+    }
+
+    /**
+     * Get all the containers that are connected to the current selected network
+     *
+     * @param array  $params  An associative array with all RPC call parameters
+     * @param string $context The context of the user maing the RPC call
+     *
+     * @return array $object An associative array with all the containers name
+     */
+    public function getContainersInSelectedNetwork($params, $context)
+    {
+        $this->validateMethodContext(
+            $context,
+            array("role" => OMV_ROLE_ADMINISTRATOR)
+        );
+
+        $objects = array();
+        $settings=$this->database->getAssoc($this->dataModelPath);
+        if ($settings['enabled']) {
+            $objects = OMVModuleDockerUtil::getContainersInSelectedNetworkList(
+                $settings['apiPort'],$params['selectednetwork']
+            );
+        }
+        return $objects;
+    }
+
 }

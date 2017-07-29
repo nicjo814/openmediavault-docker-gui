@@ -69,6 +69,18 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
     dataIndex: 'scope',
     sortable: true,
     stateId: 'scope',
+  },{
+    xtype: "textcolumn",
+    text: _("SUBNET"),
+    dataIndex: 'subnet',
+    sortable: true,
+    stateId: 'subnet',
+  },{
+    xtype: "textcolumn",
+    text: _("CONTAINERS"),
+    dataIndex: 'containers',
+    sortable: true,
+    stateId: 'containers',
   }],
 
   initComponent: function() {
@@ -81,7 +93,9 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
             { name: "id", type: "string" },
             { name: "name", type: "string" },
             { name: "driver", type: "string" },
-            { name: "scope", type: "string" }
+            { name: "scope", type: "string" },
+            { name: "subnet", type: "string" },
+            { name: "containers", type: "string" }
           ]
         }),
         proxy: {
@@ -125,6 +139,24 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
       hidden: false,
       handler: Ext.Function.bind(me.onRefreshButton, me, [ me ]),
       scope: me
+    },{
+      id: me.getId() + "-connect",
+      xtype: "button",
+      text: _("Connect"),
+      icon: "images/plug.png",
+      iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+      disabled: true,
+      handler: Ext.Function.bind(me.onConnectButton, me, [ me ]),
+      scope: me
+    },{
+      id: me.getId() + "-disconnect",
+      xtype: "button",
+      text: _("Disconnect"),
+      icon: "images/disconnect.png",
+      iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+      disabled: true,
+      handler: Ext.Function.bind(me.onDisconnectButton, me, [ me ]),
+      scope: me
     }]
   },
 
@@ -132,15 +164,19 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
     var me = this;
     if(me.hideTopToolbar)
     return;
-    var tbarBtnName = [ "create", "delete", "refresh" ];
+    var tbarBtnName = [ "create", "delete", "refresh", "connect", "disconnect" ];
     var tbarBtnDisabled = {
       "create": false,
       "delete": false,
-      "refresh": false
+      "refresh": false,
+      "connect": false,
+      "disconnect": false
     };
     // Enable/disable buttons depending on the number of selected rows.
     if(records.length <= 0) {
       tbarBtnDisabled["delete"] = true;
+      tbarBtnDisabled["connect"] = true;
+      tbarBtnDisabled['disconnect'] = true;
     } else if(records.length == 1) {
       // Disable 'Delete' button if selected network is host/bridge/none
       Ext.Array.each(records, function(record) {
@@ -149,6 +185,9 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
           return false;
         }
       });
+    } else if(records.length > 1) {
+      tbarBtnDisabled["connect"] = true;
+      tbarBtnDisabled["disconnect"] = true;
     } else {
       // Disable 'Delete' button if selected network is host/bridge/none
       Ext.Array.each(records, function(record) {
@@ -180,6 +219,30 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
       networksStore: networksStore,
       driver: "macvlan"
     }).show();
+  },
+
+  onConnectButton: function() {
+      var me = this;
+      var sm = me.getSelectionModel();
+      var records = sm.getSelection();
+      var record = records[0];
+      var name = record.get('name');
+      Ext.create("OMV.module.admin.service.docker.ConnectNetwork", {
+        title: _("Connect Network"),
+        name: name
+      }).show();        
+  },
+
+    onDisconnectButton: function() {
+      var me = this;
+      var sm = me.getSelectionModel();
+      var records = sm.getSelection();
+      var record = records[0];
+      var name = record.get('name');
+      Ext.create("OMV.module.admin.service.docker.DisconnectNetwork", {
+        title: _("Disconnect Network"),
+        name: name
+      }).show();        
   },
 
   doDeletion: function(record) {

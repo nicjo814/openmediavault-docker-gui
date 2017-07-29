@@ -396,6 +396,30 @@ class OMVModuleDockerUtil
     }
 
     /**
+     * Returns an array with containers name that are connected requested network
+     *
+     * @param int  $apiPort     Network port to use in API call
+     * @param string $network   Network name to inspect in API call
+     *
+     * @return array $objects An array with Image objects
+     *
+     */
+    public static function getContainersInNetwork($apiPort, $network)
+    {
+        $objects=array();
+        $url = "http://127.0.0.1:" . $apiPort . "/networks/" . $network;
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $cdata = json_decode($response);
+        foreach ($cdata->Containers as $key=>$value) {
+            $tmp=$value->Name;
+            array_push($objects, $tmp);
+        }
+        return $objects;
+    }
+
+
+
+    /**
      * Returns an array with Networks to be presented in the grid
      *
      * @param int  $apiPort     Network port to use in API call
@@ -415,7 +439,9 @@ class OMVModuleDockerUtil
               "id" => substr($item->Id, 7, 12),
               "name" => $item->Name,
               "driver" => $item->Driver,
-              "scope" => $item->Scope
+              "scope" => $item->Scope,
+              "subnet" => $item->IPAM->Config[0]->Subnet,
+              "containers" => OMVModuleDockerUtil::getContainersInNetwork("42005",$item->Name)
             );
             array_push($objects, $tmp);
         }
@@ -618,5 +644,52 @@ class OMVModuleDockerUtil
 
         OMVModuleDockerUtil::startDockerService();
     }
+
+    function getContainersNotInSelectedNetworkList($apiPort, $selectednetwork, $incDangling)
+    {
+        $objects=array();
+        $ctplusnetworks=array();
+        $url = "http://127.0.0.1:" . $apiPort . "/containers/json?all=1";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $cdata = json_decode($response,true);
+        foreach ($cdata as $item) {
+            $tmp=array(
+                "name" => ltrim($item['Names'][0], "/"),
+                "networks" => array_keys($item['NetworkSettings']['Networks']));
+            array_push($ctplusnetworks, $tmp);
+        }
+        foreach ($ctplusnetworks as $item) {
+            if (!in_array($selectednetwork,$item['networks'])) {
+                $tmp=array(
+                    "name" => $item['name']);
+                array_push($objects, $tmp);
+            }
+        }
+        return $objects;
+    }
+
+    function getContainersInSelectedNetworkList($apiPort, $selectednetwork, $incDangling)
+    {
+        $objects=array();
+        $ctplusnetworks=array();
+        $url = "http://127.0.0.1:" . $apiPort . "/containers/json?all=1";
+        $response = OMVModuleDockerUtil::doApiCall($url);
+        $cdata = json_decode($response,true);
+        foreach ($cdata as $item) {
+            $tmp=array(
+                "name" => ltrim($item['Names'][0], "/"),
+                "networks" => array_keys($item['NetworkSettings']['Networks']));
+            array_push($ctplusnetworks, $tmp);
+        }
+        foreach ($ctplusnetworks as $item) {
+            if (in_array($selectednetwork,$item['networks'])) {
+                $tmp=array(
+                    "name" => $item['name']);
+                array_push($objects, $tmp);
+            }
+        }
+        return $objects;
+    }
+
 
 }
