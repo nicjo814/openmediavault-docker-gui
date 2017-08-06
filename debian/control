@@ -9,7 +9,7 @@ Homepage: http://omv-extras.org/
 
 Package: openmediavault-docker-gui
 Architecture: any
-Depends: docker-engine (>=1.10),
+Depends: docker-engine (>=1.12),
          omvextras-common,
          openmediavault (>= 3.0.67),
          openmediavault-omvextrasorg (>= 3.4.24),
