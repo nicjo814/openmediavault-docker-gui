@@ -509,7 +509,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
                 }
             }
             //Check if host name is specified
-            if (!(strcmp($params['hostName'], "") === 0)) {
+            if ((!empty($params['hostName']))) {
                 $cmd .= "-h \"" . $params['hostName'] . "\" ";
             }
             break;
@@ -521,7 +521,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             break;
         case "Macvlan":
             $cmd .= "--net=" . $params['macvlan_network'] . " " . "--ip=" . $params['macvlan_ipaddress'] . " ";
-            if (!(strcmp($params['hostName'], "") === 0)) {
+            if ((!empty($params['hostName']))) {
                 $cmd .= "-h \"" . $params['hostName'] . "\" ";
             }
             break;
