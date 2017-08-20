@@ -1743,10 +1743,12 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $context,
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
-        $cmd = "docker network disconnect " . $params['networkname'] . " " . $params['containername'] . " 2>&1";
-        $process = new Process($cmd);
-        $process->execute($out);
-        return array("details" => implode("\n\r", $out));
+        foreach ($params['containername'] as $container) {
+            $cmd = "docker network disconnect " . $params['networkname'] . " " . $container . " 2>&1";
+            $process = new Process($cmd);
+            $process->execute($out);
+            return array("details" => implode("\n\r", $out));
+        }
     }
 
 

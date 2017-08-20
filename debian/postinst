@@ -30,7 +30,7 @@ case "$1" in
     sed -i '/### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin./,/### End of OMV Docker GUI plugin changes./d' /etc/crontab
     sed -i '/DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"/d' /etc/default/docker
 
-    #Update systemd daemon and start the Docker service
+    Update systemd daemon and start the Docker service
     systemctl stop docker.socket
     systemctl stop docker
     systemctl daemon-reload
