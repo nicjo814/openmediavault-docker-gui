@@ -54,8 +54,9 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             id: "volumesFromAddButton-" + me.volCount,
             icon: "images/add.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 32,
+            height: 32,
             flex: 0,
-            width: 24,
             tooltip: {
                 text: _("Add"),
                 anchor: "top"
@@ -106,7 +107,8 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             id: "volumesFromEditButton-" + me.volCount,
             icon: "images/edit.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -130,7 +132,8 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             id: "volumesFromCommitButton-" + me.volCount,
             icon: "images/checkmark.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -166,7 +169,8 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             id: "volumesFromUndoButton-" + me.volCount,
             icon: "images/undo.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -192,8 +196,9 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             id: "volumesFromDelButton-" + me.volCount,
             icon: "images/delete.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            width: 32,
+            height: 32,
             flex: 0,
-            width: 24,
             hidden: true,
             tooltip: {
                 text: _("Delete"),
@@ -211,7 +216,8 @@ Ext.define("OMV.module.admin.service.docker.VolumesFromRow", {
             xtype: "image",
             id: "volumesFromBlankButton-" + me.volCount,
             src: "images/docker_blank.png",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: false
         }];
