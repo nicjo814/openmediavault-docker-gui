@@ -65,7 +65,7 @@ Ext.define("OMV.module.admin.service.docker.DisconnectNetwork", {
                 name: "name",
                 id: "dockerNetworkName"
             },{
-                xtype: "combo",
+                xtype: "tagfield",
                 fieldLabel: _("Container"),
                 name: "containerName",
                 id: "containerName",

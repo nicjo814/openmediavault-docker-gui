@@ -176,12 +176,19 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
     if(records.length <= 0) {
       tbarBtnDisabled["delete"] = true;
       tbarBtnDisabled["connect"] = true;
-      tbarBtnDisabled['disconnect'] = true;
+      tbarBtnDisabled["disconnect"] = true;
     } else if(records.length == 1) {
       // Disable 'Delete' button if selected network is host/bridge/none
       Ext.Array.each(records, function(record) {
         if((record.get("name") === "bridge" || record.get("name") === "host" || record.get("name") === "none")) {
           tbarBtnDisabled["delete"] = true;
+          return false;
+        }
+      });
+      Ext.Array.each(records, function(record) {
+        if((record.get("name") === "host")) {
+          tbarBtnDisabled["connect"] = true;
+          tbarBtnDisabled["disconnect"] = true;
           return false;
         }
       });
@@ -196,7 +203,8 @@ Ext.define("OMV.module.admin.service.docker.NetworksGrid", {
           return false;
         }
       });
-    }
+    } 
+
 
     // Update the button controls.
     Ext.Array.each(tbarBtnName, function(name) {

@@ -509,7 +509,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
                 }
             }
             //Check if host name is specified
-            if (!(strcmp($params['hostName'], "") === 0)) {
+            if ((!empty($params['hostName']))) {
                 $cmd .= "-h \"" . $params['hostName'] . "\" ";
             }
             break;
@@ -521,7 +521,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
             break;
         case "Macvlan":
             $cmd .= "--net=" . $params['macvlan_network'] . " " . "--ip=" . $params['macvlan_ipaddress'] . " ";
-            if (!(strcmp($params['hostName'], "") === 0)) {
+            if ((!empty($params['hostName']))) {
                 $cmd .= "-h \"" . $params['hostName'] . "\" ";
             }
             break;
@@ -1743,10 +1743,12 @@ class OMVRpcServiceDocker extends ServiceAbstract
             $context,
             array("role" => OMV_ROLE_ADMINISTRATOR)
         );
-        $cmd = "docker network disconnect " . $params['networkname'] . " " . $params['containername'] . " 2>&1";
-        $process = new Process($cmd);
-        $process->execute($out);
-        return array("details" => implode("\n\r", $out));
+        foreach ($params['containername'] as $container) {
+            $cmd = "docker network disconnect " . $params['networkname'] . " " . $container . " 2>&1";
+            $process = new Process($cmd);
+            $process->execute($out);
+            return array("details" => implode("\n\r", $out));
+        }
     }
 
 
