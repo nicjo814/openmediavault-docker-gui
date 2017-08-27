@@ -110,7 +110,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             id: "portForwardAddButton-" + me.portCount,
             icon: "images/add.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             tooltip: {
                 text: _("Add"),
@@ -181,7 +182,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             id: "portForwardEditButton-" + me.portCount,
             icon: "images/edit.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -214,7 +216,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             id: "portForwardCommitButton-" + me.portCount,
             icon: "images/checkmark.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -260,7 +263,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             id: "portForwardUndoButton-" + me.portCount,
             icon: "images/undo.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -294,7 +298,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             id: "portForwardDelButton-" + me.portCount,
             icon: "images/delete.png",
             iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
-            width: 24,
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: true,
             tooltip: {
@@ -312,7 +317,6 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             xtype: "image",
             id: "portForwardBlankButton-" + me.portCount,
             src: "images/docker_blank.png",
-            width: 24,
             flex: 0,
             hidden: false
         }];
