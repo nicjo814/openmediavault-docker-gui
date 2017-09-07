@@ -1,8 +1,8 @@
-openmediavault-docker-gui (3.1.10) UNRELEASED; urgency=medium
+openmediavault-docker-gui (3.1.10) stable; urgency=medium
 
   * Move from docker-engine to docker-ce package 
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 20 Jul 2017 21:02:57 +0200
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Thu, 20 Jul 2017 20:42:25 +0200
 
 openmediavault-docker-gui (3.1.9) stable; urgency=medium
 
