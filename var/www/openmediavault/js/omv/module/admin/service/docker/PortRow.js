@@ -317,6 +317,8 @@ Ext.define("OMV.module.admin.service.docker.PortRow", {
             xtype: "image",
             id: "portForwardBlankButton-" + me.portCount,
             src: "images/docker_blank.png",
+            width: 32,
+            height: 32,
             flex: 0,
             hidden: false
         }];
