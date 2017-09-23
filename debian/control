@@ -11,10 +11,10 @@ Package: openmediavault-docker-gui
 Architecture: any
 Depends: docker-ce,
          omvextras-common,
-         openmediavault (>= 3.0.67),
-         openmediavault-omvextrasorg (>= 3.4.24),
-         php5-curl,
-         php5-imagick,
+         openmediavault (>= 4.0.5),
+         openmediavault-omvextrasorg (>= 4.0.2),
+         php-curl,
+         php-imagick,
          ${misc:Depends},
 Description: OpenMediaVault plugin for Docker
 Conflicts: docker, docker-engine, docker.io
