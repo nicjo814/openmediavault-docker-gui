@@ -119,6 +119,7 @@ Ext.define("OMV.module.admin.service.docker.RunContainer", {
             },{
                 xtype: "textfield",
                 fieldLabel: _("Container name"),
+                vtype: "password",
                 name: "containerName"
             },{
                 xtype: "checkbox",
