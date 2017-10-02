@@ -443,6 +443,15 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
         var sm = me.getSelectionModel();
         var records = sm.getSelection();
         var record = records[0];
-        window.open('https://hub.docker.com/r/' + record.get("repository"));
+        var repository = record.get("repository");
+        var count = (repository.match(/\//g) || []).length;
+        if (count > 1) {
+            window.open('http://' + record.get("repository")); 
+        } else if (count == 1) {
+            window.open('https://hub.docker.com/r/' + record.get("repository"));   
+        } else if (count == 0) {
+            window.open('https://hub.docker.com/_/' + record.get("repository")); 
+        }
+        
     }
 });
