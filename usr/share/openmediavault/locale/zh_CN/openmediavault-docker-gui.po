@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# songming <by@songming.me>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-22 13:39+0000\n"
+"Last-Translator: songming <by@songming.me>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,186 +22,186 @@ msgid "Bad input"
 msgstr ""
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "绑定挂载"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "命令"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "容器 "
 
 msgid "CREATED"
-msgstr ""
+msgstr "创建时间"
 
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 msgid "Container details"
-msgstr ""
+msgstr "容器详情"
 
 msgid "Container name"
-msgstr ""
+msgstr "容器名称"
 
 msgid "Copy"
-msgstr ""
+msgstr "复制"
 
 msgid "Copy container"
-msgstr ""
+msgstr "复制容器"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "复制进程"
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "在后台进行复制操作。<br />"
 
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 msgid "Destination path"
-msgstr ""
+msgstr "目标路径"
 
 msgid "Details"
-msgstr ""
+msgstr "详情"
 
 msgid "Docker"
-msgstr ""
+msgstr "容器"
 
 msgid "Docker image"
-msgstr ""
+msgstr "容器镜像"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "启用插件"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "环境变量"
 
 msgid "General"
-msgstr ""
+msgstr "常规"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "镜像"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "镜像ID"
 
 msgid "Image details"
-msgstr ""
+msgstr "镜像详情"
 
 msgid "Image information"
-msgstr ""
+msgstr "镜像信息"
 
 msgid "Info"
-msgstr ""
+msgstr "信息"
 
 msgid "Information"
-msgstr ""
+msgstr "信息"
 
 msgid "NAMES"
-msgstr ""
+msgstr "名称"
 
 msgid "Network mode"
-msgstr ""
+msgstr "网络模式"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
 "a change to be committed"
-msgstr ""
+msgstr "容器API的网络监听端口，插件必须启用才能生效。"
 
 msgid "Networking"
-msgstr ""
+msgstr "网络"
 
 msgid "OK"
-msgstr ""
+msgstr "是"
 
 msgid "Output"
-msgstr ""
+msgstr "输出"
 
 msgid "Overview"
-msgstr ""
+msgstr "总览"
 
 msgid "PORTS"
-msgstr ""
+msgstr "端口"
 
 msgid "Parameters"
-msgstr ""
+msgstr "参数"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "请等待 ... "
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "端口转发"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "获取镜像"
 
 msgid "Pull image"
-msgstr ""
+msgstr "获取镜像"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "源"
 
 msgid "Refresh"
-msgstr ""
+msgstr "刷新"
 
 msgid "Repository"
-msgstr ""
+msgstr "源"
 
 msgid "Restart"
-msgstr ""
+msgstr "重启"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "系统重启时重启"
 
 msgid "Run Image"
-msgstr ""
+msgstr "部署镜像"
 
 msgid "Run container"
-msgstr ""
+msgstr "运行容器"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "以特权模式运行容器"
 
 msgid "Run image"
-msgstr ""
+msgstr "部署镜像"
 
 msgid "STATUS"
-msgstr ""
+msgstr "状态"
 
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "选择目录"
 
 msgid "Settings"
-msgstr ""
+msgstr "设置"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "用于复制容器镜像和容器数据的源路径"
 
 msgid "Start"
-msgstr ""
+msgstr "开始"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "开始复制数据"
 
 msgid "Stop"
-msgstr ""
+msgstr "停止"
 
 msgid "TAG"
-msgstr ""
+msgstr "标签"
 
 msgid "Tag"
-msgstr ""
+msgstr "标签"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
 "to /var/lib/docker if unset). The plugin must be enabled for a change to be "
 "committed"
-msgstr ""
+msgstr "容器的主要本地路径(默认路径是/var/lib/docker)，插件必须要启用才能生效"
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "虚拟大小"

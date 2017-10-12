@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Hyeonkyu Chu <hyeonkyu@gmail.com>, 2015-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-23 21:30+0000\n"
+"Last-Translator: Hyeonkyu Chu <hyeonkyu@gmail.com>\n"
 "Language-Team: Korean (Korea) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/ko_KR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,91 +19,91 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "Bad input"
-msgstr ""
+msgstr "잘못된 입력"
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "결합 적재"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "명령"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "컨테이너 식별자"
 
 msgid "CREATED"
-msgstr ""
+msgstr "생성됨"
 
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 msgid "Close"
-msgstr ""
+msgstr "닫기"
 
 msgid "Container details"
-msgstr ""
+msgstr "컨테이너 상세"
 
 msgid "Container name"
-msgstr ""
+msgstr "컨테이너 이름"
 
 msgid "Copy"
-msgstr ""
+msgstr "복사"
 
 msgid "Copy container"
-msgstr ""
+msgstr "컨테이너 복사"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "진행중인 복사"
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "복사 작업은 배경에서 진행되고 있습니다.<br/>"
 
 msgid "Delete"
-msgstr ""
+msgstr "삭제"
 
 msgid "Destination path"
-msgstr ""
+msgstr "대상 경로"
 
 msgid "Details"
-msgstr ""
+msgstr "정보"
 
 msgid "Docker"
-msgstr ""
+msgstr "Docker"
 
 msgid "Docker image"
-msgstr ""
+msgstr "도커 복제본"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "꾸러미 활성화"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "환경 변수"
 
 msgid "General"
-msgstr ""
+msgstr "일반 사항"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "복제본"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "복제본 식별자"
 
 msgid "Image details"
-msgstr ""
+msgstr "복제본 상세"
 
 msgid "Image information"
-msgstr ""
+msgstr "복제본 정보"
 
 msgid "Info"
-msgstr ""
+msgstr "정보"
 
 msgid "Information"
-msgstr ""
+msgstr "정보"
 
 msgid "NAMES"
-msgstr ""
+msgstr "이름"
 
 msgid "Network mode"
-msgstr ""
+msgstr "네트웍 방식"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
@@ -110,91 +111,91 @@ msgid ""
 msgstr ""
 
 msgid "Networking"
-msgstr ""
+msgstr "네트워킹"
 
 msgid "OK"
-msgstr ""
+msgstr "좋음"
 
 msgid "Output"
-msgstr ""
+msgstr "출력"
 
 msgid "Overview"
-msgstr ""
+msgstr "개요"
 
 msgid "PORTS"
-msgstr ""
+msgstr "포트"
 
 msgid "Parameters"
-msgstr ""
+msgstr "매개변수"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "기다려주세요..."
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "포트 전달"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "복제본 당겨오기"
 
 msgid "Pull image"
-msgstr ""
+msgstr "복제본 당겨오기"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "저장소"
 
 msgid "Refresh"
-msgstr ""
+msgstr "새로 고침"
 
 msgid "Repository"
-msgstr ""
+msgstr "저장소"
 
 msgid "Restart"
-msgstr ""
+msgstr "재시작"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "시스템 재적재시 재시작"
 
 msgid "Run Image"
-msgstr ""
+msgstr "복제본 실행"
 
 msgid "Run container"
-msgstr ""
+msgstr "컨테이너 실행"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "특권 방식으로 컨테이너 실행"
 
 msgid "Run image"
-msgstr ""
+msgstr "복제본 실행"
 
 msgid "STATUS"
-msgstr ""
+msgstr "상황"
 
 msgid "Search"
-msgstr ""
+msgstr "조회"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "디렉터리 선택"
 
 msgid "Settings"
-msgstr ""
+msgstr "설정"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "도커 복제본/컨테이너 자료 복사의 원본 경로"
 
 msgid "Start"
-msgstr ""
+msgstr "시작"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "자료 복사를 시작합니다"
 
 msgid "Stop"
-msgstr ""
+msgstr "중지"
 
 msgid "TAG"
-msgstr ""
+msgstr "꼬리표"
 
 msgid "Tag"
-msgstr ""
+msgstr "꼬리표"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
@@ -203,4 +204,4 @@ msgid ""
 msgstr ""
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "가상 크기"

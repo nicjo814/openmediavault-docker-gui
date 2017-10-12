@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Toshihiro Kan <kansuke4649@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-22 13:39+0000\n"
+"Last-Translator: Toshihiro Kan <kansuke4649@gmail.com>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,189 +19,189 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "Bad input"
-msgstr ""
+msgstr "不正な入力"
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "バインド マウント"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "コマンド"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "コンテナID"
 
 msgid "CREATED"
-msgstr ""
+msgstr "作成済み"
 
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 msgid "Close"
-msgstr ""
+msgstr "閉じる"
 
 msgid "Container details"
-msgstr ""
+msgstr "コンテナの詳細"
 
 msgid "Container name"
-msgstr ""
+msgstr "コンテナ名"
 
 msgid "Copy"
-msgstr ""
+msgstr "コピー"
 
 msgid "Copy container"
-msgstr ""
+msgstr "コンテナのコピー"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "コピー中"
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "コピー操作がバックグラウンドで進行しています。<br />"
 
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 msgid "Destination path"
-msgstr ""
+msgstr "宛先のパス"
 
 msgid "Details"
-msgstr ""
+msgstr "詳細"
 
 msgid "Docker"
-msgstr ""
+msgstr "Docker"
 
 msgid "Docker image"
-msgstr ""
+msgstr "Docker イメージ"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "プラグインを有効化"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "環境変数"
 
 msgid "General"
-msgstr ""
+msgstr "一般"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "イメージ"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "イメージID"
 
 msgid "Image details"
-msgstr ""
+msgstr "イメージの詳細"
 
 msgid "Image information"
-msgstr ""
+msgstr "イメージの情報"
 
 msgid "Info"
-msgstr ""
+msgstr "情報"
 
 msgid "Information"
-msgstr ""
+msgstr "情報"
 
 msgid "NAMES"
-msgstr ""
+msgstr "名前"
 
 msgid "Network mode"
-msgstr ""
+msgstr "ネットワークモード"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
 "a change to be committed"
-msgstr ""
+msgstr "Docker APIが待ち受けるネットワークポート。プラグインは、変更がコミットされるのを有効にする必要があります"
 
 msgid "Networking"
-msgstr ""
+msgstr "ネットワーキング"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Output"
-msgstr ""
+msgstr "出力"
 
 msgid "Overview"
-msgstr ""
+msgstr "概要"
 
 msgid "PORTS"
-msgstr ""
+msgstr "ポート"
 
 msgid "Parameters"
-msgstr ""
+msgstr "パラメータ"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "しばらくお待ちください ..."
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "ポートフォワーディング"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "イメージの取得"
 
 msgid "Pull image"
-msgstr ""
+msgstr "イメージの取得"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "リポジトリ"
 
 msgid "Refresh"
-msgstr ""
+msgstr "リフレッシュ"
 
 msgid "Repository"
-msgstr ""
+msgstr "リポジトリ"
 
 msgid "Restart"
-msgstr ""
+msgstr "リスタート"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "システムの再起動時に再起動"
 
 msgid "Run Image"
-msgstr ""
+msgstr "イメージの実行"
 
 msgid "Run container"
-msgstr ""
+msgstr "コンテナの実行"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "特権モードで実行するコンテナ"
 
 msgid "Run image"
-msgstr ""
+msgstr "イメージの実行"
 
 msgid "STATUS"
-msgstr ""
+msgstr "ステータス"
 
 msgid "Search"
-msgstr ""
+msgstr "検索"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "ディレクトリを検索"
 
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "コピーする Docker イメージ/コンテナ データのソースパス"
 
 msgid "Start"
-msgstr ""
+msgstr "スタート"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "データのコピーを開始します"
 
 msgid "Stop"
-msgstr ""
+msgstr "ストップ"
 
 msgid "TAG"
-msgstr ""
+msgstr "タグ"
 
 msgid "Tag"
-msgstr ""
+msgstr "タグ"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
 "to /var/lib/docker if unset). The plugin must be enabled for a change to be "
 "committed"
-msgstr ""
+msgstr "Docker のベースパスの場所(この設定はオプションで、設定しない場合のデフォルトは /var/lib/docker です)。プラグインは、変更がコミットされるのを有効にする必要があります"
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "仮想サイズ"

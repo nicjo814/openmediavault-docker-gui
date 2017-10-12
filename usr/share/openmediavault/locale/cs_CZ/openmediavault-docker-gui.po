@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Pavel Borecki <pavel.borecki@gmail.com>, 2015,2017
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-23 21:30+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,189 +19,189 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 msgid "Bad input"
-msgstr ""
+msgstr "Neplatný vstup"
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "Spojovací připojení (mount)"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "PŘÍKAZ"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "IDENTIFIKÁTOR KONTEJNERU"
 
 msgid "CREATED"
-msgstr ""
+msgstr "VYTVOŘENO"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušit"
 
 msgid "Close"
-msgstr ""
+msgstr "Zavřít"
 
 msgid "Container details"
-msgstr ""
+msgstr "Podrobnosti o kontejneru"
 
 msgid "Container name"
-msgstr ""
+msgstr "Název kontejneru"
 
 msgid "Copy"
-msgstr ""
+msgstr "Kopírovat"
 
 msgid "Copy container"
-msgstr ""
+msgstr "Zkopírovat kontejner"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "Kopírování…"
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "Operace kopírování pokračuje na pozadí.<br />"
 
 msgid "Delete"
-msgstr ""
+msgstr "Smazat"
 
 msgid "Destination path"
-msgstr ""
+msgstr "Cílové umístění"
 
 msgid "Details"
-msgstr ""
+msgstr "Podrobnosti"
 
 msgid "Docker"
-msgstr ""
+msgstr "Docker"
 
 msgid "Docker image"
-msgstr ""
+msgstr "Docker obraz"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "Zapnout tento zásuvný modul"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "Proměnné prostředí"
 
 msgid "General"
-msgstr ""
+msgstr "Obecné"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "OBRAZ"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "IDENTIFIKÁTOR OBRAZU"
 
 msgid "Image details"
-msgstr ""
+msgstr "Podrobnosti o obrazu"
 
 msgid "Image information"
-msgstr ""
+msgstr "Informace o obrazu"
 
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 msgid "Information"
-msgstr ""
+msgstr "Informace"
 
 msgid "NAMES"
-msgstr ""
+msgstr "NÁZVY"
 
 msgid "Network mode"
-msgstr ""
+msgstr "Režim sítě"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
 "a change to be committed"
-msgstr ""
+msgstr "Port, na kterém aplikační programové rozhraní (API) platformy Docker očekává spojení. Aby fungovalo, je třeba, aby zásuvný modul byl zapnutý a změna byla promítnuta."
 
 msgid "Networking"
-msgstr ""
+msgstr "Síť"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Output"
-msgstr ""
+msgstr "Výstup"
 
 msgid "Overview"
-msgstr ""
+msgstr "Přehled"
 
 msgid "PORTS"
-msgstr ""
+msgstr "PORTY"
 
 msgid "Parameters"
-msgstr ""
+msgstr "Parametry"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "Čekejte…"
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "Předávání portů"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "Natáhnout obraz"
 
 msgid "Pull image"
-msgstr ""
+msgstr "Natáhnout obraz"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "REPOZITÁŘ"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Načíst znovu"
 
 msgid "Repository"
-msgstr ""
+msgstr "Repozitář"
 
 msgid "Restart"
-msgstr ""
+msgstr "Restartovat"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "Restartovat při restartu systému"
 
 msgid "Run Image"
-msgstr ""
+msgstr "Spustit obraz"
 
 msgid "Run container"
-msgstr ""
+msgstr "Spustit kontejner"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "Spustit kontejner v privilegovaném režimu"
 
 msgid "Run image"
-msgstr ""
+msgstr "Spustit obraz"
 
 msgid "STATUS"
-msgstr ""
+msgstr "STAV"
 
 msgid "Search"
-msgstr ""
+msgstr "Hledat"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "Vyberte složku"
 
 msgid "Settings"
-msgstr ""
+msgstr "Nastavení"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "Umístění zdroje pro kopírování dat Docker obrazu/kontejneru"
 
 msgid "Start"
-msgstr ""
+msgstr "Spustit"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "Spustit kopírování dat"
 
 msgid "Stop"
-msgstr ""
+msgstr "Zastavit"
 
 msgid "TAG"
-msgstr ""
+msgstr "ZNAČKA"
 
 msgid "Tag"
-msgstr ""
+msgstr "Značka"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
 "to /var/lib/docker if unset). The plugin must be enabled for a change to be "
 "committed"
-msgstr ""
+msgstr "Základní umístění pro Docker (toto nastavení je volitelné a pokud není uvedeno, je použito výchozí /var/lib/docker). Aby bylo možné promítnou změnu, je třeba, aby zásuvný modul byl zapnut."
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "VIRTUÁLNÍ VELIKOST"
