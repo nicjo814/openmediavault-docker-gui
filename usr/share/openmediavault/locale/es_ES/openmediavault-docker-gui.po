@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Raul Fernandez Garcia <raulfg3@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-22 13:39+0000\n"
+"Last-Translator: Raul Fernandez Garcia <raulfg3@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,189 +19,189 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Bad input"
-msgstr ""
+msgstr "Entrada incorrecta"
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "Bind mounts"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "COMANDO"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "ID del CONTENEDOR"
 
 msgid "CREATED"
-msgstr ""
+msgstr "CREADO"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 msgid "Container details"
-msgstr ""
+msgstr "Detalles del contenedor"
 
 msgid "Container name"
-msgstr ""
+msgstr "Nombre del contenedor"
 
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 msgid "Copy container"
-msgstr ""
+msgstr "Copiar contenedor"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "Copia en progreso..."
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "Operación de copia en progreso en background.<br />"
 
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 msgid "Destination path"
-msgstr ""
+msgstr "Destino"
 
 msgid "Details"
-msgstr ""
+msgstr "Detalles"
 
 msgid "Docker"
-msgstr ""
+msgstr "Docker"
 
 msgid "Docker image"
-msgstr ""
+msgstr "Imagen Docker"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "Habilitar"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "Variables de entorno"
 
 msgid "General"
-msgstr ""
+msgstr "General"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "IMAGEN"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "ID de la IMAGEN"
 
 msgid "Image details"
-msgstr ""
+msgstr "Detalles de la Imagen"
 
 msgid "Image information"
-msgstr ""
+msgstr "Información de la Imagen"
 
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 msgid "Information"
-msgstr ""
+msgstr "Información"
 
 msgid "NAMES"
-msgstr ""
+msgstr "NOMBRES"
 
 msgid "Network mode"
-msgstr ""
+msgstr "Modo Red"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
 "a change to be committed"
-msgstr ""
+msgstr "Puerto de Red de escucha de la API Docker. Se debe deshabilitar/Habilitar para que el cambio sea efectivo."
 
 msgid "Networking"
-msgstr ""
+msgstr "Red"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Output"
-msgstr ""
+msgstr "Salida"
 
 msgid "Overview"
-msgstr ""
+msgstr "Información General"
 
 msgid "PORTS"
-msgstr ""
+msgstr "PUERTOS"
 
 msgid "Parameters"
-msgstr ""
+msgstr "Parametros"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "Espere ..."
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "Port forwarding"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "Mover Imagen"
 
 msgid "Pull image"
-msgstr ""
+msgstr "Mover imagen"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "REPOSITORIO"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Refrescar"
 
 msgid "Repository"
-msgstr ""
+msgstr "Repositorio"
 
 msgid "Restart"
-msgstr ""
+msgstr "Reiniciar"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "Reiniciar al reiniciarel sistema"
 
 msgid "Run Image"
-msgstr ""
+msgstr "Ejecutar Imagen"
 
 msgid "Run container"
-msgstr ""
+msgstr "Ejecutar contenedor"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "Ejecutar contenedor en modo privilegiado."
 
 msgid "Run image"
-msgstr ""
+msgstr "Ejecutar imagen"
 
 msgid "STATUS"
-msgstr ""
+msgstr "ESTADO"
 
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "Seleccionar un directorio"
 
 msgid "Settings"
-msgstr ""
+msgstr "Opciones"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "Origen de la imagen Docker o del contenedor de los datos"
 
 msgid "Start"
-msgstr ""
+msgstr "Comenzar"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "Comenzar a copiar datos"
 
 msgid "Stop"
-msgstr ""
+msgstr "Parar"
 
 msgid "TAG"
-msgstr ""
+msgstr "TAG"
 
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
 "to /var/lib/docker if unset). The plugin must be enabled for a change to be "
 "committed"
-msgstr ""
+msgstr "Ruta base (Esta opcion por defecto es /var/lib/docker y se puede dejar en blanco si no se ha usado otra). El pluging debe ser deshabilitado / Habilitado paar que el cambio sea efectivo."
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "TAMAÑO VIRTUAL"

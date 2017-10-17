@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# kochin <kochinc@outlook.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 05:54-0500\n"
-"PO-Revision-Date: 2015-08-24 10:54+0000\n"
-"Last-Translator: Aaron Murray <aaron27@ryecoinc.com>\n"
+"PO-Revision-Date: 2017-09-22 13:39+0000\n"
+"Last-Translator: kochin <kochinc@outlook.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/openmediavault-plugin-developers/openmediavault-docker-gui/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,189 +19,189 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "Bad input"
-msgstr ""
+msgstr "無效的輸入"
 
 msgid "Bind mounts"
-msgstr ""
+msgstr "結合掛載"
 
 msgid "COMMAND"
-msgstr ""
+msgstr "指令"
 
 msgid "CONTAINER ID"
-msgstr ""
+msgstr "容器識別碼"
 
 msgid "CREATED"
-msgstr ""
+msgstr "已建立"
 
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 msgid "Close"
-msgstr ""
+msgstr "關閉"
 
 msgid "Container details"
-msgstr ""
+msgstr "容器詳情"
 
 msgid "Container name"
-msgstr ""
+msgstr "容器名稱"
 
 msgid "Copy"
-msgstr ""
+msgstr "複製"
 
 msgid "Copy container"
-msgstr ""
+msgstr "複製容器"
 
 msgid "Copy in progress"
-msgstr ""
+msgstr "進行複製中"
 
 msgid "Copy operation is progressing in the background.<br />"
-msgstr ""
+msgstr "複製作業正於後台進行中。<br />"
 
 msgid "Delete"
-msgstr ""
+msgstr "刪除"
 
 msgid "Destination path"
-msgstr ""
+msgstr "目的地路徑"
 
 msgid "Details"
-msgstr ""
+msgstr "詳情"
 
 msgid "Docker"
-msgstr ""
+msgstr "Docker"
 
 msgid "Docker image"
-msgstr ""
+msgstr "Docker 影像"
 
 msgid "Enable the plugin"
-msgstr ""
+msgstr "啟用該插件"
 
 msgid "Environment variables"
-msgstr ""
+msgstr "環境變數"
 
 msgid "General"
-msgstr ""
+msgstr "一般"
 
 msgid "IMAGE"
-msgstr ""
+msgstr "影像"
 
 msgid "IMAGE ID"
-msgstr ""
+msgstr "影像識別碼"
 
 msgid "Image details"
-msgstr ""
+msgstr "影像詳情"
 
 msgid "Image information"
-msgstr ""
+msgstr "影像資訊"
 
 msgid "Info"
-msgstr ""
+msgstr "資訊"
 
 msgid "Information"
-msgstr ""
+msgstr "資訊"
 
 msgid "NAMES"
-msgstr ""
+msgstr "名稱"
 
 msgid "Network mode"
-msgstr ""
+msgstr "網路模式"
 
 msgid ""
 "Network port that the Docker API listens on. The plugin must be enabled for "
 "a change to be committed"
-msgstr ""
+msgstr "Docker API 監聽的網路通訊埠。插件必須被啟用，才會將變更提交。"
 
 msgid "Networking"
-msgstr ""
+msgstr "網路"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Output"
-msgstr ""
+msgstr "輸出"
 
 msgid "Overview"
-msgstr ""
+msgstr "概觀"
 
 msgid "PORTS"
-msgstr ""
+msgstr "通訊埠"
 
 msgid "Parameters"
-msgstr ""
+msgstr "參數"
 
 msgid "Please wait ..."
-msgstr ""
+msgstr "請稍候 ..."
 
 msgid "Port forwarding"
-msgstr ""
+msgstr "通訊埠轉發"
 
 msgid "Pull Image"
-msgstr ""
+msgstr "取得影像"
 
 msgid "Pull image"
-msgstr ""
+msgstr "取得影像"
 
 msgid "REPOSITORY"
-msgstr ""
+msgstr "影像庫"
 
 msgid "Refresh"
-msgstr ""
+msgstr "更新"
 
 msgid "Repository"
-msgstr ""
+msgstr "影像庫"
 
 msgid "Restart"
-msgstr ""
+msgstr "重新啟動"
 
 msgid "Restart on system reboot"
-msgstr ""
+msgstr "系統重開機時重新啟動"
 
 msgid "Run Image"
-msgstr ""
+msgstr "執行影像"
 
 msgid "Run container"
-msgstr ""
+msgstr "執行容器"
 
 msgid "Run container in privileged mode"
-msgstr ""
+msgstr "於特權模式中執行容器"
 
 msgid "Run image"
-msgstr ""
+msgstr "執行影像"
 
 msgid "STATUS"
-msgstr ""
+msgstr "狀態"
 
 msgid "Search"
-msgstr ""
+msgstr "搜尋"
 
 msgid "Select a directory"
-msgstr ""
+msgstr "選擇一個目錄"
 
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 msgid "Source path for copying of Docker image/container data"
-msgstr ""
+msgstr "用以複製 Docker 影像/容器資料的來源路徑"
 
 msgid "Start"
-msgstr ""
+msgstr "啟動"
 
 msgid "Start copying of data"
-msgstr ""
+msgstr "開始複製資料"
 
 msgid "Stop"
-msgstr ""
+msgstr "停止"
 
 msgid "TAG"
-msgstr ""
+msgstr "標籤"
 
 msgid "Tag"
-msgstr ""
+msgstr "標籤"
 
 msgid ""
 "The location of the Docker base path (this setting is optional and defaults "
 "to /var/lib/docker if unset). The plugin must be enabled for a change to be "
 "committed"
-msgstr ""
+msgstr "Docker 基礎路徑的位置 (此設定是選擇性的，若未設定則會預設為 /var/lib/docker)。插件必須被啟動，變更才會被提交。"
 
 msgid "VIRTUAL SIZE"
-msgstr ""
+msgstr "虛擬大小"

@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the openmediavault-docker-gui package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault-docker-gui\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-24 05:54-0500\n"
+"POT-Creation-Date: 2017-10-12 16:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Bad input"
+msgid "Action"
 msgstr ""
 
-msgid "Bind mounts"
+msgid "Add"
+msgstr ""
+
+msgid "Bad input"
 msgstr ""
 
 msgid "COMMAND"
@@ -29,16 +32,43 @@ msgstr ""
 msgid "CONTAINER ID"
 msgstr ""
 
+msgid "CONTAINERS"
+msgstr ""
+
 msgid "CREATED"
 msgstr ""
 
-msgid "Cancel"
+msgid "Category"
+msgstr ""
+
+msgid "Clear Log"
 msgstr ""
 
 msgid "Close"
 msgstr ""
 
+msgid "Command"
+msgstr ""
+
+msgid "Commit"
+msgstr ""
+
+msgid "Connect"
+msgstr ""
+
+msgid "Connect Network"
+msgstr ""
+
+msgid "Connect network"
+msgstr ""
+
+msgid "Container"
+msgstr ""
+
 msgid "Container details"
+msgstr ""
+
+msgid "Container logs"
 msgstr ""
 
 msgid "Container name"
@@ -50,13 +80,31 @@ msgstr ""
 msgid "Copy container"
 msgstr ""
 
+msgid "Copy data container"
+msgstr ""
+
 msgid "Copy in progress"
 msgstr ""
 
-msgid "Copy operation is progressing in the background.<br />"
+msgid "Copy operation is progressing in the background.<br />Refresh overview tab to see the progress"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Create data container"
+msgstr ""
+
+msgid "Create network"
+msgstr ""
+
+msgid "DRIVER"
 msgstr ""
 
 msgid "Delete"
+msgstr ""
+
+msgid "Description"
 msgstr ""
 
 msgid "Destination path"
@@ -65,10 +113,37 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
+msgid "Disconnect"
+msgstr ""
+
+msgid "Disconnect Network"
+msgstr ""
+
+msgid "Disconnect network"
+msgstr ""
+
 msgid "Docker"
 msgstr ""
 
+msgid "Docker Containers"
+msgstr ""
+
+msgid "Docker Images"
+msgstr ""
+
+msgid "Docker Network"
+msgstr ""
+
 msgid "Docker image"
+msgstr ""
+
+msgid "Docker images repo"
+msgstr ""
+
+msgid "EXTRA ARGUMENTS"
+msgstr ""
+
+msgid "Edit"
 msgstr ""
 
 msgid "Enable the plugin"
@@ -77,13 +152,34 @@ msgstr ""
 msgid "Environment variables"
 msgstr ""
 
+msgid "Execute command"
+msgstr ""
+
+msgid "Extra args"
+msgstr ""
+
+msgid "Extra arguments"
+msgstr ""
+
+msgid "Gateway"
+msgstr ""
+
 msgid "General"
+msgstr ""
+
+msgid "Host name"
+msgstr ""
+
+msgid "ID"
 msgstr ""
 
 msgid "IMAGE"
 msgstr ""
 
 msgid "IMAGE ID"
+msgstr ""
+
+msgid "IP Address"
 msgstr ""
 
 msgid "Image details"
@@ -98,10 +194,49 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+msgid "Ip Address"
+msgstr ""
+
+msgid "It is not possible to modify a data container."
+msgstr ""
+
+msgid "Logo"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "Macvlan settings"
+msgstr ""
+
+msgid "Modify"
+msgstr ""
+
+msgid "Modify container"
+msgstr ""
+
+msgid "Modify container failed with message: </br>"
+msgstr ""
+
+msgid "Modify operation failed"
+msgstr ""
+
+msgid "NAME"
+msgstr ""
+
 msgid "NAMES"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
+msgid "Network driver"
+msgstr ""
+
 msgid "Network mode"
+msgstr ""
+
+msgid "Network name"
 msgstr ""
 
 msgid "Network port that the Docker API listens on. The plugin must be enabled for a change to be committed"
@@ -110,7 +245,13 @@ msgstr ""
 msgid "Networking"
 msgstr ""
 
-msgid "OK"
+msgid "Networks"
+msgstr ""
+
+msgid "No matching repositories found."
+msgstr ""
+
+msgid "Number of retries for on-failure mode"
 msgstr ""
 
 msgid "Output"
@@ -123,6 +264,15 @@ msgid "PORTS"
 msgstr ""
 
 msgid "Parameters"
+msgstr ""
+
+msgid "Parent"
+msgstr ""
+
+msgid "Please be aware that <b>all</b> non-persistent data within the container</br>will be <b>deleted</b></br>Please see here for more information:</br><a href='http://forums.openmediavault.org/index.php/Thread/10921-openmediavault-docker-gui-Testing/?postID=101996#post102450' target='_blank'>Link</a></br>This warning can be disabled on the Settings tab"
+msgstr ""
+
+msgid "Please check the docker <a href='https://docs.docker.com/engine/userguide/networking/get-started-macvlan/' target='_blank'>macvlan documentation</a> for more details."
 msgstr ""
 
 msgid "Please wait ..."
@@ -143,16 +293,22 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
+msgid "Refresh image"
+msgstr ""
+
 msgid "Repository"
 msgstr ""
 
 msgid "Restart"
 msgstr ""
 
-msgid "Restart on system reboot"
+msgid "Restart Policy"
 msgstr ""
 
 msgid "Run Image"
+msgstr ""
+
+msgid "Run cmd"
 msgstr ""
 
 msgid "Run container"
@@ -164,13 +320,31 @@ msgstr ""
 msgid "Run image"
 msgstr ""
 
+msgid "SCOPE"
+msgstr ""
+
+msgid "STATE"
+msgstr ""
+
 msgid "STATUS"
+msgstr ""
+
+msgid "SUBNET"
 msgstr ""
 
 msgid "Search"
 msgstr ""
 
-msgid "Select a directory"
+msgid "Searching..."
+msgstr ""
+
+msgid "Select a container..."
+msgstr ""
+
+msgid "Select a macvlan network ..."
+msgstr ""
+
+msgid "Select macvlan network"
 msgstr ""
 
 msgid "Settings"
@@ -188,6 +362,12 @@ msgstr ""
 msgid "Stop"
 msgstr ""
 
+msgid "Subnet"
+msgstr ""
+
+msgid "Sync time with host"
+msgstr ""
+
 msgid "TAG"
 msgstr ""
 
@@ -197,5 +377,26 @@ msgstr ""
 msgid "The location of the Docker base path (this setting is optional and defaults to /var/lib/docker if unset). The plugin must be enabled for a change to be committed"
 msgstr ""
 
+msgid "Undo"
+msgstr ""
+
+msgid "Update available. Click to refresh image"
+msgstr ""
+
 msgid "VIRTUAL SIZE"
+msgstr ""
+
+msgid "Volumes"
+msgstr ""
+
+msgid "Volumes and Bind mounts"
+msgstr ""
+
+msgid "Volumes from"
+msgstr ""
+
+msgid "Warn when modifying container"
+msgstr ""
+
+msgid "Warning"
 msgstr ""
