@@ -8,7 +8,7 @@ Standards-Version: 3.9.6
 Homepage: http://omv-extras.org/
 
 Package: openmediavault-docker-gui
-Architecture: any
+Architecture: all
 Depends: docker-ce,
          omvextras-common,
          openmediavault (>= 4.0.5),
