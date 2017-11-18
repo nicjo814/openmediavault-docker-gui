@@ -23,11 +23,6 @@ case "$1" in
       omv_config_add_key "${SERVICE_XPATH}" "cwarn" "1"
     fi
 
-    #Remove deprecated stuff to ensure clean installation
-    update-rc.d -f openmediavault-docker-gui remove
-    rm -f /etc/init.d/openmediavault-docker-gui
-    sed -i '/### Do not change these lines\. They are added and updated by the OMV Docker GUI plugin\./,$d' /etc/rc.local
-    sed -i '/### Do not change theese lines. They are added and updated by the OMV Docker GUI plugin./,/### End of OMV Docker GUI plugin changes./d' /etc/crontab
     sed -i '/DOCKER_OPTS="$DOCKER_OPTS $OMVDOCKER_API $OMVDOCKER_IMAGE_PATH"/d' /etc/default/docker
 
     #Update systemd daemon and start the Docker service

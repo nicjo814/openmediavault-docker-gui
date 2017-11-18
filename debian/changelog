@@ -1,3 +1,11 @@
+openmediavault-docker-gui (4.0.1) stable; urgency=low
+
+  * Remove rc.local code
+  * Fix icon on info button
+  * Open correct url
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 18 Nov 2017 07:02:36 -0600
+
 openmediavault-docker-gui (4.0) stable; urgency=low
 
   * Update for OMV 4.x
