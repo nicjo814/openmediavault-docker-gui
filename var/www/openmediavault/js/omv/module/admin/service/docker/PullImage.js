@@ -156,12 +156,22 @@ Ext.define("OMV.module.admin.service.docker.PullImage", {
                         icon: "images/about.png",
                         iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
                         flex: 0,
-                        width: 24,
+                        width: 32,
+                        height: 32,
                         tooltip: _("Image information"),
                         listeners: {
                             scope: this,
                             click: function(button, e , eOpts) {
-                                window.open("https://hub.docker.com/r/" + this.down('panel').getForm().findField("repository").getValue());
+                                var repository = this.down('panel').getForm().findField("repository").getValue();
+                                var count = (repository.match(/\//g) || []).length;
+                                if (count > 1) {
+                                    window.open('http://' + repository); 
+                                } else if (count == 1) {
+                                    window.open('https://hub.docker.com/r/' + repository);   
+                                } else if (count == 0) {
+                                    window.open('https://hub.docker.com/_/' + repository); 
+                                }
+//                                window.open("https://hub.docker.com/r/" + this.down('panel').getForm().findField("repository").getValue());
                             }
                         }
 
