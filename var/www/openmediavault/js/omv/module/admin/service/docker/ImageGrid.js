@@ -84,7 +84,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
         sortable: true,
         stateId: 'created'
     },{
-        xtype: "textcolumn",
+        xtype: "binaryunitcolumn",
         text: _("VIRTUAL SIZE"),
         dataIndex: 'size',
         sortable: true,
@@ -103,7 +103,7 @@ Ext.define("OMV.module.admin.service.docker.ImageGrid", {
                         { name: "tag", type: "string" },
                         { name: "id", type: "string" },
                         { name: "created", type: "string" },
-                        { name: "size", type: "string" },
+                        { name: "size", type: "integer" },
                         { name: "ports", type: "array" },
                         { name: "envvars", type: "array" },
                         { name: "imagevolumes", type: "array" }
