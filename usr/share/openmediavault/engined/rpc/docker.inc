@@ -1501,12 +1501,16 @@ class OMVRpcServiceDocker extends ServiceAbstract
                     $old_hash = trim(file_get_contents($local_hash_path));
                 }
                 if (strcmp($new_hash, $old_hash) !== 0) {
-                    $imagick = new Imagick($logo_url);
-                    $imagick->scaleImage(40, 40, true);
-                    $imagick->modulateImage(100, 0, 100);
-                    $imagick->writeImage($local_logo_path . $logo_name);
-                    $imagick->clear();
-                    file_put_contents($local_hash_path, $new_hash);
+                    try {
+                        $imagick = new Imagick($logo_url);
+                        $imagick->scaleImage(40, 40, true);
+                        $imagick->modulateImage(100, 0, 100);
+                        $imagick->writeImage($local_logo_path . $logo_name);
+                        $imagick->clear();
+                        file_put_contents($local_hash_path, $new_hash);
+                    } catch (ImagickException $e) {
+                        //Do nothing
+                    }
                 }
             }
         }
@@ -1704,7 +1708,7 @@ class OMVRpcServiceDocker extends ServiceAbstract
     }
 
     //throw new OMVModuleDockerException($cmd);
-    
+
     /**
      * Connect the selected container to a specific docker network
      *
