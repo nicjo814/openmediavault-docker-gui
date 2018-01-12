@@ -1,8 +1,8 @@
-openmediavault-docker-gui (4.0.2) UNRELEASED; urgency=medium
+openmediavault-docker-gui (4.0.2) zesty; urgency=medium
 
   * Fix for broken logo URLs
 
- -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 12 Jan 2018 19:25:10 +0100
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 12 Jan 2018 21:20:50 +0100
 
 openmediavault-docker-gui (4.0.1) stable; urgency=low
 
